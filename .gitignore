@@ -141,3 +141,5 @@ agent-service/CLAUDE.md
 
 # Ignoring local Claude Code artifacts (settings, worktrees, scratch)
 .claude/
+venv312/
+replace_texera.py
