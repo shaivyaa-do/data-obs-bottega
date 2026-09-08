@@ -17,16 +17,21 @@
  under the License.
 -->
 
-<texera-user-avatar
-  [avatar]="user?.avatar"
+<div
+  class="account-button"
   [nzDropdownMenu]="menu"
-  [userColor]="user?.color || ''"
-  [userName]="user?.name || ''"
-  nz-button
   nz-dropdown
-  nzPlacement="bottomRight"
+  nzPlacement="topRight"
   nzTrigger="click">
-</texera-user-avatar>
+  <span
+    class="account-avatar"
+    aria-hidden="true">
+    {{ initials }}
+  </span>
+  <span class="account-copy">
+    <span class="account-name">{{ user?.name }}</span>
+  </span>
+</div>
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu>
     <li

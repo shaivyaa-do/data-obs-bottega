@@ -17,177 +17,361 @@
  under the License.
 -->
 
-<main class="card">
-  <div class="brand">
-    <img
-      src="assets/logos/logo.png"
-      alt="DO Bottega" />
-    <div
-      nz-typography
-      nzType="secondary"
-      class="sub">
-      Data science, together
+<main class="page">
+  <div class="widget-section">
+    <div class="top-weather-card">
+      <div class="card-header-row">
+        <span class="card-location">{{ weather.location }}</span>
+        <svg
+          class="header-cloud-icon"
+          width="23"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="#ffffff"
+          aria-hidden="true">
+          <path
+            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" />
+        </svg>
+      </div>
+      <div class="card-middle-row">
+        <span class="card-temp">{{ weather.temp }}</span>
+        <div class="card-high-low-col">
+          <div>
+            <strong class="bold-head">H:</strong>
+            <span class="value-text">{{ weather.high }}</span>
+          </div>
+          <div>
+            <strong class="bold-head">L:</strong>
+            <span class="value-text">{{ weather.low }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-condition">{{ weather.condition }}</div>
+      <div class="card-bottom-row">
+        <div class="card-metric-col">
+          <span class="metric-heading">Precipitation</span>
+          <div class="metric-val">
+            <svg
+              class="mini-cloud-icon"
+              width="23"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="#ffffff"
+              aria-hidden="true">
+              <path
+                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" />
+            </svg>
+            {{ weather.precipitation }}
+          </div>
+        </div>
+        <div class="card-metric-col">
+          <span class="metric-heading">Wind</span>
+          <div class="metric-val">{{ weather.wind }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="center-widget-container">
+      <div class="time-widget">
+        <span class="date-text">{{ dateString }}</span>
+        <h1 class="time-text">{{ timeString }}</h1>
+      </div>
+
+      <div class="login-card">
+        <div class="brand visually-hidden">
+          <img
+            src="assets/logos/logo.png"
+            alt="DO Bottega" />
+          <div
+            nz-typography
+            nzType="secondary"
+            class="sub">
+            Data science, together
+          </div>
+        </div>
+
+        @if (config.env.localLogin) {
+        <nz-tabs
+          class="hidden-tabs"
+          [nzSelectedIndex]="mode === 'signin' ? 0 : 1"
+          (nzSelectedIndexChange)="setMode($event === 0 ? 'signin' : 'signup')">
+          <nz-tab nzTitle="Sign In"></nz-tab>
+          <nz-tab nzTitle="Sign Up"></nz-tab>
+        </nz-tabs>
+        }
+
+        @if (config.env.localLogin) {
+        <form
+          class="form"
+          [formGroup]="form"
+          (ngSubmit)="submit()">
+          @if (loginStep === "identity") {
+          <div class="login-title">Login</div>
+          } @else {
+          <button
+            type="button"
+            class="back-header"
+            (click)="backToIdentity()">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            <span>{{ form.get("username")?.value }}</span>
+          </button>
+          }
+
+          <div
+            class="step-identity"
+            [class.is-hidden]="loginStep !== 'identity'">
+            <div class="email-row">
+              <div class="email-input-box">
+                <span class="email-heading">Username</span>
+                <input
+                  type="text"
+                  formControlName="username"
+                  class="email-input-field"
+                  placeholder="name@company.com"
+                  autocomplete="username" />
+              </div>
+              <button
+                type="button"
+                class="arrow-button"
+                aria-label="Next step"
+                (click)="nextStep()">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="step-secret"
+            [class.is-hidden]="loginStep !== 'secret'">
+            @if (mode === "signup") {
+            <div class="full-width-input-box">
+              <span class="email-heading">Email</span>
+              <input
+                type="email"
+                formControlName="email"
+                class="email-input-field"
+                placeholder="Email"
+                autocomplete="email" />
+            </div>
+            }
+
+            <div class="email-row">
+              <div class="email-input-box">
+                <span class="email-heading">Password</span>
+                <div class="password-line">
+                  <input
+                    [type]="passwordVisible ? 'text' : 'password'"
+                    formControlName="password"
+                    class="email-input-field"
+                    placeholder=""
+                    [attr.autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'" />
+                  <nz-icon
+                    class="ant-input-password-icon"
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'"
+                    [nzType]="passwordVisible ? 'eye' : 'eye-invisible'"
+                    nzTheme="outline"
+                    (click)="togglePasswordVisibility()"
+                    (keydown.enter)="togglePasswordVisibility()" />
+                </div>
+              </div>
+              <button
+                class="arrow-button"
+                type="submit">
+                <span class="sr-only">{{ mode === "signup" ? "Sign up" : "Sign in" }}</span>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+
+            @if (mode === "signup") {
+            <div class="full-width-input-box">
+              <span class="email-heading">Confirm password</span>
+              <div class="password-line">
+                <input
+                  [type]="passwordVisible ? 'text' : 'password'"
+                  formControlName="confirm"
+                  class="email-input-field"
+                  placeholder=""
+                  autocomplete="new-password" />
+                <nz-icon
+                  class="ant-input-password-icon"
+                  role="button"
+                  tabindex="0"
+                  [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'"
+                  [nzType]="passwordVisible ? 'eye' : 'eye-invisible'"
+                  nzTheme="outline"
+                  (click)="togglePasswordVisibility()"
+                  (keydown.enter)="togglePasswordVisibility()" />
+              </div>
+            </div>
+            <p
+              nz-typography
+              nzType="secondary"
+              class="hint">
+              Password must be at least 6 characters. After registering, contact the DO Bottega administrator to
+              activate your account.
+            </p>
+
+            @if (config.env.emailVerification) {
+            <div class="code-row">
+              <div class="email-input-box code-input">
+                <span class="email-heading">Verification code</span>
+                <input
+                  formControlName="code"
+                  class="email-input-field"
+                  inputmode="numeric"
+                  maxlength="6"
+                  autocomplete="one-time-code"
+                  placeholder="" />
+              </div>
+              <button
+                class="code-button"
+                type="button"
+                (click)="sendCode()">
+                Get code
+              </button>
+            </div>
+            } }
+          </div>
+
+          <p class="error">{{ errorMessage }}</p>
+        </form>
+        }
+
+        <div class="provider-row">
+          <div
+            class="provider-button google-wrapper"
+            role="button"
+            tabindex="0"
+            aria-label="Google Sign In">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              aria-hidden="true">
+              <path
+                fill="#ffffff"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path
+                fill="#ffffff"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path
+                fill="#ffffff"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path
+                fill="#ffffff"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            @if (config.env.googleLogin) {
+            <div class="google-overlay">
+              <asl-google-signin-button
+                type="icon"
+                size="medium"
+                shape="circle"></asl-google-signin-button>
+            </div>
+            }
+          </div>
+          <button
+            type="button"
+            class="provider-button"
+            aria-label="Microsoft Sign In"
+            (click)="unavailableProvider('Microsoft')">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 23 23"
+              fill="#ffffff"
+              aria-hidden="true">
+              <path d="M1 1h10v10H1zM12 1h10v10H12zM1 12h10v10H1zM12 12h10v10H12z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="provider-button"
+            aria-label="GitLab Sign In"
+            (click)="unavailableProvider('GitLab')">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="#ffffff"
+              aria-hidden="true">
+              <path
+                d="M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 0 1-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 0 1 5.5 2a.43.43 0 0 1 .4.27l2.42 7.45h7.36l2.42-7.45A.43.43 0 0 1 18.5 2a.42.42 0 0 1 .39.23l2.44 7.51 1.22 3.78a.84.84 0 0 1-.3.94z" />
+            </svg>
+          </button>
+          @if (config.env.orcidLogin){
+          <button
+            class="orcid-login provider-button"
+            type="button"
+            [disabled]="!orcidConfig"
+            (click)="orcidLogin()">
+            <img
+              src="assets/logos/ORCID-iD_icon_24x24.png"
+              alt=""
+              class="orcid-icon" />
+            <span class="orcid-label sr-only">Continue with ORCID</span>
+          </button>
+          }
+        </div>
+
+        @if (config.env.localLogin && (config.env.googleLogin || config.env.orcidLogin)) {
+        <nz-divider
+          class="hidden-divider"
+          nzPlain
+          nzText="or continue with"></nz-divider>
+        }
+
+        @if (config.env.localLogin) {
+        <button
+          type="button"
+          class="mode-toggle"
+          (click)="setMode(mode === 'signin' ? 'signup' : 'signin')">
+          {{ mode === "signin" ? "Sign up" : "Sign in" }}
+        </button>
+        }
+
+        <p
+          nz-typography
+          nzType="secondary"
+          class="foot">
+          DO Bottega ·
+          <a
+            href="https://texera.apache.org/"
+            target="_blank"
+            rel="noopener"
+            >texera.apache.org</a
+          >
+        </p>
+      </div>
     </div>
   </div>
-
-  @if (config.env.localLogin) {
-  <nz-tabs
-    [nzSelectedIndex]="mode === 'signin' ? 0 : 1"
-    (nzSelectedIndexChange)="setMode($event === 0 ? 'signin' : 'signup')">
-    <nz-tab nzTitle="Sign In"></nz-tab>
-    <nz-tab nzTitle="Sign Up"></nz-tab>
-  </nz-tabs>
-  }
-
-  <div class="social-buttons">
-    @if (config.env.googleLogin) {
-    <div class="google-wrapper">
-      <asl-google-signin-button
-        type="standard"
-        size="large"
-        [width]="328"></asl-google-signin-button>
-    </div>
-    } @if (config.env.orcidLogin){
-    <button
-      class="orcid-login"
-      nz-button
-      [disabled]="!orcidConfig"
-      (click)="orcidLogin()">
-      <img
-        src="assets/logos/ORCID-iD_icon_24x24.png"
-        alt=""
-        class="orcid-icon" />
-      <span class="orcid-label">Continue with ORCID</span>
-    </button>
-    }
-  </div>
-
-  @if (config.env.localLogin && (config.env.googleLogin || config.env.orcidLogin)) {
-  <nz-divider
-    nzPlain
-    nzText="or continue with"></nz-divider>
-  } @if (config.env.localLogin) {
-  <form
-    class="form"
-    [formGroup]="form"
-    (ngSubmit)="submit()">
-    <nz-input-group
-      nzSize="large"
-      nzPrefixIcon="user">
-      <input
-        type="text"
-        nz-input
-        formControlName="username"
-        placeholder="Username"
-        autocomplete="username" />
-    </nz-input-group>
-
-    @if (mode === "signup") {
-    <nz-input-group
-      nzSize="large"
-      nzPrefixIcon="mail">
-      <input
-        type="email"
-        nz-input
-        formControlName="email"
-        placeholder="Email"
-        autocomplete="email" />
-    </nz-input-group>
-    }
-
-    <nz-input-group
-      nzSize="large"
-      nzPrefixIcon="lock"
-      [nzSuffix]="passwordToggle">
-      <input
-        [type]="passwordVisible ? 'text' : 'password'"
-        nz-input
-        formControlName="password"
-        placeholder="Password"
-        [attr.autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'" />
-    </nz-input-group>
-
-    @if (mode === "signup") {
-    <nz-input-group
-      nzSize="large"
-      nzPrefixIcon="lock"
-      [nzSuffix]="passwordToggle">
-      <input
-        [type]="passwordVisible ? 'text' : 'password'"
-        nz-input
-        formControlName="confirm"
-        placeholder="Confirm password"
-        autocomplete="new-password" />
-    </nz-input-group>
-    <p
-      nz-typography
-      nzType="secondary"
-      class="hint">
-      Password must be at least 6 characters. After registering, contact the DO Bottega administrator to activate your
-      account.
-    </p>
-
-    <!-- Present from the outset where verification is on, so the code reads as part of signing up
-         rather than as a step that appears once the form has been submitted. Sending is its own
-         button: mail reaches the address only when the user asks for it. -->
-    @if (config.env.emailVerification) {
-    <div class="code-row">
-      <nz-input-group
-        nzSize="large"
-        nzPrefixIcon="mail">
-        <input
-          nz-input
-          formControlName="code"
-          inputmode="numeric"
-          maxlength="6"
-          autocomplete="one-time-code"
-          placeholder="Verification code" />
-      </nz-input-group>
-      <button
-        nz-button
-        nzSize="large"
-        type="button"
-        (click)="sendCode()">
-        Get code
-      </button>
-    </div>
-    } }
-
-    <p class="error">{{ errorMessage }}</p>
-
-    <button
-      nz-button
-      nzType="primary"
-      nzSize="large"
-      nzBlock
-      type="submit">
-      {{ mode === "signup" ? "Sign up" : "Sign in" }}
-    </button>
-  </form>
-  }
-
-  <ng-template #passwordToggle>
-    <nz-icon
-      class="ant-input-password-icon"
-      role="button"
-      tabindex="0"
-      [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'"
-      [nzType]="passwordVisible ? 'eye' : 'eye-invisible'"
-      nzTheme="outline"
-      (click)="togglePasswordVisibility()"
-      (keydown.enter)="togglePasswordVisibility()" />
-  </ng-template>
-
-  <p
-    nz-typography
-    nzType="secondary"
-    class="foot">
-    DO Bottega ·
-    <a
-      href="https://texera.apache.org/"
-      target="_blank"
-      rel="noopener"
-      >texera.apache.org</a
-    >
-  </p>
 </main>

@@ -21,6 +21,7 @@
   [style.height]="dynamicHeight"
   style="overflow-y: auto">
   <nz-card
+    *ngIf="userId !== -1"
     class="section-title"
     [style.background]="backgroundColor">
     <h2
@@ -64,6 +65,10 @@
           <div class="info-box">
             <h2 class="info-heading">Total Result Cache Size</h2>
             <p class="info-content">{{ formatSize(this.totalQuotaSize) }}</p>
+          </div>
+          <div class="info-box">
+            <h2 class="info-heading">Cached Executions</h2>
+            <p class="info-content">{{ this.executionCollections.length }}</p>
           </div>
         </div>
       </nz-tab>

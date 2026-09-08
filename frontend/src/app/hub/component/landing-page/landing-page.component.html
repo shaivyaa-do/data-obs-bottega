@@ -20,30 +20,61 @@
 <div class="landing-page-container">
   <div class="section-intro">
     <div class="section-intro-text">
-      <h1>DO Bottega Hub</h1>
-      <p>
+      <h1>{{ isLogin ? "Dashboard" : "DO Bottega Hub" }}</h1>
+      <p *ngIf="!isLogin">
         Join our community to explore public workflows, collaborate with others, and enhance your data analytics
-        capabilities. Access
-        <a
-          href="javascript:void(0)"
-          (click)="navigateToSearch('workflow')">
-          {{workflowCount}} workflows
-        </a>
-        ,
-        <a
-          href="javascript:void(0)"
-          (click)="navigateToSearch('dataset')">
-          {{datasetCount}} datasets
-        </a>
-        and
-        <a
-          href="javascript:void(0)"
-          (click)="navigateToSearch('model')">
-          {{modelCount}} models
-        </a>
-        provided by DO Bottega and our community.
+        capabilities.
       </p>
     </div>
+  </div>
+
+  <div class="stat-grid">
+    <button
+      type="button"
+      class="stat-card"
+      (click)="navigateToSearch('workflow')">
+      <span class="stat-value">{{ workflowCount }}</span>
+      <span class="stat-label">Workflows</span>
+    </button>
+    <button
+      type="button"
+      class="stat-card"
+      (click)="navigateToSearch('dataset')">
+      <span class="stat-value">{{ datasetCount }}</span>
+      <span class="stat-label">Datasets</span>
+    </button>
+    <button
+      type="button"
+      class="stat-card"
+      (click)="navigateToSearch('model')">
+      <span class="stat-value">{{ modelCount }}</span>
+      <span class="stat-label">Models</span>
+    </button>
+  </div>
+
+  <div
+    *ngIf="isLogin"
+    class="shortcut-grid">
+    <a
+      class="shortcut-card"
+      [routerLink]="USER_WORKFLOW">
+      My Workflows
+    </a>
+    <a
+      class="shortcut-card"
+      [routerLink]="USER_DATASET">
+      My Datasets
+    </a>
+    <a
+      class="shortcut-card"
+      [routerLink]="USER_COMPUTING_UNIT">
+      Compute
+    </a>
+    <a
+      class="shortcut-card"
+      [routerLink]="USER_QUOTA">
+      Quota
+    </a>
   </div>
 
   <div>

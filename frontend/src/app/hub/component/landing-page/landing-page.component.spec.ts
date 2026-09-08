@@ -272,35 +272,58 @@ describe("LandingPageComponent", () => {
    * unexercised. A swapped or deleted binding here is invisible to the tests above.
    */
   describe("rendered template", () => {
-    /** The three intro anchors, in template order: workflows, datasets then models. */
-    function links() {
-      const found = fixture.debugElement.queryAll(By.css("a"));
+    /** Stat cards in template order: workflows, datasets then models. */
+    function statCards() {
+      const found = fixture.debugElement.queryAll(By.css(".stat-card"));
       expect(found.length).toBe(3);
       return found;
     }
 
-    it("shows the workflow, dataset and model counts, each in its own link", () => {
+    it("shows the workflow, dataset and model counts, each in its own card", () => {
       build();
       fixture.detectChanges(); // ngOnInit -> loadCounts
 
-      // The three counts differ (42 vs 7 vs 3), so a swapped interpolation cannot pass.
-      expect(links()[0].nativeElement.textContent.trim()).toBe("42 workflows");
-      expect(links()[1].nativeElement.textContent.trim()).toBe("7 datasets");
-      expect(links()[2].nativeElement.textContent.trim()).toBe("3 models");
+      expect(statCards()[0].nativeElement.textContent).toContain("42");
+      expect(statCards()[0].nativeElement.textContent).toContain("Workflows");
+      expect(statCards()[1].nativeElement.textContent).toContain("7");
+      expect(statCards()[1].nativeElement.textContent).toContain("Datasets");
+      expect(statCards()[2].nativeElement.textContent).toContain("3");
+      expect(statCards()[2].nativeElement.textContent).toContain("Models");
     });
 
-    it("routes to the workflow, dataset and model hubs from the three links in order", () => {
+    it("routes to the workflow, dataset and model hubs from the three cards in order", () => {
       build();
       fixture.detectChanges();
 
-      links()[0].triggerEventHandler("click", {});
+      statCards()[0].triggerEventHandler("click", {});
       expect(routerNavigateSpy).toHaveBeenLastCalledWith([HUB_WORKFLOW_RESULT]);
 
-      links()[1].triggerEventHandler("click", {});
+      statCards()[1].triggerEventHandler("click", {});
       expect(routerNavigateSpy).toHaveBeenLastCalledWith([HUB_DATASET_RESULT]);
 
-      links()[2].triggerEventHandler("click", {});
+      statCards()[2].triggerEventHandler("click", {});
       expect(routerNavigateSpy).toHaveBeenLastCalledWith([HUB_MODEL_RESULT]);
+    });
+
+    it("shows signed-in shortcuts to the user's own work", () => {
+      build();
+      fixture.detectChanges();
+
+      const shortcuts = fixture.debugElement.queryAll(By.css(".shortcut-card"));
+      expect(shortcuts.map(s => (s.nativeElement.textContent ?? "").trim())).toEqual([
+        "My Workflows",
+        "My Datasets",
+        "Compute",
+        "Quota",
+      ]);
+    });
+
+    it("hides signed-in shortcuts when there is no user", () => {
+      userService.user = undefined;
+      build();
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.queryAll(By.css(".shortcut-card")).length).toBe(0);
     });
 
     it("hands each browse section its own entity list, title and viewer id", () => {

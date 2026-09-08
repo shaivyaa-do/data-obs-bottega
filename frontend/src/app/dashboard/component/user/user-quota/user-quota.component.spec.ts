@@ -128,10 +128,8 @@ describe("UserQuotaComponent", () => {
     expect(component.textColor).toBe("Black");
     expect(component.dynamicHeight).toBe(""); // the modal's fixed height must not apply inline
 
-    const card = fixture.nativeElement.querySelector("nz-card") as HTMLElement;
-    expect(card.style.background).toBe("white");
-    const heading = fixture.nativeElement.querySelector("h2.page-title") as HTMLElement;
-    expect(heading.style.color.toLowerCase()).toBe("black");
+    expect(fixture.nativeElement.querySelector("nz-card")).toBeNull();
+    expect(fixture.nativeElement.querySelector("h2.page-title")).toBeNull();
     const scroller = fixture.nativeElement.querySelector("div") as HTMLElement;
     expect(scroller.style.height).toBe("");
   });

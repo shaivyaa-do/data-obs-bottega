@@ -17,19 +17,35 @@
  * under the License.
  */
 
+:host {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+}
+
 .nz-input-group {
   display: flex;
   align-items: center;
   margin: 0;
+  width: 100%;
+}
+
+:host ::ng-deep .ant-input-affix-wrapper {
+  height: 32px;
+  border-radius: 10px !important;
+  background: var(--app-bg-hover);
+  border: none !important;
+  box-shadow: none;
 }
 
 input[nz-input] {
   border: none;
   outline: none;
-  font-size: 17px;
+  font-size: 12.5px;
+  font-family: var(--app-font-sans);
   padding: 0 5px;
 }
 
 .nz-prefix-icon {
-  color: #888;
+  color: var(--app-text-tertiary);
 }

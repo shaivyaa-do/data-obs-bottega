@@ -42,8 +42,13 @@ import {
   USER_WORKFLOW,
   USER_FEEDBACK,
   LOGIN,
+  HOME,
+  HUB,
+  HUB_WORKFLOW,
+  HUB_DATASET,
+  HUB_MODEL,
+  SEARCH,
 } from "../../app-routing.constant";
-import { Version } from "../../../environments/version";
 import { SidebarTabs } from "../../common/type/gui-config";
 import { User } from "../../common/type/user";
 import { Role } from "../../common/type/user";
@@ -87,9 +92,9 @@ export class DashboardComponent implements OnInit {
 
   isAdmin: boolean = this.userService.isAdmin();
   isLogin = this.userService.isLogin();
-  public buildNumber: string = Version.buildNumber;
   displayForum: boolean = true;
   displayNavbar: boolean = true;
+  contentNarrow: boolean = true;
   isCollapsed: boolean = false;
   showLinks: boolean = false;
   logo: string = "";
@@ -130,6 +135,37 @@ export class DashboardComponent implements OnInit {
   protected readonly ADMIN_SETTINGS = ADMIN_SETTINGS;
   protected readonly ABOUT = ABOUT;
   protected readonly String = String;
+
+  private static readonly HEADER_TITLES: Array<[string, string]> = [
+    [USER_FEEDBACK, "Feedback"],
+    [USER_PYTHON_VENV, "Environments"],
+    [USER_COMPUTING_UNIT, "Compute"],
+    [USER_DISCUSSION, "Forum"],
+    [USER_DATASET, "Datasets"],
+    [USER_MODEL, "Models"],
+    [USER_QUOTA, "Quota"],
+    [USER_WORKFLOW, "Workflows"],
+    [ADMIN_EXECUTION, "Executions"],
+    [ADMIN_SETTINGS, "Settings"],
+    [ADMIN_GMAIL, "Gmail"],
+    [ADMIN_USER, "Users"],
+    [HUB_WORKFLOW, "Workflows"],
+    [HUB_DATASET, "Datasets"],
+    [HUB_MODEL, "Models"],
+    [SEARCH, "Search"],
+    [HUB, "Hub"],
+    [HOME, "Home"],
+    [ABOUT, "About"],
+    [LOGIN, "Sign in"],
+  ];
+
+  get headerTitle(): string {
+    const path = this.router.url.split("?")[0];
+    const match = DashboardComponent.HEADER_TITLES.find(
+      ([prefix]) => path === prefix || path.startsWith(`${prefix}/`)
+    );
+    return match?.[1] ?? "Workspace";
+  }
 
   constructor(
     private userService: UserService,
@@ -258,6 +294,7 @@ export class DashboardComponent implements OnInit {
   checkRoute() {
     const currentRoute = this.router.url;
     this.displayNavbar = this.isNavbarEnabled(currentRoute);
+    this.contentNarrow = this.isContentNarrow(currentRoute);
   }
 
   isNavbarEnabled(currentRoute: string) {
@@ -266,6 +303,15 @@ export class DashboardComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  isContentNarrow(currentRoute: string): boolean {
+    if (!this.isNavbarEnabled(currentRoute)) {
+      return false;
+    }
+    const path = currentRoute.split("?")[0];
+    const fullWidthPrefixes = [USER_WORKFLOW, USER_DATASET, HUB_WORKFLOW, HUB_DATASET];
+    return !fullWidthPrefixes.some(prefix => path === prefix || path.startsWith(`${prefix}/`));
   }
 
   handleCollapseChange(collapsed: boolean) {

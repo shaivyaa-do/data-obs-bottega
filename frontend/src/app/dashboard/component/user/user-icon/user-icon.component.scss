@@ -16,3 +16,102 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+:host {
+  display: inline-block;
+}
+
+.account-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.account-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: var(--app-bg-panel);
+  border: 1px solid var(--app-border-light);
+  color: var(--app-text-primary);
+  font-family: var(--app-font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  user-select: none;
+}
+
+.account-copy {
+  display: none;
+}
+
+.account-name {
+  display: none;
+}
+
+:host-context(.nav-footer) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+
+  .account-button {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    padding: 4px 6px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    align-items: center;
+
+    &:hover {
+      background: var(--app-bg-panel);
+    }
+  }
+
+  .account-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .account-name {
+    display: block;
+    font-family: var(--app-font-sans);
+    font-size: var(--app-font-size-label);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--app-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+:host-context(.nav-footer-collapsed) {
+  width: 32px;
+
+  .account-button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .account-copy {
+    display: none;
+  }
+}

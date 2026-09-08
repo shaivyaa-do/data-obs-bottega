@@ -748,7 +748,8 @@ export class JointUIService {
         text: "",
         "font-size": "11px",
         "font-weight": "bold",
-        "font-family": "'Inter', 'SF Pro Display', -apple-system, sans-serif",
+        "font-family":
+          "'SF Pro', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         visibility: "hidden",
         "ref-x": 0.5,
         "ref-y": 95,

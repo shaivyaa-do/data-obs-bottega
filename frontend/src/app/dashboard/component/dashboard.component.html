@@ -19,9 +19,12 @@
 
 <nz-layout class="layout">
   <nz-sider
+    class="nav-sider"
     nzCollapsible
-    [nzCollapsedWidth]="45"
-    (nzCollapsedChange)="handleCollapseChange($event)"
+    nzWidth="212"
+    [nzCollapsed]="isCollapsed"
+    [nzCollapsedWidth]="40"
+    [nzTrigger]="null"
     nzTheme="light">
     <ul
       nz-menu
@@ -36,8 +39,17 @@
         <img
           *ngIf="logo && !isCollapsed"
           alt="logo"
-          height="50"
+          class="logo-img"
           [src]="logo" />
+        <button
+          type="button"
+          class="nav-collapse-btn"
+          [attr.aria-label]="isCollapsed ? 'Expand navigation' : 'Collapse navigation'"
+          (click)="handleCollapseChange(!isCollapsed)">
+          <span
+            nz-icon
+            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></span>
+        </button>
       </li>
 
       <li
@@ -200,19 +212,6 @@
       </li>
 
       <li
-        *ngIf="sidebarTabs.about_enabled"
-        nz-menu-item
-        nz-tooltip
-        nzMatchRouter="true"
-        nzTooltipPlacement="right"
-        [routerLink]="ABOUT">
-        <span
-          nz-icon
-          nzType="info-circle"></span>
-        <span>About</span>
-      </li>
-
-      <li
         *ngIf="isLogin"
         nz-menu-item
         nz-tooltip
@@ -225,7 +224,13 @@
         <span>Feedback</span>
       </li>
     </ul>
-    <span id="build-number">Build: {{ buildNumber }}</span>
+    <div
+      class="nav-footer"
+      [class.nav-footer-collapsed]="isCollapsed">
+      <ng-container *ngIf="isLogin">
+        <texera-user-icon></texera-user-icon>
+      </ng-container>
+    </div>
     <span
       *ngIf="!isCollapsed && config.env.attributionEnabled"
       id="powered-by">
@@ -240,14 +245,13 @@
   </nz-sider>
 
   <div class="page-container">
-    <nz-layout class="page-content-layout">
-      <div
-        [hidden]="!displayNavbar"
+    <div class="context-card-container">
+      <header
+        *ngIf="displayNavbar"
+        class="shell-header"
         id="nav">
+        <div class="header-title">{{ headerTitle }}</div>
         <texera-search-bar></texera-search-bar>
-        <ng-container *ngIf="isLogin">
-          <texera-user-icon></texera-user-icon>
-        </ng-container>
         <a
           *ngIf="!isLogin"
           nz-button
@@ -257,11 +261,13 @@
           [routerLink]="LOGIN">
           Sign in
         </a>
-      </div>
+      </header>
 
-      <nz-content>
-        <router-outlet></router-outlet>
-      </nz-content>
-    </nz-layout>
+      <div class="context-card-box">
+        <nz-content [class.content-narrow]="contentNarrow">
+          <router-outlet></router-outlet>
+        </nz-content>
+      </div>
+    </div>
   </div>
 </nz-layout>

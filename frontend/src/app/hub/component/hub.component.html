@@ -31,7 +31,7 @@
     <span> Home </span>
   </li>
   <li
-    *ngIf="sidebarTabs.workflow_enabled"
+    *ngIf="!isLogin && sidebarTabs.workflow_enabled"
     nz-menu-item
     nz-tooltip="Search public workflows"
     nzMatchRouter="true"
@@ -43,7 +43,7 @@
     <span>Workflows</span>
   </li>
   <li
-    *ngIf="sidebarTabs.dataset_enabled"
+    *ngIf="!isLogin && sidebarTabs.dataset_enabled"
     nz-menu-item
     nz-tooltip="Search public dataset"
     nzMatchRouter="true"
@@ -55,7 +55,7 @@
     <span>Datasets</span>
   </li>
   <li
-    *ngIf="sidebarTabs.model_enabled"
+    *ngIf="!isLogin && sidebarTabs.model_enabled"
     nz-menu-item
     nz-tooltip="Search public models"
     nzMatchRouter="true"

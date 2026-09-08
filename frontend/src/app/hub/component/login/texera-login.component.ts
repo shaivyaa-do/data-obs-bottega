@@ -19,6 +19,7 @@
 
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, NgZone, OnInit } from "@angular/core";
+import { timer } from "rxjs";
 import {
   AbstractControl,
   FormBuilder,
@@ -39,8 +40,6 @@ import { GuiConfigService } from "../../../common/service/gui-config.service";
 import { USER_WORKFLOW } from "../../../app-routing.constant";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzTabComponent, NzTabsComponent } from "ng-zorro-antd/tabs";
-import { NzInputDirective, NzInputGroupComponent, NzInputGroupWhitSuffixOrPrefixDirective } from "ng-zorro-antd/input";
-import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzDividerComponent } from "ng-zorro-antd/divider";
 import { NzTypographyComponent } from "ng-zorro-antd/typography";
 import { ORCID_STATE_KEY, OrcidAuthService, OrcidConfig } from "../../../common/service/user/orcid-auth.service";
@@ -62,6 +61,27 @@ const ACCOUNT_CREATED =
   "Your account has been created. Please contact the Texera administrator to activate your account.";
 
 type LoginMode = "signin" | "signup";
+type LoginStep = "identity" | "secret";
+
+type LoginWeather = {
+  location: string;
+  temp: string;
+  condition: string;
+  high: string;
+  low: string;
+  precipitation: string;
+  wind: string;
+};
+
+const WEATHER_LOADING: LoginWeather = {
+  location: "Loading...",
+  temp: "--°",
+  condition: "--",
+  high: "--°",
+  low: "--°",
+  precipitation: "--%",
+  wind: "-- mph",
+};
 
 /**
  * Full-page login card: tabbed local sign-in / sign-up plus Google sign-in.
@@ -82,19 +102,19 @@ type LoginMode = "signin" | "signup";
     NzIconDirective,
     NzTabsComponent,
     NzTabComponent,
-    NzInputGroupComponent,
-    NzInputGroupWhitSuffixOrPrefixDirective,
-    NzInputDirective,
-    NzButtonComponent,
     NzDividerComponent,
     NzTypographyComponent,
   ],
 })
 export class TexeraLoginComponent implements OnInit {
   public mode: LoginMode = "signin";
+  public loginStep: LoginStep = "identity";
   public passwordVisible = false;
   public errorMessage: string | undefined;
   public form: FormGroup;
+  public dateString = "";
+  public timeString = "";
+  public weather: LoginWeather = { ...WEATHER_LOADING };
 
   // Undefined until the fetch in ngOnInit lands; the ORCID button stays disabled until then.
   // Protected rather than private because the template reads it for that disabled binding.
@@ -125,6 +145,9 @@ export class TexeraLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.startClock();
+    this.loadWeather();
+
     // Nothing on this page is useful to someone already signed in, so send them straight on.
     if (this.userService.isLogin()) {
       this.navigateAfterLogin();
@@ -183,6 +206,7 @@ export class TexeraLoginComponent implements OnInit {
 
   public setMode(mode: LoginMode): void {
     this.mode = mode;
+    this.loginStep = "identity";
     this.errorMessage = undefined;
     // Switching tabs abandons a half-finished signup; the code that was mailed expires on its own.
     this.form.controls.code.setValue("");
@@ -190,8 +214,105 @@ export class TexeraLoginComponent implements OnInit {
     this.form.controls.confirm.updateValueAndValidity();
   }
 
+  public nextStep(): void {
+    this.errorMessage = undefined;
+    const username = this.form.get("username")?.value?.trim();
+    const validation = UserService.validateUsername(username);
+    if (!validation.result) {
+      this.errorMessage = validation.message;
+      return;
+    }
+    this.loginStep = "secret";
+  }
+
+  public backToIdentity(): void {
+    this.loginStep = "identity";
+    this.errorMessage = undefined;
+  }
+
+  public unavailableProvider(name: string): void {
+    this.notificationService.error(`${name} sign-in is not configured for this deployment.`);
+  }
+
   public togglePasswordVisibility(): void {
     this.passwordVisible = !this.passwordVisible;
+  }
+
+  public refreshClock(now: Date = new Date()): void {
+    if (Number.isNaN(now.getTime())) {
+      this.dateString = "";
+      this.timeString = "";
+      return;
+    }
+
+    this.dateString = now
+      .toLocaleDateString("en-US", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      })
+      .replace(",", "");
+    this.timeString = now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+
+  private startClock(): void {
+    timer(0, 1000)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => this.refreshClock());
+  }
+
+  private loadWeather(): void {
+    const geo = typeof navigator === "undefined" ? undefined : navigator.geolocation;
+    if (!geo?.getCurrentPosition) {
+      void this.fetchWeather(19.076, 72.8777);
+      return;
+    }
+
+    geo.getCurrentPosition(
+      pos => void this.fetchWeather(pos.coords.latitude, pos.coords.longitude),
+      () => void this.fetchWeather(19.076, 72.8777)
+    );
+  }
+
+  public fetchWeather(lat: number, lon: number): Promise<void> {
+    if (typeof fetch !== "function") {
+      this.weather = { ...this.weather, location: "Unavailable" };
+      return Promise.resolve();
+    }
+
+    const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+    const metUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&windspeed_unit=mph&temperature_unit=fahrenheit`;
+
+    return Promise.all([fetch(geoUrl).then(r => r.json()), fetch(metUrl).then(r => r.json())])
+      .then(([geoData, metData]) => {
+        this.ngZone.run(() => {
+          const city = geoData?.city || geoData?.locality || geoData?.principalSubdivision || "Unknown";
+          if (!metData?.current_weather) {
+            this.weather = { ...this.weather, location: city };
+            return;
+          }
+          const { temperature, weathercode, windspeed } = metData.current_weather;
+          const { temperature_2m_max, temperature_2m_min, precipitation_sum } = metData.daily ?? {};
+          this.weather = {
+            location: city,
+            temp: `${Math.round(temperature)}°`,
+            condition: weathercode <= 3 ? "Sunny" : weathercode <= 67 ? "Rainy" : "Cloudy",
+            high: `${Math.round(temperature_2m_max?.[0] ?? 0)}°`,
+            low: `${Math.round(temperature_2m_min?.[0] ?? 0)}°`,
+            precipitation: `${precipitation_sum?.[0] ?? 0}%`,
+            wind: `${Math.round(windspeed)} mph`,
+          };
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          this.weather = { ...this.weather, location: "Unavailable" };
+        });
+      });
   }
 
   public submit(): void {

@@ -20,18 +20,16 @@
 import { Component } from "@angular/core";
 import { UserService } from "../../../../common/service/user/user.service";
 import { User } from "../../../../common/type/user";
-import { UntilDestroy } from "@ngneat/until-destroy";
+import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { Router } from "@angular/router";
-import { ABOUT } from "../../../../app-routing.constant";
-import { UserAvatarComponent } from "../user-avatar/user-avatar.component";
+import { LOGIN } from "../../../../app-routing.constant";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
 import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
 
 /**
- * UserIconComponent is used to control user system on the top right corner
- * It includes the button for login/registration/logout
- * It also includes what is shown on the top right
+ * Account control used in the left-nav footer (and the workflow editor toolbar).
+ * Clicking the avatar opens Sign Out.
  */
 @UntilDestroy()
 @Component({
@@ -39,7 +37,6 @@ import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
   templateUrl: "./user-icon.component.html",
   styleUrls: ["./user-icon.component.scss"],
   imports: [
-    UserAvatarComponent,
     ɵNzTransitionPatchDirective,
     NzDropdownDirective,
     NzDropdownMenuComponent,
@@ -50,11 +47,31 @@ import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
 export class UserIconComponent {
   public user: User | undefined;
 
+  get initials(): string {
+    const parts = (this.user?.name ?? "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    if (parts.length === 0) {
+      return "?";
+    }
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+
   constructor(
     private userService: UserService,
     private router: Router
   ) {
     this.user = this.userService.getCurrentUser();
+    this.userService
+      .userChanged()
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        this.user = this.userService.getCurrentUser();
+      });
   }
 
   /**
@@ -63,6 +80,6 @@ export class UserIconComponent {
   public onClickLogout(): void {
     this.userService.logout();
     document.cookie = "flarum_remember=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    this.router.navigate([ABOUT]);
+    this.router.navigate([LOGIN]);
   }
 }

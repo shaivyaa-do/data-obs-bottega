@@ -48,9 +48,13 @@ import {
   ADMIN_GMAIL,
   ADMIN_SETTINGS,
   ADMIN_USER,
+  HOME,
+  HUB_DATASET,
+  HUB_WORKFLOW,
   USER_COMPUTING_UNIT,
   USER_DATASET,
   USER_DISCUSSION,
+  USER_MODEL,
   USER_QUOTA,
   USER_WORKFLOW,
 } from "../../app-routing.constant";
@@ -258,6 +262,39 @@ describe("DashboardComponent", () => {
     expect(component.isNavbarEnabled("/user/workflow")).toBe(true);
   });
 
+  it("uses full-width content on workflow and dataset pages", () => {
+    expect(component.isContentNarrow(USER_WORKFLOW)).toBe(false);
+    expect(component.isContentNarrow(`${USER_WORKFLOW}/42`)).toBe(false);
+    expect(component.isContentNarrow(USER_DATASET)).toBe(false);
+    expect(component.isContentNarrow(`${USER_DATASET}/create`)).toBe(false);
+    expect(component.isContentNarrow(HUB_WORKFLOW)).toBe(false);
+    expect(component.isContentNarrow(HUB_DATASET)).toBe(false);
+  });
+
+  it("keeps narrow content on other dashboard pages", () => {
+    expect(component.isContentNarrow(HOME)).toBe(true);
+    expect(component.isContentNarrow(ABOUT)).toBe(true);
+    expect(component.isContentNarrow(USER_QUOTA)).toBe(true);
+    expect(component.isContentNarrow(USER_MODEL)).toBe(true);
+  });
+
+  it("does not apply content-narrow on workflow and dataset routes", () => {
+    (routerMock as { url: string }).url = USER_WORKFLOW;
+    component.checkRoute();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeNull();
+
+    (routerMock as { url: string }).url = USER_DATASET;
+    component.checkRoute();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeNull();
+
+    (routerMock as { url: string }).url = USER_QUOTA;
+    component.checkRoute();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeTruthy();
+  });
+
   it("exposes route constants without the legacy /dashboard prefix", () => {
     expect(USER_WORKFLOW).toBe("/user/workflow");
     expect(USER_DATASET).toBe("/user/dataset");
@@ -292,9 +329,9 @@ describe("DashboardComponent", () => {
     };
     fixture.detectChanges();
 
-    // 7 "Your Work" links (incl. Python Venvs and Models) + 4 admin links + 1 about link
-    // + 1 feedback link = 13
-    expect(fixture.debugElement.queryAll(By.directive(RouterLink)).length).toBe(13);
+    // 7 "Your Work" links (incl. Python Venvs and Models) + 4 admin links
+    // + 1 feedback link = 12 (About is not in the signed-in nav)
+    expect(fixture.debugElement.queryAll(By.directive(RouterLink)).length).toBe(12);
   });
 
   describe("sidebar active-route highlighting (#3490)", () => {
@@ -330,10 +367,8 @@ describe("DashboardComponent", () => {
       fixture.detectChanges();
     });
 
-    it("enables nzMatchRouter on the About item so it highlights when active", () => {
-      const about = menuItemByLabel("About");
-      expect(about).toBeTruthy();
-      expect(about!.componentInstance.nzMatchRouter).toBe(true);
+    it("does not render an About item in the signed-in sidebar", () => {
+      expect(menuItemByLabel("About")).toBeUndefined();
     });
 
     it("enables nzMatchRouter on the Feedback item so it highlights when active", () => {

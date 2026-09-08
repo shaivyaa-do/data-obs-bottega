@@ -85,11 +85,16 @@ describe("TexeraLoginComponent", () => {
   };
 
   beforeEach(async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("no network in tests"))
+    );
     await createComponent();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("should create the component", () => {
@@ -638,7 +643,7 @@ describe("TexeraLoginComponent", () => {
         expect(input("email")).toBeTruthy();
         expect(input("confirm")).toBeTruthy();
         expect(host().querySelector("p.hint")?.textContent?.replace(/\s+/g, " ").trim()).toBe(
-          "Password must be at least 6 characters. After registering, contact the Texera administrator to activate your account."
+          "Password must be at least 6 characters. After registering, contact the DO Bottega administrator to activate your account."
         );
         expect(submitButton()?.textContent?.trim()).toBe("Sign up");
       });
@@ -719,6 +724,132 @@ describe("TexeraLoginComponent", () => {
         expect(component.passwordVisible).toBe(false);
         expect(input("password")?.type).toBe("password");
         expect(input("confirm")?.type).toBe("password");
+      });
+    });
+
+    describe("two-step visual", () => {
+      beforeEach(() => render({ localLogin: true, googleLogin: true, orcidLogin: true }));
+
+      it("starts on the identity step and keeps both sign-in inputs in the DOM", () => {
+        expect(component.loginStep).toBe("identity");
+        expect(input("username")).toBeTruthy();
+        expect(input("password")).toBeTruthy();
+        expect(host().querySelector(".step-identity")).toBeTruthy();
+      });
+
+      it("advances to the password step when the username is valid", () => {
+        component.form.patchValue({ username: "alice" });
+        component.nextStep();
+        fixture.detectChanges();
+
+        expect(component.loginStep).toBe("secret");
+        expect(component.errorMessage).toBeUndefined();
+      });
+
+      it("stays on the identity step when the username is blank", () => {
+        component.form.patchValue({ username: "   " });
+        component.nextStep();
+
+        expect(component.loginStep).toBe("identity");
+        expect(component.errorMessage).toBeTruthy();
+        expect(userServiceMock.login).not.toHaveBeenCalled();
+      });
+
+      it("resets to the identity step when the mode changes", () => {
+        component.form.patchValue({ username: "alice" });
+        component.nextStep();
+        component.setMode("signup");
+
+        expect(component.loginStep).toBe("identity");
+      });
+    });
+
+    describe("catalog chrome", () => {
+      it("renders the time and weather widgets around the existing form", () => {
+        render({ localLogin: true, googleLogin: false, orcidLogin: false });
+
+        expect(host().querySelector(".time-widget")).toBeTruthy();
+        expect(host().querySelector(".top-weather-card")).toBeTruthy();
+        expect(host().querySelector("form")).toBeTruthy();
+      });
+
+      it("formats a valid clock date by stripping the locale comma", () => {
+        const now = new Date("2026-09-08T23:19:00");
+        vi.spyOn(now, "toLocaleDateString").mockReturnValue("Tue, 8 Sep");
+        vi.spyOn(now, "toLocaleTimeString").mockReturnValue("23:19");
+
+        component.refreshClock(now);
+
+        expect(component.dateString).toBe("Tue 8 Sep");
+        expect(component.timeString).toBe("23:19");
+      });
+
+      it("clears the clock strings when given an invalid date", () => {
+        component.refreshClock(new Date("not-a-date"));
+
+        expect(component.dateString).toBe("");
+        expect(component.timeString).toBe("");
+      });
+
+      it("fills the weather card from the catalog Open-Meteo payload", async () => {
+        const fetchMock = vi
+          .fn()
+          .mockResolvedValueOnce({
+            json: async () => ({ city: "Ashta" }),
+          })
+          .mockResolvedValueOnce({
+            json: async () => ({
+              current_weather: { temperature: 75.4, weathercode: 1, windspeed: 4.2 },
+              daily: { temperature_2m_max: [85], temperature_2m_min: [73], precipitation_sum: [1.9] },
+            }),
+          });
+        vi.stubGlobal("fetch", fetchMock);
+
+        await component.fetchWeather(19.076, 72.8777);
+
+        expect(fetchMock).toHaveBeenCalledWith(
+          expect.stringContaining("api.bigdatacloud.net/data/reverse-geocode-client")
+        );
+        expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("api.open-meteo.com/v1/forecast"));
+        expect(component.weather).toEqual({
+          location: "Ashta",
+          temp: "75°",
+          condition: "Sunny",
+          high: "85°",
+          low: "73°",
+          precipitation: "1.9%",
+          wind: "4 mph",
+        });
+      });
+
+      it("marks weather unavailable when the catalog weather request fails", async () => {
+        vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
+
+        await component.fetchWeather(19.076, 72.8777);
+
+        expect(component.weather.location).toBe("Unavailable");
+      });
+
+      it("still requests the catalog Mumbai fallback when geolocation is missing", () => {
+        const fetchMock = vi.fn().mockReturnValue(new Promise(() => {}));
+        vi.stubGlobal("fetch", fetchMock);
+        const original = navigator.geolocation;
+        Object.defineProperty(navigator, "geolocation", { configurable: true, value: undefined });
+
+        component.ngOnInit();
+
+        expect(fetchMock.mock.calls.some((call: unknown[]) => String(call[0]).includes("latitude=19.076"))).toBe(
+          true
+        );
+        Object.defineProperty(navigator, "geolocation", { configurable: true, value: original });
+      });
+
+      it("renders Microsoft and GitLab logos beside Google", () => {
+        render({ localLogin: true, googleLogin: true, orcidLogin: false });
+
+        expect(host().querySelector('[aria-label="Google Sign In"]')).toBeTruthy();
+        expect(host().querySelector('[aria-label="Microsoft Sign In"]')).toBeTruthy();
+        expect(host().querySelector('[aria-label="GitLab Sign In"]')).toBeTruthy();
       });
     });
   });

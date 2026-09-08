@@ -19,6 +19,169 @@
 
 @import "@ali-hm/angular-tree-component/css/angular-tree-component.css";
 
+:root {
+  --app-font-sans: "SF Pro", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --app-font-display: "SF Pro", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --app-font-mono: "Share Tech Mono", monospace;
+
+  --app-font-size-nano: 9.5px;
+  --app-font-size-section-title: 10.5px;
+  --app-font-size-label: 11.5px;
+  --app-font-size-sm: 11.5px;
+  --app-font-size-caption: 12.5px;
+  --app-font-size-body: 12.5px;
+  --app-font-size-body-lg: 15.5px;
+  --app-font-size-display-lg: 19.5px;
+  --app-line-height-base: 1.4;
+
+  --app-text-primary: rgba(24, 24, 27, 0.9);
+  --app-text-secondary: rgba(24, 24, 27, 0.7);
+  --app-text-tertiary: rgba(24, 24, 27, 0.5);
+  --app-text-quaternary: rgba(24, 24, 27, 0.3);
+  --app-text-label-tag: rgba(24, 24, 27, 0.3);
+  --app-text-disabled: rgba(24, 24, 27, 0.3);
+
+  --app-primary: #0078d4;
+  --app-color-focus: #1a73e8;
+  --app-left-nav-bg: #f4f4f5;
+  --app-bg-default: #ffffff;
+  --app-bg-panel: #ffffff;
+  --app-bg-hover: #f4f4f5;
+  --app-bg-active: #e4e4e7;
+  --app-bg-canvas: #f4f4f5;
+  --app-border-light: #e4e4e7;
+  --app-border-subtle: rgba(0, 0, 0, 0.06);
+  --app-settings-surface-bg: #f4f4f5;
+  --app-icon-hover-bg: #f4f4f5;
+
+  --app-color-success: #107c10;
+  --app-color-error: #c50f1f;
+  --app-color-warning: #d83b01;
+  --app-color-info: #0078d4;
+
+  --app-orange-brand: #e84917;
+  --app-orange-accent: #e66e19;
+  --app-orange-bright: #f97316;
+  --app-orange-action: #c96e29;
+  --app-orange-metric: #dc843e;
+  --app-orange-amber: #d97706;
+  --app-orange-terracotta: #e07a5f;
+
+  --app-badge-new: #16a34a;
+  --app-badge-unlimited: #b45309;
+  --app-badge-fast: #db2777;
+
+  --app-space-xxs: 2px;
+  --app-space-xs: 4px;
+  --app-space-sm: 8px;
+  --app-space-md: 12px;
+  --app-space-lg: 16px;
+  --app-space-xl: 24px;
+  --app-space-xxl: 32px;
+
+  --app-squircle-ratio: 20%;
+  --app-radius-xs: 10px;
+  --app-radius-sm: 12px;
+  --app-radius-md: 16px;
+  --app-radius-layout: 18px;
+  --app-radius-lg: 20px;
+  --app-radius-xl: 28px;
+  --app-radius-pill: 9999px;
+
+  --app-elevated-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --antd-wave-shadow-color: var(--app-primary);
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: var(--app-font-sans);
+  font-size: var(--app-font-size-body);
+  line-height: var(--app-line-height-base);
+  color: var(--app-text-primary);
+  background: var(--app-bg-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--app-font-display);
+  color: var(--app-text-primary);
+}
+
+button,
+input,
+select,
+textarea,
+label,
+.ant-btn,
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-select,
+.ant-select-selector,
+.ant-dropdown,
+.ant-menu,
+.ant-modal,
+.ant-drawer,
+.ant-tooltip,
+.ant-popover,
+.ant-form,
+.ant-form-item-label > label,
+.ant-tabs,
+.ant-pagination,
+.ant-table,
+.ant-card,
+.ant-list,
+.ant-empty,
+.ant-alert,
+.ant-message,
+.ant-notification,
+.ant-picker,
+.ant-checkbox-wrapper,
+.ant-radio-wrapper,
+.ant-tag,
+.ant-badge,
+.ant-breadcrumb,
+.ant-page-header,
+.ant-typography,
+.ant-collapse,
+.ant-steps,
+.ant-upload,
+.ant-layout,
+.ant-layout-header,
+.ant-layout-content,
+.ant-layout-sider {
+  font-family: var(--app-font-sans);
+}
+
+.ant-modal-title,
+.ant-drawer-title,
+.ant-page-header-heading-title,
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography h4,
+.ant-typography h5,
+.ant-typography h6 {
+  font-family: var(--app-font-display);
+}
+
+:where(button, [role="button"], a, [tabindex]):focus-visible {
+  outline: 2px solid var(--app-color-focus);
+  outline-offset: 2px;
+}
+
 .ant-menu-item,
 .ant-menu-submenu-title,
 img {
@@ -458,4 +621,118 @@ hr {
       margin-top: 2px;
     }
   }
+}
+
+body {
+  a:not([class]) {
+    color: var(--app-primary);
+  }
+}
+
+.ant-btn-primary {
+  background: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+  color: #ffffff !important;
+  border-radius: var(--app-radius-xs);
+  font-family: var(--app-font-sans);
+  font-weight: 500;
+
+  &:hover,
+  &:focus {
+    background: color-mix(in srgb, var(--app-primary) 88%, #000000) !important;
+    border-color: color-mix(in srgb, var(--app-primary) 88%, #000000) !important;
+  }
+}
+
+.ant-btn {
+  font-family: var(--app-font-sans);
+  border-radius: var(--app-radius-xs);
+}
+
+.ant-btn-link,
+.ant-btn-text {
+  color: var(--app-primary);
+}
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  font-family: var(--app-font-sans);
+  font-size: var(--app-font-size-body);
+  border-radius: var(--app-radius-sm) !important;
+  border-color: var(--app-border-light) !important;
+}
+
+.ant-card {
+  border-radius: var(--app-radius-md);
+  border-color: var(--app-border-light);
+  background: var(--app-bg-panel);
+}
+
+.ant-modal-content {
+  border-radius: var(--app-radius-layout);
+}
+
+.ant-tabs-ink-bar {
+  background: var(--app-primary) !important;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--app-primary) !important;
+}
+
+texera-login {
+  .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: rgba(24, 24, 27, 0.9) !important;
+  }
+
+  .ant-input-affix-wrapper,
+  .ant-input {
+    border: none !important;
+    border-radius: 18px !important;
+    background: transparent;
+  }
+}
+
+.ant-checkbox-checked .ant-checkbox-inner,
+.ant-switch-checked,
+.ant-radio-checked .ant-radio-inner {
+  background-color: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+}
+
+.ant-pagination-item-active {
+  border-color: var(--app-primary) !important;
+
+  a {
+    color: var(--app-primary) !important;
+  }
+}
+
+.ant-menu-item-selected {
+  background: var(--app-bg-panel) !important;
+  color: var(--app-text-primary) !important;
+}
+
+.ant-menu-item::after,
+.ant-menu-item-selected::after {
+  display: none !important;
+  border: none !important;
+}
+
+.ant-tag {
+  border-radius: var(--app-radius-pill);
+  font-size: var(--app-font-size-nano);
+}
+
+.ant-table {
+  font-family: var(--app-font-sans);
+  font-size: var(--app-font-size-body);
+  color: var(--app-text-primary);
+}
+
+.ant-layout {
+  background: transparent;
 }

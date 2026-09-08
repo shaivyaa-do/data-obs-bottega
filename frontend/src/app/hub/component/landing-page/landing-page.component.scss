@@ -20,11 +20,12 @@
 .landing-page-container {
   display: flex;
   flex-direction: column;
-  padding: 0 133px;
+  padding: 0 32px;
   align-items: center;
   height: 100%;
   width: 100%;
   overflow-y: auto;
+  background: var(--app-bg-panel);
 }
 
 .search-bar {
@@ -34,8 +35,8 @@
 
 .section-intro {
   max-width: 1400px;
-  margin-top: 20px;
-  padding: 20px 0;
+  margin-top: 16px;
+  padding: 16px 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -47,16 +48,86 @@
 }
 
 .section-intro-text > h1 {
-  font-size: 40px;
-  font-weight: bold;
+  font-family: var(--app-font-display);
+  font-size: 19.5px;
+  font-weight: 600;
+  line-height: 1.4;
   margin: 0;
+  color: var(--app-text-primary);
+}
+
+.stat-grid,
+.shortcut-grid {
+  max-width: 1400px;
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.stat-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.shortcut-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+
+.stat-card,
+.shortcut-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--app-bg-canvas);
+  box-shadow: 0 0 0 1px var(--app-border-subtle);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--app-font-sans);
+  color: var(--app-text-primary);
+  text-decoration: none;
+}
+
+.stat-card:hover,
+.shortcut-card:hover {
+  background: var(--app-bg-panel);
+}
+
+.stat-value {
+  font-family: var(--app-font-display);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stat-label,
+.shortcut-card {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+}
+
+.shortcut-card {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--app-text-primary);
 }
 
 .section-intro-text > p {
-  color: grey;
-  font-size: 13px;
-  font-weight: 300;
-  margin-bottom: 20px;
+  color: var(--app-text-secondary);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.4;
+  margin-bottom: 16px;
+  margin-top: 8px;
+}
+
+.section-intro-text > p a {
+  color: var(--app-primary);
 }
 
 .section-intro-img {
@@ -66,5 +137,5 @@
 .browse-section {
   max-width: 1200px;
   width: 100%;
-  padding-bottom: 40px;
+  padding-bottom: 32px;
 }

@@ -39,7 +39,7 @@ import { formatSize } from "src/app/common/util/size-formatter.util";
 import { NzCardComponent } from "ng-zorro-antd/card";
 import { NzTabsComponent, NzTabComponent } from "ng-zorro-antd/tabs";
 import { NzCollapseComponent, NzCollapsePanelComponent } from "ng-zorro-antd/collapse";
-import { NgFor } from "@angular/common";
+import { NgFor, NgIf } from "@angular/common";
 import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
@@ -60,6 +60,7 @@ type UserServiceType = AdminUserService | UserQuotaService;
     NzTabComponent,
     NzCollapseComponent,
     NgFor,
+    NgIf,
     NzCollapsePanelComponent,
     NzTableComponent,
     NzTheadComponent,
@@ -95,10 +96,10 @@ export class UserQuotaComponent implements OnInit {
   datasetList: ReadonlyArray<DatasetQuota> = [];
   workflows: Array<WorkflowQuota> = [];
   UserService: UserServiceType;
-  DEFAULT_PIE_CHART_WIDTH = 480;
-  DEFAULT_PIE_CHART_HEIGHT = 340;
-  DEFAULT_LINE_CHART_WIDTH = 480;
-  DEFAULT_LINE_CHART_HEIGHT = 340;
+  DEFAULT_PIE_CHART_WIDTH = 280;
+  DEFAULT_PIE_CHART_HEIGHT = 220;
+  DEFAULT_LINE_CHART_WIDTH = 280;
+  DEFAULT_LINE_CHART_HEIGHT = 220;
 
   constructor(
     private adminUserService: AdminUserService,
@@ -135,7 +136,7 @@ export class UserQuotaComponent implements OnInit {
         text: title,
       },
     };
-    Plotly.newPlot(chart, data, layout);
+    Plotly.newPlot(chart, data, layout, { displayModeBar: false, responsive: true });
   }
 
   filterOutdatedData(data: Array<[string, number]>): Array<[string, number]> {
@@ -237,7 +238,7 @@ export class UserQuotaComponent implements OnInit {
       },
     };
 
-    Plotly.newPlot(chart, data, layout);
+    Plotly.newPlot(chart, data, layout, { displayModeBar: false, responsive: true });
   }
 
   refreshData() {

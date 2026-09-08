@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="23" failures="0" errors="0" time="0.515207917">
+    <testsuite name="src/app/dashboard/component/dashboard.component.spec.ts" timestamp="2026-09-08T21:01:26.851Z" hostname="Shaivyaas-MacBook-Air.local" tests="23" failures="0" errors="0" skipped="0" time="0.515207917">
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should create the component" time="0.1323995">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should render a sign-in link, not a provider button, when the user is NOT logged in" time="0.050630833">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should not render the sign-in link when the user IS logged in" time="0.031161083">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should render the powered-by attribution when attributionEnabled is true" time="0.010110292">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; stores the flarum_remember cookie on successful auth and does not register" time="0.008076542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; hides the forum and does not register when auth fails with 404/500" time="0.013579792">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; registers at most once and stops when auth keeps failing (no infinite loop)" time="0.021997375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; hides the forum when registration fails" time="0.014516667">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; does nothing when a flarum_remember cookie is already present" time="0.007417917">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should hide the navbar on workflow workspace routes" time="0.015929417">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; uses full-width content on workflow and dataset pages" time="0.008007042">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; keeps narrow content on other dashboard pages" time="0.028060458">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; does not apply content-narrow on workflow and dataset routes" time="0.03216925">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; exposes route constants without the legacy /dashboard prefix" time="0.011384167">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; renders every sidebar tab&apos;s routerLink when fully enabled" time="0.032334459">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; sidebar active-route highlighting (#3490) &gt; does not render an About item in the signed-in sidebar" time="0.027036708">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; sidebar active-route highlighting (#3490) &gt; enables nzMatchRouter on the Feedback item so it highlights when active" time="0.019464833">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; sidebar active-route highlighting (#3490) &gt; (reference) Your Work items already enable nzMatchRouter" time="0.013866417">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; applies logo, mini logo, and favicon from the public settings" time="0.0062325">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; keeps the default branding when the settings are missing or the fetch fails" time="0.005631583">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; toggles sidebar tabs from the public settings and treats missing keys as disabled" time="0.007571334">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; leaves tabs unchanged when the settings fetch fails" time="0.011360208">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; hides every tab until the settings load (no hardcoded default copy)" time="0.00524225">
+        </testcase>
+    </testsuite>
+</testsuites>

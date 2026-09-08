@@ -125,6 +125,18 @@ describe("HubComponent", () => {
     expect(labels[0]).toContain("Home");
   });
 
+  it("hides public Workflows, Datasets and Models when the user is signed in", () => {
+    setup(
+      true,
+      makeSidebarTabs({ home_enabled: true, workflow_enabled: true, dataset_enabled: true, model_enabled: true })
+    );
+    const labels = renderedMenuLabels();
+    expect(labels.some(l => l.includes("Home"))).toBe(true);
+    expect(labels.some(l => l.includes("Workflows"))).toBe(false);
+    expect(labels.some(l => l.includes("Datasets"))).toBe(false);
+    expect(labels.some(l => l.includes("Models"))).toBe(false);
+  });
+
   it("renders only the Workflows item when workflow_enabled is the only flag set", () => {
     setup(false, makeSidebarTabs({ workflow_enabled: true }));
     const labels = renderedMenuLabels();

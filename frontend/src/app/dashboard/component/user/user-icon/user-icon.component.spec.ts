@@ -25,9 +25,8 @@ import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { StubUserService } from "../../../../common/service/user/stub-user.service";
 import { NzDropDownModule } from "ng-zorro-antd/dropdown";
 import { RouterTestingModule } from "@angular/router/testing";
-import { AboutComponent } from "../../../../hub/component/about/about.component";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
-import { ABOUT } from "../../../../app-routing.constant";
+import { LOGIN } from "../../../../app-routing.constant";
 
 describe("UserIconComponent", () => {
   let component: UserIconComponent;
@@ -38,7 +37,7 @@ describe("UserIconComponent", () => {
       providers: [{ provide: UserService, useClass: StubUserService }, ...commonTestProviders],
       imports: [
         UserIconComponent,
-        RouterTestingModule.withRoutes([{ path: "home", component: AboutComponent }]),
+        RouterTestingModule.withRoutes([{ path: "login", component: UserIconComponent }]),
         HttpClientTestingModule,
         NzDropDownModule,
       ],
@@ -55,8 +54,41 @@ describe("UserIconComponent", () => {
     expect(component).toBeTruthy();
   });
 
+  describe("account row", () => {
+    it("shows two-letter initials instead of a colored avatar", () => {
+      component.user = { ...component.user!, name: "shaivyaa sharma" };
+      fixture.detectChanges();
+
+      const avatar = fixture.nativeElement.querySelector(".account-avatar") as HTMLElement;
+      expect(avatar.textContent.trim()).toBe("SS");
+      expect(fixture.nativeElement.querySelector("texera-user-avatar")).toBeNull();
+      expect(fixture.nativeElement.querySelector(".account-name").textContent.trim()).toBe("shaivyaa sharma");
+    });
+
+    it("uses the first two letters of a single-word name", () => {
+      component.user = { ...component.user!, name: "shaivyaa" };
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector(".account-avatar").textContent.trim()).toBe("SH");
+    });
+
+    it("falls back to a placeholder when the name is empty", () => {
+      component.user = { ...component.user!, name: "   " };
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector(".account-avatar").textContent.trim()).toBe("?");
+    });
+
+    it("does not show a build label", () => {
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("#build-number")).toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain("Build:");
+    });
+  });
+
   describe("onClickLogout", () => {
-    it("navigates to /about (no /dashboard prefix) after logout", () => {
+    it("navigates to /login after logout", () => {
       const router = TestBed.inject(Router);
       const navigateSpy = vi.spyOn(router, "navigate").mockResolvedValue(true);
       const userService = TestBed.inject(UserService);
@@ -65,8 +97,8 @@ describe("UserIconComponent", () => {
       component.onClickLogout();
 
       expect(logoutSpy).toHaveBeenCalledTimes(1);
-      expect(navigateSpy).toHaveBeenCalledWith([ABOUT]);
-      expect(ABOUT).toBe("/about");
+      expect(navigateSpy).toHaveBeenCalledWith([LOGIN]);
+      expect(LOGIN).toBe("/login");
     });
 
     it("clears the flarum_remember cookie on logout", () => {

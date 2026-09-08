@@ -21,19 +21,20 @@ import { Component, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { ActionType, EntityType, HubService } from "../../service/hub.service";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { SearchService } from "../../../dashboard/service/user/search.service";
 import { DashboardEntry } from "../../../dashboard/type/dashboard-entry";
-import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT } from "../../../app-routing.constant";
+import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT, USER_COMPUTING_UNIT, USER_DATASET, USER_QUOTA, USER_WORKFLOW } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
 import { BrowseSectionComponent } from "../browse-section/browse-section.component";
+import { NgIf } from "@angular/common";
 
 @UntilDestroy()
 @Component({
   selector: "texera-landing-page",
   templateUrl: "./landing-page.component.html",
   styleUrls: ["./landing-page.component.scss"],
-  imports: [BrowseSectionComponent],
+  imports: [BrowseSectionComponent, NgIf, RouterLink],
 })
 export class LandingPageComponent implements OnInit {
   public isLogin = this.userService.isLogin();
@@ -45,6 +46,10 @@ export class LandingPageComponent implements OnInit {
   public topClonedWorkflows: DashboardEntry[] = [];
   public topLovedDatasets: DashboardEntry[] = [];
   public topLovedModels: DashboardEntry[] = [];
+  protected readonly USER_WORKFLOW = USER_WORKFLOW;
+  protected readonly USER_DATASET = USER_DATASET;
+  protected readonly USER_COMPUTING_UNIT = USER_COMPUTING_UNIT;
+  protected readonly USER_QUOTA = USER_QUOTA;
 
   constructor(
     private hubService: HubService,

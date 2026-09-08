@@ -17,62 +17,33 @@
  * under the License.
  */
 
-/**
-  * grid of the second row which contains the search bar
-  **/
-.section-search-bar {
-  grid-row-start: 2;
-  grid-row-end: 3;
-  margin-left: 10px;
-  gap: 10px;
-  display: flex;
-  padding: 4px 24px;
-  align-items: center;
-
-  .search-input-box {
-    width: 100%;
-  }
-}
-
-/**
-  * Create a 3*1 grid area
-  * The first row contains add and sort button.
-  * The second row contains the search bar.
-  * The third row contains the saved workflow/files list.
-  *
-  * This layout is shared between workflows and files section.
-  *
-  *              ******************
-  *              *                *
-  *              ******************
-  *              *                *
-  *              ******************
-  *              *                *
-  *              *                *
-  *              *                *
-  *              ******************
-  **/
-$section-header-height: 124px;
-$section-search-bar-height: 60px;
-$dashboard-navigation-height: 76px;
-
 .section-container {
-  display: grid;
-  grid-template-rows:
-    $section-header-height
-    $section-search-bar-height
-    calc((100% - #{$section-header-height} - #{$section-search-bar-height}));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  background: var(--app-bg-panel);
 }
 
-/**
-  * grid of the first row which contains title and utility buttons
-  **/
 .section-title {
-  grid-row-start: 1;
-  grid-row-end: 2;
+  flex: 0 0 auto;
+  height: auto !important;
+  align-self: stretch;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 
   .page-title {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--app-font-display);
+    font-size: var(--app-font-size-body-lg);
+    font-weight: 600;
+    line-height: 32px;
+    margin: 0;
+    color: var(--app-text-primary);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .management-panel {
@@ -81,10 +52,6 @@ $dashboard-navigation-height: 76px;
     justify-content: space-between;
   }
 
-  // .utility-button-group {
-  //   float: left;
-  // }
-
   .go-back-button {
     position: absolute;
     left: 20px;
@@ -92,17 +59,65 @@ $dashboard-navigation-height: 76px;
   }
 }
 
-/**
-  * the third grid of the workflow/files list.
-  * including css shared by workflow/file item
-  **/
+:host ::ng-deep .section-title.ant-card {
+  height: auto !important;
+}
+
+:host ::ng-deep .section-title.ant-card > .ant-card-body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 12px 16px 8px !important;
+  height: auto !important;
+  min-height: 0;
+}
+
+.section-title .button-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: auto;
+}
+
+.section-search-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  height: 40px;
+  margin: 0;
+  padding: 0 16px;
+  background: var(--app-bg-panel);
+
+  .search-input-box {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 640px;
+    height: 32px;
+    background: var(--app-bg-canvas);
+    border-radius: var(--app-radius-xs);
+  }
+}
+
 .section-list-container {
-  grid-row-start: 3;
-  grid-row-end: 4;
+  flex: 1 1 auto;
   overflow: auto;
-  min-height: 100%;
+  min-height: 0;
   height: 100%;
-  // always show the scroll bar for the virtual scroll container
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+
   ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 7px;
@@ -116,8 +131,8 @@ $dashboard-navigation-height: 76px;
 
   .virtual-scroll-container {
     height: 100%;
-    border: 1px solid #e8e8e8;
-    border-radius: 4px;
+    border: 1px solid var(--app-border-light);
+    border-radius: var(--app-radius-xs);
   }
 
   .metadata-container {
@@ -127,9 +142,17 @@ $dashboard-navigation-height: 76px;
   }
 }
 
-/**
-  * css specifically for each workflow item in the list (not shared by file items)
-  **/
+.section-container > texera-search-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: block;
+}
+
+:host ::ng-deep .section-list-container.ant-card > .ant-card-body {
+  padding: 8px 16px 16px !important;
+  height: 100%;
+}
+
 .workflow-list-item {
   margin-bottom: 10px;
   min-height: 70px;
@@ -145,7 +168,7 @@ $dashboard-navigation-height: 76px;
 
     .workflow-name {
       font-size: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--app-font-display);
       text-align: center;
       margin-bottom: 0;
       color: inherit;
@@ -174,8 +197,7 @@ $dashboard-navigation-height: 76px;
 
     .workflow-description {
       font-size: 13px;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-
+      font-family: var(--app-font-display);
       display: inline-block;
       min-width: 17ch;
       border: 0 none;
@@ -201,17 +223,80 @@ $dashboard-navigation-height: 76px;
 .subsection-grid-container {
   min-width: 100%;
   width: 100%;
-  min-height: 100%;
+  min-height: 0;
   height: 100%;
-}
-
-.ant-btn-icon-only {
-  margin-left: 5px;
-  margin-right: 5px;
 }
 
 .metadata-container {
   span {
-    margin: 0 1rem 0 0; // add space to the right
+    margin: 0 1rem 0 0;
+  }
+}
+
+:host ::ng-deep {
+  .section-title .ant-btn {
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    border-radius: var(--app-radius-xs) !important;
+    font-family: var(--app-font-sans);
+    font-size: var(--app-font-size-body);
+    line-height: 30px;
+  }
+
+  .section-title .ant-btn-icon-only {
+    width: 32px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .section-title .ant-space-compact {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center;
+    align-self: center;
+    height: 32px !important;
+    gap: 4px;
+    background: transparent;
+    padding: 0;
+  }
+
+  .section-title .ant-space-compact .ant-btn {
+    margin-inline-start: 0 !important;
+    border-radius: var(--app-radius-xs) !important;
+  }
+
+  .section-title .ant-space-compact .ant-btn-primary {
+    background: var(--app-primary) !important;
+    border-color: var(--app-primary) !important;
+    color: #ffffff !important;
+  }
+
+  .section-search-bar .ant-select-selector {
+    height: 32px !important;
+    padding: 0 8px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-family: var(--app-font-sans);
+    font-size: var(--app-font-size-body);
+  }
+
+  .section-title texera-filters {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .section-title button.create-btn.ant-btn {
+    height: 32px;
+    padding: 0 12px;
+    background: var(--app-primary) !important;
+    border-color: var(--app-primary) !important;
+    color: #ffffff !important;
+    border-radius: var(--app-radius-xs) !important;
+    font-family: var(--app-font-sans);
+    font-size: var(--app-font-size-body);
+    font-weight: 510;
   }
 }
