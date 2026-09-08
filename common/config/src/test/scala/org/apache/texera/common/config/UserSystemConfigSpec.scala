@@ -52,8 +52,8 @@ class UserSystemConfigSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "match the user-system.conf defaults when no env override is set" in {
-    ifUnset("USER_SYS_ADMIN_USERNAME")(UserSystemConfig.adminUsername shouldBe "texera")
-    ifUnset("USER_SYS_ADMIN_PASSWORD")(UserSystemConfig.adminPassword shouldBe "texera")
+    ifUnset("USER_SYS_ADMIN_USERNAME")(UserSystemConfig.adminUsername shouldBe "admin")
+    ifUnset("USER_SYS_ADMIN_PASSWORD")(UserSystemConfig.adminPassword shouldBe "admin")
     ifUnset("USER_SYS_GOOGLE_CLIENT_ID")(UserSystemConfig.googleClientId shouldBe "")
     ifUnset("USER_SYS_GOOGLE_SMTP_GMAIL")(UserSystemConfig.gmail shouldBe "")
     ifUnset("USER_SYS_GOOGLE_SMTP_PASSWORD")(UserSystemConfig.smtpPassword shouldBe "")
