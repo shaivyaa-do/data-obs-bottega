@@ -1,51 +1,125 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="23" failures="0" errors="0" time="0.515207917">
-    <testsuite name="src/app/dashboard/component/dashboard.component.spec.ts" timestamp="2026-09-08T21:01:26.851Z" hostname="Shaivyaas-MacBook-Air.local" tests="23" failures="0" errors="0" skipped="0" time="0.515207917">
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should create the component" time="0.1323995">
+<testsuites name="vitest tests" tests="60" failures="0" errors="0" time="0.390978083">
+    <testsuite name="src/app/hub/component/login/texera-login.component.spec.ts" timestamp="2026-09-09T08:49:08.850Z" hostname="Shaivyaas-MacBook-Air.local" tests="60" failures="0" errors="0" skipped="0" time="0.390978083">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; should create the component" time="0.045645333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should render a sign-in link, not a provider button, when the user is NOT logged in" time="0.050630833">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; prefills username/password from defaultLocalUser when populated" time="0.005818291">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should not render the sign-in link when the user IS logged in" time="0.031161083">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; does not prefill when defaultLocalUser is empty" time="0.004066375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should render the powered-by attribution when attributionEnabled is true" time="0.010110292">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; sends an already-signed-in visitor to their workflows" time="0.003923958">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; stores the flarum_remember cookie on successful auth and does not register" time="0.008076542">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; honours a returnUrl when redirecting an already-signed-in visitor" time="0.006971792">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; hides the forum and does not register when auth fails with 404/500" time="0.013579792">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; skips the prefill and the Google subscription when already signed in" time="0.003199791">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; registers at most once and stops when auth keeps failing (no infinite loop)" time="0.021997375">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; setMode &gt; switches mode and clears the error message" time="0.002927875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; hides the forum when registration fails" time="0.014516667">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; togglePasswordVisibility &gt; flips the passwordVisible flag" time="0.002934584">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; forumLogin &gt; does nothing when a flarum_remember cookie is already present" time="0.007417917">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; confirmationValidator (via the confirm control) &gt; flags a mismatch only in sign-up mode" time="0.006107291">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; should hide the navbar on workflow workspace routes" time="0.015929417">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; confirmationValidator (via the confirm control) &gt; does not flag a mismatch in sign-in mode" time="0.003048166">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; uses full-width content on workflow and dataset pages" time="0.008007042">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; short-circuits and sets errorMessage when the username is blank" time="0.002558666">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; keeps narrow content on other dashboard pages" time="0.028060458">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; sets errorMessage when the password is shorter than 6 characters" time="0.0023165">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; does not apply content-narrow on workflow and dataset routes" time="0.03216925">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; calls UserService.login with a trimmed username and navigates to USER_WORKFLOW" time="0.00231375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; exposes route constants without the legacy /dashboard prefix" time="0.011384167">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; navigates to queryParams.returnUrl when present" time="0.004291041">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; renders every sidebar tab&apos;s routerLink when fully enabled" time="0.032334459">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; surfaces the error message on login failure and does not navigate" time="0.002357209">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; sidebar active-route highlighting (#3490) &gt; does not render an About item in the signed-in sidebar" time="0.027036708">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; falls back to a default message when the login error has no message" time="0.002329542">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; sidebar active-route highlighting (#3490) &gt; enables nzMatchRouter on the Feedback item so it highlights when active" time="0.019464833">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; sets errorMessage when the email is missing or malformed" time="0.00236875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; sidebar active-route highlighting (#3490) &gt; (reference) Your Work items already enable nzMatchRouter" time="0.013866417">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; sets errorMessage when passwords are inconsistent" time="0.002214833">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; applies logo, mini logo, and favicon from the public settings" time="0.0062325">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; calls UserService.register with username, email and password, then notifies success" time="0.002134375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; keeps the default branding when the settings are missing or the fetch fails" time="0.005631583">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; mails a code when asked, without creating the account" time="0.00224175">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; toggles sidebar tabs from the public settings and treats missing keys as disabled" time="0.007571334">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; does not mail anything when the form is submitted" time="0.002110125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; leaves tabs unchanged when the settings fetch fails" time="0.011360208">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; refuses to send a code for an address that is not one" time="0.002165875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/dashboard.component.spec.ts" name="DashboardComponent &gt; public settings consumption &gt; hides every tab until the settings load (no hardcoded default copy)" time="0.00524225">
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; shows the server&apos;s reason when a code cannot be sent, not the generic HTTP text" time="0.002103583">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; submits the typed code with the same fields" time="0.002063875">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; asks for the code rather than submitting an empty one" time="0.001979">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; reports a refused code" time="0.002023042">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; clears a code that was typed when the tab changes" time="0.002186834">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; surfaces the error message on registration failure" time="0.002228625">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; google sign-in (authState) &gt; hands the id token to UserService.googleLogin and navigates" time="0.008735959">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; google sign-in (authState) &gt; ignores a null auth state" time="0.012453375">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; google sign-in (authState) &gt; notifies and does not navigate when the google exchange fails" time="0.007691583">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; orcid sign-in &gt; redirects to ORCID with the server&apos;s client id and redirect uri, and a fresh state" time="0.008651375">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; orcid sign-in &gt; uses a different state on each attempt" time="0.007083125">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; orcid sign-in &gt; reports unavailable and does not redirect when the config fetch failed" time="0.006868625">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; renders the local form and both social buttons when all are enabled" time="0.007247584">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; drops both social buttons but keeps the form when only local login is enabled" time="0.00668475">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; drops the tabs and the form but keeps the google button when only google is enabled" time="0.003304375">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; keeps the orcid button and the divider when google is disabled but orcid is not" time="0.006877459">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; drops the tabs and the form but keeps the orcid button when only orcid is enabled" time="0.002987333">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; renders no sign-in path when every provider is disabled" time="0.002870167">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; shows only the sign-in fields by default" time="0.006811875">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; adds the email, confirm and password-policy hint in sign-up mode" time="0.01410475">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; switches mode from the tab strip in both directions" time="0.01103">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; binds the selected tab to the current mode" time="0.010820417">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; submits the form through its ngSubmit binding" time="0.00765">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; starts hidden on both password fields" time="0.012247292">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; reveals both password fields when the toggle is clicked" time="0.012166291">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; also toggles from the keyboard, so the control is reachable without a mouse" time="0.010023709">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; hides them again on a second click" time="0.016874458">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; starts on the identity step and keeps both sign-in inputs in the DOM" time="0.006560958">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; advances to the password step when the username is valid" time="0.006198584">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; stays on the identity step when the username is blank" time="0.006133917">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; resets to the identity step when the mode changes" time="0.0062985">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; renders the time and weather widgets around the existing form" time="0.005480167">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; formats a valid clock date by stripping the locale comma" time="0.002271792">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; clears the clock strings when given an invalid date" time="0.001924625">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; fills the weather card from the catalog Open-Meteo payload" time="0.034244459">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; marks weather unavailable when the catalog weather request fails" time="0.002755209">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; still requests the catalog Mumbai fallback when geolocation is missing" time="0.002321292">
+        </testcase>
+        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; renders Microsoft and GitLab logos beside Google" time="0.0057885">
         </testcase>
     </testsuite>
 </testsuites>

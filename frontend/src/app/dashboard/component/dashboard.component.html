@@ -20,43 +20,25 @@
 <nz-layout class="layout">
   <nz-sider
     class="nav-sider"
-    nzCollapsible
     nzWidth="212"
-    [nzCollapsed]="isCollapsed"
-    [nzCollapsedWidth]="40"
-    [nzTrigger]="null"
     nzTheme="light">
     <ul
       nz-menu
       nzMode="inline"
       nzSelectable="false">
-      <li class="logo-section">
+      <li
+        *ngIf="logo"
+        class="logo-section">
         <img
-          *ngIf="miniLogo && isCollapsed"
-          alt="mini-logo"
-          [src]="miniLogo"
-          class="collapsed-logo" />
-        <img
-          *ngIf="logo && !isCollapsed"
           alt="logo"
           class="logo-img"
           [src]="logo" />
-        <button
-          type="button"
-          class="nav-collapse-btn"
-          [attr.aria-label]="isCollapsed ? 'Expand navigation' : 'Collapse navigation'"
-          (click)="handleCollapseChange(!isCollapsed)">
-          <span
-            nz-icon
-            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></span>
-        </button>
       </li>
 
       <li
         *ngIf="sidebarTabs.hub_enabled"
         nz-submenu
         nzTitle="Hub"
-        nzIcon="usergroup-add"
         nzOpen="true">
         <texera-hub
           [isLogin]="isLogin"
@@ -68,7 +50,6 @@
         *ngIf="isLogin && sidebarTabs.your_work_enabled"
         nz-submenu
         nzTitle="Your Work"
-        nzIcon="user"
         nzOpen="true">
         <ul>
           <li
@@ -161,8 +142,7 @@
       <li
         *ngIf="isAdmin"
         nz-submenu
-        nzTitle="Admin"
-        nzIcon="tool">
+        nzTitle="Admin">
         <ul>
           <li
             nz-menu-item
@@ -224,15 +204,13 @@
         <span>Feedback</span>
       </li>
     </ul>
-    <div
-      class="nav-footer"
-      [class.nav-footer-collapsed]="isCollapsed">
+    <div class="nav-footer">
       <ng-container *ngIf="isLogin">
         <texera-user-icon></texera-user-icon>
       </ng-container>
     </div>
     <span
-      *ngIf="!isCollapsed && config.env.attributionEnabled"
+      *ngIf="config.env.attributionEnabled"
       id="powered-by">
       Powered by
       <a

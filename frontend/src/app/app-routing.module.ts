@@ -69,7 +69,7 @@ routes.push({
   children: [
     {
       path: "",
-      redirectTo: "about",
+      redirectTo: "/login",
       pathMatch: "full",
     },
     {

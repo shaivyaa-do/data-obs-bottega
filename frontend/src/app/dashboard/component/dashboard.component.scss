@@ -124,6 +124,12 @@ nz-content {
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 button {
@@ -161,7 +167,7 @@ button {
   .ant-menu-inline-collapsed {
     border: none;
     background: transparent;
-    padding: 4px 0 0;
+    padding: 8px 0 0 !important;
   }
 
   .ant-menu {
@@ -174,8 +180,14 @@ button {
     font-family: var(--app-font-sans);
   }
 
+  ul {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+  }
+
   .ant-menu-submenu {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .ant-menu-inline:not(.ant-menu-inline-collapsed) .ant-menu-submenu-title .anticon:first-child {
@@ -184,15 +196,29 @@ button {
 
   .ant-menu-submenu-title {
     font-family: var(--app-font-sans);
-    font-size: 12px !important;
-    font-weight: 400;
+    font-size: 11.5px !important;
+    font-weight: 500;
     line-height: var(--app-line-height-base);
     color: var(--app-text-tertiary) !important;
-    height: 22px !important;
-    padding: 0 6px !important;
-    margin: 6px 6px 4px !important;
+    height: 24px !important;
+    padding: 0 10px !important;
+    margin: 12px 8px 4px 8px !important;
     pointer-events: none;
     cursor: default;
+    display: flex !important;
+    align-items: center !important;
+
+    .ant-menu-title-content {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
+
+  .ant-menu-submenu:first-of-type .ant-menu-submenu-title,
+  .ant-menu-submenu:first-child .ant-menu-submenu-title {
+    height: 40px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 
   .ant-menu-submenu-title .anticon,
@@ -207,9 +233,9 @@ button {
 
   .ant-menu-item {
     height: 32px !important;
-    width: calc(100% - 12px) !important;
-    margin: 0 6px 6px !important;
-    padding: 0 6px !important;
+    width: calc(100% - 16px) !important;
+    margin: 0 8px 4px 8px !important;
+    padding: 0 10px !important;
     border-radius: var(--app-radius-xs) !important;
     line-height: 32px !important;
     font-family: var(--app-font-sans);
@@ -217,6 +243,8 @@ button {
     font-weight: 400;
     color: var(--app-text-secondary) !important;
     gap: 8px;
+    display: flex !important;
+    align-items: center !important;
   }
 
   .ant-menu-item .anticon {
@@ -224,6 +252,11 @@ button {
     width: 15px;
     height: 15px;
     min-width: 15px;
+    margin: 0 !important;
+  }
+
+  .ant-menu-item .ant-menu-title-content {
+    margin: 0 !important;
   }
 
   .ant-menu-item:hover,
@@ -272,34 +305,20 @@ button {
 }
 
 .logo-section {
-  height: 38px;
+  height: 34px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  margin: 0;
-}
-
-:host ::ng-deep .ant-layout-sider-collapsed .logo-section {
-  justify-content: center;
-  padding: 4px 0;
-
-  .logo-img,
-  .collapsed-logo {
-    display: none;
-  }
-
-  .nav-collapse-btn {
-    margin-left: 0;
-  }
+  padding: 4px 8px;
+  margin: 0 0 4px 0;
 }
 
 .logo-img {
-  height: 19px;
+  height: 15px;
+  max-height: 15px;
   width: auto;
-  flex: 1;
-  min-width: 0;
+  max-width: 125px;
+  flex: 0 0 auto;
   object-fit: contain;
   object-position: left center;
 }

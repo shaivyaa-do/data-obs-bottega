@@ -34,23 +34,24 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    height: 32px;
-    padding: 0 12px;
+    height: 28px;
+    padding: 0 10px;
     flex-shrink: 0;
     font-family: var(--app-font-sans);
-    font-size: var(--app-font-size-body);
+    font-size: 12px;
     font-weight: 510;
     line-height: 1;
-    background-color: var(--app-primary);
+    background-color: #18181b;
     color: #ffffff;
-    border: none;
-    border-radius: var(--app-radius-xs);
+    border: 1px solid #18181b;
+    border-radius: 6px;
     box-shadow: none;
     cursor: pointer;
 
     &:hover,
     &:focus {
-      background-color: color-mix(in srgb, var(--app-primary) 88%, #000000);
+      background-color: #27272a;
+      border-color: #27272a;
       color: #ffffff;
     }
   }

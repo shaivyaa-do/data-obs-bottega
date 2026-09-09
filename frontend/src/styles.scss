@@ -630,17 +630,18 @@ body {
 }
 
 .ant-btn-primary {
-  background: var(--app-primary) !important;
-  border-color: var(--app-primary) !important;
+  background: #18181b !important;
+  border-color: #18181b !important;
   color: #ffffff !important;
-  border-radius: var(--app-radius-xs);
+  border-radius: 6px;
   font-family: var(--app-font-sans);
   font-weight: 500;
 
   &:hover,
   &:focus {
-    background: color-mix(in srgb, var(--app-primary) 88%, #000000) !important;
-    border-color: color-mix(in srgb, var(--app-primary) 88%, #000000) !important;
+    background: #27272a !important;
+    border-color: #27272a !important;
+    color: #ffffff !important;
   }
 }
 

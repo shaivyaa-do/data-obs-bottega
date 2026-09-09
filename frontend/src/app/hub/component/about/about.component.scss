@@ -21,6 +21,12 @@
   overflow-y: auto;
   height: 100%;
   padding: 0 133px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .content {

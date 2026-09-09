@@ -266,16 +266,25 @@ export class TexeraLoginComponent implements OnInit {
   }
 
   private loadWeather(): void {
+    // Immediately fetch fallback weather so the widget doesn't stay stuck on Loading...
+    void this.fetchWeather(19.076, 72.8777);
+
     const geo = typeof navigator === "undefined" ? undefined : navigator.geolocation;
     if (!geo?.getCurrentPosition) {
-      void this.fetchWeather(19.076, 72.8777);
       return;
     }
 
-    geo.getCurrentPosition(
-      pos => void this.fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => void this.fetchWeather(19.076, 72.8777)
-    );
+    try {
+      geo.getCurrentPosition(
+        pos => void this.fetchWeather(pos.coords.latitude, pos.coords.longitude),
+        () => {
+          // If denied, blocked, or timed out, fallback coordinates are already loaded.
+        },
+        { timeout: 3000, maximumAge: 300000 }
+      );
+    } catch {
+      // Security or environment restriction on geolocation
+    }
   }
 
   public fetchWeather(lat: number, lon: number): Promise<void> {
@@ -287,14 +296,34 @@ export class TexeraLoginComponent implements OnInit {
     const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
     const metUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&windspeed_unit=mph&temperature_unit=fahrenheit`;
 
-    return Promise.all([fetch(geoUrl).then(r => r.json()), fetch(metUrl).then(r => r.json())])
+    const geoPromise = fetch(geoUrl)
+      .then(r => r.json())
+      .catch(() => null);
+
+    const metPromise = fetch(metUrl)
+      .then(r => r.json())
+      .catch(() => null);
+
+    return Promise.all([geoPromise, metPromise])
       .then(([geoData, metData]) => {
         this.ngZone.run(() => {
-          const city = geoData?.city || geoData?.locality || geoData?.principalSubdivision || "Unknown";
           if (!metData?.current_weather) {
-            this.weather = { ...this.weather, location: city };
+            this.weather = { ...this.weather, location: "Unavailable" };
             return;
           }
+
+          const tzCity =
+            typeof Intl !== "undefined"
+              ? Intl.DateTimeFormat().resolvedOptions().timeZone?.split("/").pop()?.replace(/_/g, " ")
+              : undefined;
+
+          const city =
+            geoData?.city ||
+            geoData?.locality ||
+            geoData?.principalSubdivision ||
+            tzCity ||
+            "Local";
+
           const { temperature, weathercode, windspeed } = metData.current_weather;
           const { temperature_2m_max, temperature_2m_min, precipitation_sum } = metData.daily ?? {};
           this.weather = {

@@ -235,19 +235,23 @@
 
 :host ::ng-deep {
   .section-title .ant-btn {
-    height: 32px;
-    min-width: 32px;
+    height: 28px;
+    min-width: 28px;
     padding: 0 8px;
-    border-radius: var(--app-radius-xs) !important;
+    border-radius: 6px !important;
     font-family: var(--app-font-sans);
-    font-size: var(--app-font-size-body);
-    line-height: 30px;
+    font-size: 12px;
+    line-height: 26px;
   }
 
   .section-title .ant-btn-icon-only {
-    width: 32px;
+    width: 28px;
+    height: 28px;
     padding: 0;
     margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .section-title .ant-space-compact {
@@ -256,21 +260,31 @@
     flex-wrap: nowrap !important;
     align-items: center;
     align-self: center;
-    height: 32px !important;
+    height: 28px !important;
     gap: 4px;
     background: transparent;
     padding: 0;
   }
 
   .section-title .ant-space-compact .ant-btn {
+    height: 28px !important;
+    min-width: 28px !important;
     margin-inline-start: 0 !important;
-    border-radius: var(--app-radius-xs) !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
   }
 
   .section-title .ant-space-compact .ant-btn-primary {
-    background: var(--app-primary) !important;
-    border-color: var(--app-primary) !important;
+    background: #18181b !important;
+    border-color: #18181b !important;
     color: #ffffff !important;
+
+    &:hover,
+    &:focus {
+      background: #27272a !important;
+      border-color: #27272a !important;
+      color: #ffffff !important;
+    }
   }
 
   .section-search-bar .ant-select-selector {
@@ -289,14 +303,22 @@
   }
 
   .section-title button.create-btn.ant-btn {
-    height: 32px;
-    padding: 0 12px;
-    background: var(--app-primary) !important;
-    border-color: var(--app-primary) !important;
+    height: 28px !important;
+    padding: 0 10px !important;
+    background: #18181b !important;
+    border-color: #18181b !important;
     color: #ffffff !important;
-    border-radius: var(--app-radius-xs) !important;
+    border-radius: 6px !important;
     font-family: var(--app-font-sans);
-    font-size: var(--app-font-size-body);
+    font-size: 12px !important;
     font-weight: 510;
+    line-height: 26px;
+
+    &:hover,
+    &:focus {
+      background: #27272a !important;
+      border-color: #27272a !important;
+      color: #ffffff !important;
+    }
   }
 }
