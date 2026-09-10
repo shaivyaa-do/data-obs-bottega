@@ -68,7 +68,7 @@ import { NzButtonModule } from "ng-zorro-antd/button";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
 import { Router } from "@angular/router";
-import { USER_WORKSPACE } from "../../../../app-routing.constant";
+import { USER_AGENT, USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import { MockGuiConfigService } from "../../../../common/service/gui-config.service.mock";
 import { NotebookMigrationService } from "../../../../workspace/service/notebook-migration/notebook-migration.service";
@@ -312,6 +312,14 @@ describe("SavedWorkflowSectionComponent", () => {
 
       expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
       expect(USER_WORKSPACE).toBe("/user/workflow");
+    });
+  });
+
+  describe("onClickCreateWithAgent", () => {
+    it("navigates to the Agents page", () => {
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      component.onClickCreateWithAgent();
+      expect(navigateSpy).toHaveBeenCalledWith([USER_AGENT]);
     });
   });
 
@@ -1163,9 +1171,30 @@ describe("SavedWorkflowSectionComponent", () => {
         expect(q('[title="Batch Select"]')).toBeTruthy();
       });
 
+      it("does not render a Search all workflows bar", () => {
+        expect(q(".search-input-box")).toBeNull();
+        expect(q(".workflow-search-bar")).toBeNull();
+        expect(fixture.nativeElement.textContent).not.toContain("Search all workflows");
+      });
+
+      it("places Create Workflow and Create with Agent to the right of the toolbar icons", () => {
+        const actions = q(".create-actions");
+        expect(actions).toBeTruthy();
+        const labels = actions
+          .queryAll(By.css(".create-btn"))
+          .map(b => (b.nativeElement.textContent ?? "").replace(/\s+/g, " ").trim());
+        expect(labels).toEqual(["Create Workflow", "Create with Agent"]);
+      });
+
       it("wires the Create Workflow button", () => {
         const spy = vi.spyOn(component, "onClickCreateNewWorkflowFromDashboard").mockImplementation(() => {});
         q(".create-btn").triggerEventHandler("click", null);
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it("wires the Create with Agent button", () => {
+        const spy = vi.spyOn(component, "onClickCreateWithAgent").mockImplementation(() => {});
+        q('[title="Create a workflow with an AI agent"]').triggerEventHandler("click", null);
         expect(spy).toHaveBeenCalled();
       });
 

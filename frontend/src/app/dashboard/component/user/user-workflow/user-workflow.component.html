@@ -21,17 +21,6 @@
   <nz-card class="section-title">
     <h2 class="page-title">Workflows</h2>
     <div class="button-group">
-      <button
-        nz-button
-        class="create-btn"
-        (click)="onClickCreateNewWorkflowFromDashboard()"
-        title="Create a new workflow">
-        <i
-          nz-icon
-          nzType="file-add"
-          nzTheme="outline"></i>
-        <span>Create Workflow</span>
-      </button>
       <nz-space-compact
         class="utility-button-group"
         ngbDropdown>
@@ -136,23 +125,32 @@
         </button>
       </nz-space-compact>
       <texera-filters #filters></texera-filters>
+      <div class="create-actions">
+        <button
+          nz-button
+          class="create-btn"
+          (click)="onClickCreateNewWorkflowFromDashboard()"
+          title="Create a new workflow">
+          <i
+            nz-icon
+            nzType="file-add"
+            nzTheme="outline"></i>
+          <span>Create Workflow</span>
+        </button>
+        <button
+          nz-button
+          class="create-btn"
+          (click)="onClickCreateWithAgent()"
+          title="Create a workflow with an AI agent">
+          <i
+            nz-icon
+            nzType="robot"
+            nzTheme="outline"></i>
+          <span>Create with Agent</span>
+        </button>
+      </div>
     </div>
   </nz-card>
-
-  <div class="section-search-bar workflow-search-bar">
-    <texera-filters-instructions></texera-filters-instructions>
-    <nz-select
-      class="search-input-box"
-      name="search-input-box"
-      nzMode="tags"
-      nzPlaceHolder="Search all workflows"
-      nzVariant="borderless"
-      [nzOpen]="false"
-      ngDefaultControl
-      [(ngModel)]="filters.masterFilterList"
-      [nzAllowClear]="true">
-    </nz-select>
-  </div>
 
   <ng-template
     #workflowCardTpl

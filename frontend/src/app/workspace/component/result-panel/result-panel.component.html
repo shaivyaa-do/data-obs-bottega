@@ -41,7 +41,12 @@
       nz-tooltip="Open Result Panel{{operatorTitle ? ': ' + operatorTitle : ''}}">
       <span
         nz-icon
-        nzType="border"></span>
+        nzType="table"></span>
+      <span class="collapsed-tab-text">Results{{operatorTitle ? ': ' + operatorTitle : ''}}</span>
+      <span
+        nz-icon
+        nzType="up"
+        class="collapsed-tab-arrow"></span>
     </li>
   </ul>
 </div>
@@ -52,52 +57,62 @@
   cdkDragBoundary="texera-workspace"
   nz-resizable
   [nzMinWidth]="300"
-  [nzMinHeight]="250"
+  [nzMinHeight]="180"
   [nzMaxWidth]="window.innerWidth"
-  [nzMaxHeight]="window.innerHeight"
+  [nzMaxHeight]="window.innerHeight * 0.9"
   [style.width.px]="width"
   [style.height.px]="height"
   (nzResize)="onResize($event)"
   [cdkDragFreeDragPosition]="dragPosition"
   (cdkDragStarted)="handleStartDrag()"
   (cdkDragEnded)="handleEndDrag($event)">
-  <ul
-    nz-menu
-    id="panel-button"
-    [ngClass]="{'shadow':  !width}">
-    <button
-      nz-button
-      nzType="text"
-      (click)="resetPanelPosition()"
-      *ngIf="width">
-      <span
-        nz-icon
-        nzType="enter"></span>
-    </button>
-    <li
-      nz-menu-item
-      (click)="closePanel()"
-      *ngIf="width">
-      <span
-        nz-icon
-        nzType="minus"></span>
-    </li>
-  </ul>
   <div
-    id="content"
+    class="panel-header-bar"
     *ngIf="width">
     <h4
       id="title"
       cdkDragHandle>
       Result Panel{{operatorTitle ? ': ' + operatorTitle : ''}}
     </h4>
+    <ul
+      nz-menu
+      id="panel-button"
+      [ngClass]="{'shadow':  !width}">
+      <button
+        nz-button
+        nzType="text"
+        (click)="resetPanelPosition()"
+        *ngIf="width"
+        title="Dock / reset">
+        <span
+          nz-icon
+          nzType="enter"></span>
+      </button>
+      <li
+        nz-menu-item
+        (click)="closePanel()"
+        *ngIf="width"
+        title="Close">
+        <span
+          nz-icon
+          nzType="minus"></span>
+      </li>
+    </ul>
+  </div>
+  <div
+    id="content"
+    *ngIf="width">
     <nz-tabs
       class="result-content"
       [nzSize]="'small'"
-      [nzTabPosition]="'left'">
+      [nzTabPosition]="'top'">
       <div *ngIf="frameComponentConfigs.size === 0">
         <nz-tab nzTitle="Result">
-          <div style="text-align: center">
+          <div class="empty-results-container">
+            <span
+              nz-icon
+              nzType="table"
+              class="empty-icon"></span>
             <h4>No results available to display.</h4>
             <p>Tip: enable the eye icon on the operator and execute the workflow to view its results.</p>
           </div>

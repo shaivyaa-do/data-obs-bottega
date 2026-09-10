@@ -23,6 +23,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { TexeraAgent } from "./agent/texera-agent";
 import { getVisibleResultHeaders } from "./agent/tools/tools-utility";
 import { getBackendConfig } from "./api/backend-api";
+import { llmGatewayClientOptions } from "./api/llm-client";
 import { extractBearerToken, extractUserFromToken, validateToken } from "./api/auth-api";
 import { retrieveWorkflow } from "./api/workflow-api";
 import { WorkflowSystemMetadata } from "./agent/util/workflow-system-metadata";
@@ -34,6 +35,7 @@ const wsLog = createLogger("WS");
 import type {
   AgentInfo,
   AgentDelegateConfig,
+  BindAgentRequest,
   CreateAgentRequest,
   UpdateAgentSettingsRequest,
   AgentSettingsApi,
@@ -50,18 +52,15 @@ let agentCounter = 0;
 async function createAgentInstance(
   modelType: string,
   delegateConfig: AgentDelegateConfig,
-  customName?: string
+  customName?: string,
+  providerApiKey?: string
 ): Promise<{ agentId: string; agent: TexeraAgent }> {
   const agentId = `agent-${++agentCounter}`;
   const config = getBackendConfig();
 
-  const openai = createOpenAI({
-    baseURL: `${config.modelsEndpoint}/api`,
-    // The LLM gateway (access-control-service) enforces a REGULAR/ADMIN-role
-    // JWT (apache/texera#5421) and injects the LiteLLM master key downstream,
-    // so the delegating user's JWT is the only credential this service sends.
-    apiKey: delegateConfig.userToken,
-  });
+  const openai = createOpenAI(
+    llmGatewayClientOptions(config.modelsEndpoint, delegateConfig.userToken, providerApiKey)
+  );
 
   // Reasoning effort variants are configured as separate model entries in litellm-config.yaml
   // with extra_body to inject reasoning_effort, bypassing LiteLLM's param validation.
@@ -76,20 +75,7 @@ async function createAgentInstance(
 
   if (delegateConfig.workflowId) {
     try {
-      const workflow = await retrieveWorkflow(delegateConfig.userToken, delegateConfig.workflowId);
-      delegateConfig.workflowName = workflow.name;
-
-      const workflowState = agent.getWorkflowState();
-      workflowState.setWorkflowContent(workflow.content);
-
-      agent.setDelegateConfig({
-        userToken: delegateConfig.userToken,
-        userInfo: delegateConfig.userInfo,
-        workflowId: delegateConfig.workflowId,
-        workflowName: delegateConfig.workflowName,
-        computingUnitId: delegateConfig.computingUnitId,
-      });
-
+      await bindAgentToWorkflow(agent, delegateConfig);
       log.info({ agentId, workflowId: delegateConfig.workflowId }, "loaded workflow for agent");
     } catch (error) {
       log.warn({ agentId, workflowId: delegateConfig.workflowId, err: error }, "failed to load workflow");
@@ -100,6 +86,22 @@ async function createAgentInstance(
   log.info({ agentId, userId: delegateConfig.userInfo?.uid }, "created agent");
 
   return { agentId, agent };
+}
+
+async function bindAgentToWorkflow(agent: TexeraAgent, delegateConfig: AgentDelegateConfig): Promise<void> {
+  if (!delegateConfig.workflowId) {
+    throw new Error("workflowId is required");
+  }
+
+  const workflow = await retrieveWorkflow(delegateConfig.userToken, delegateConfig.workflowId);
+  agent.getWorkflowState().setWorkflowContent(workflow.content);
+  agent.setDelegateConfig({
+    userToken: delegateConfig.userToken,
+    userInfo: delegateConfig.userInfo,
+    workflowId: delegateConfig.workflowId,
+    workflowName: workflow.name,
+    computingUnitId: delegateConfig.computingUnitId,
+  });
 }
 
 function getAgentInfo(agentId: string, agent: TexeraAgent): AgentInfo {
@@ -150,6 +152,7 @@ const ERROR_STATUS: Record<string, number> = {
   "Invalid or expired token": 401,
   "Authorization header with a Bearer token is required": 401,
   "modelType is required": 400,
+  "workflowId is required": 400,
 };
 
 const agentsRouter = new Elysia({ prefix: "/agents" })
@@ -175,7 +178,7 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
   .post(
     "/",
     async ({ body, headers }) => {
-      const { modelType, name, workflowId, computingUnitId, settings } = body as CreateAgentRequest;
+      const { modelType, name, workflowId, computingUnitId, settings, providerApiKey } = body as CreateAgentRequest;
 
       if (!modelType) {
         throw new Error("modelType is required");
@@ -200,7 +203,7 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
         computingUnitId,
       };
 
-      const { agentId, agent } = await createAgentInstance(modelType, delegateConfig, name);
+      const { agentId, agent } = await createAgentInstance(modelType, delegateConfig, name, providerApiKey);
 
       if (settings) {
         log.info(
@@ -233,6 +236,7 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
         name: t.Optional(t.String()),
         workflowId: t.Optional(t.Number()),
         computingUnitId: t.Optional(t.Number()),
+        providerApiKey: t.Optional(t.String()),
         settings: t.Optional(
           t.Object({
             maxOperatorResultCharLimit: t.Optional(t.Number()),
@@ -332,6 +336,42 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
       allowedOperatorTypes: agentSettings.allowedOperatorTypes,
     };
   })
+
+  .patch(
+    "/:id/delegate",
+    async ({ params: { id }, body, headers }) => {
+      const agent = getAgent(id);
+      const { workflowId, computingUnitId } = body as BindAgentRequest;
+
+      if (!workflowId) {
+        throw new Error("workflowId is required");
+      }
+
+      const userToken = extractBearerToken(headers.authorization);
+      if (!userToken) {
+        throw new Error("Authorization header with a Bearer token is required");
+      }
+      if (!validateToken(userToken)) {
+        throw new Error("Invalid or expired token");
+      }
+
+      const userInfo = extractUserFromToken(userToken);
+      await bindAgentToWorkflow(agent, {
+        userToken,
+        userInfo,
+        workflowId,
+        computingUnitId,
+      });
+      log.info({ agentId: id, workflowId }, "bound agent to workflow");
+      return getAgentInfo(id, agent);
+    },
+    {
+      body: t.Object({
+        workflowId: t.Number(),
+        computingUnitId: t.Optional(t.Number()),
+      }),
+    }
+  )
 
   .patch(
     "/:id/settings",

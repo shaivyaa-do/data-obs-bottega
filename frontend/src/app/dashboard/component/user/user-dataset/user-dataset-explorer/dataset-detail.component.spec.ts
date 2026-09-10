@@ -24,7 +24,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concat, of, Subject, throwError } from "rxjs";
 import { NzModalService } from "ng-zorro-antd/modal";
-import { NzResizableDirective } from "ng-zorro-antd/resizable";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { MarkdownService } from "ngx-markdown";
 import { DatasetDetailComponent } from "./dataset-detail.component";
@@ -43,7 +42,6 @@ import { commonTestImports, commonTestProviders } from "../../../../../common/te
 import { Contributor, Dataset, DatasetVersion } from "../../../../../common/type/dataset";
 import { DashboardDataset } from "../../../../type/dashboard-dataset.interface";
 import { HttpErrorResponse, HttpStatusCode } from "@angular/common/http";
-import { NzResizeEvent } from "ng-zorro-antd/resizable";
 import { format } from "date-fns";
 import { USER_DATASET } from "../../../../../app-routing.constant";
 
@@ -254,29 +252,22 @@ describe("DatasetDetailComponent rendered explorer", () => {
     });
 
     describe("version details", () => {
-      it("reports the version size and creation time once a version is chosen", () => {
+      it("lets the file table fill the pane without a files sider", () => {
         const el = render(c => {
           c.selectedVersion = aVersion;
-          c.currentDatasetVersionSize = 1024;
-          c.selectedVersionCreationTime = "2026-01-02 03:04";
         });
 
-        expect(el.querySelector(".version-size")?.textContent).toContain("Version Size:");
-        expect(el.querySelector(".version-date")?.textContent).toContain("2026-01-02 03:04");
-      });
-
-      it("hides the creation time when the version has none", () => {
-        const el = render(c => {
-          c.selectedVersion = aVersion;
-          c.selectedVersionCreationTime = "";
-        });
-
-        expect(el.querySelector(".version-date")).toBeNull();
+        expect(el.querySelector(".right-sider")).toBeNull();
+        expect(el.querySelector("nz-sider")).toBeNull();
+        expect(el.querySelector("texera-user-dataset-version-filetree")).toBeNull();
+        expect(el.querySelector(".file-renderer-wrapper")).not.toBeNull();
       });
     });
 
     it("stages a file deletion and lets the panel count it", () => {
-      render(); // the panel lives in the Versions & Files tab, which nz-tabs renders lazily
+      render(); // the panel lives in the Create New Version popup, which is closed until opened
+      component.openCreateVersionModal();
+      fixture.detectChanges();
       const node: DatasetFileNode = { name: "a.txt", type: "file", parentDir: "/owner@texera.com/test-dataset/v1" };
 
       component.onPreviouslyUploadedFileDeleted(node);
@@ -287,7 +278,9 @@ describe("DatasetDetailComponent rendered explorer", () => {
     });
 
     it("reloads the version list once the panel reports a new version", () => {
-      render(); // the panel lives in the Versions & Files tab, which nz-tabs renders lazily
+      render(); // the panel lives in the Create New Version popup, which is closed until opened
+      component.openCreateVersionModal();
+      fixture.detectChanges();
       const datasetService = TestBed.inject(DatasetService) as unknown as Record<string, ReturnType<typeof vi.fn>>;
       const before = datasetService["retrieveDatasetVersionList"].mock.calls.length;
       const panel = fixture.debugElement.query(By.directive(VersionUploaderComponent))
@@ -298,6 +291,7 @@ describe("DatasetDetailComponent rendered explorer", () => {
       // The panel owns the version flow but not the page's state: without this binding the new
       // version is committed and never appears in the picker until a reload.
       expect(datasetService["retrieveDatasetVersionList"].mock.calls.length).toBe(before + 1);
+      expect(component.isCreateVersionModalVisible).toBe(false);
     });
   });
 
@@ -1110,14 +1104,10 @@ describe("DatasetDetailComponent behavior", () => {
   describe("view flags", () => {
     beforeEach(() => createComponent());
 
-    it("toggles the maximize, right-bar and precise-view-count flags", () => {
+    it("toggles the maximize and precise-view-count flags", () => {
       expect(component.isMaximized).toBe(false);
       component.onClickScaleTheView();
       expect(component.isMaximized).toBe(true);
-
-      expect(component.isRightBarCollapsed).toBe(false);
-      component.onClickHideRightBar();
-      expect(component.isRightBarCollapsed).toBe(true);
 
       expect(component.displayPreciseViewCount).toBe(false);
       component.changeViewDisplayStyle();
@@ -1835,16 +1825,13 @@ describe("DatasetDetailComponent behavior", () => {
       expect(img.nativeElement.getAttribute("src")).toBe("blob:cover");
     });
 
-    it("collapses the right bar from the template, then renders the restore control", () => {
-      renderWith({ isRightBarCollapsed: false });
+    it("does not offer a files sider or a way to restore one", () => {
+      renderWith({});
       openTab("Versions & Files");
 
-      // both arms of the *ngIf pair are exercised: hide first, then the show button
-      clickByCss("button[nz-tooltip='Hide the right bar']");
-      expect(component.isRightBarCollapsed).toBe(true);
-
-      clickByCss("button[nz-tooltip='Show Tree']");
-      expect(component.isRightBarCollapsed).toBe(false);
+      expect(fixture.nativeElement.querySelector("nz-sider, .right-sider")).toBeNull();
+      expect(fixture.nativeElement.querySelector("button[nz-tooltip='Hide the right bar']")).toBeNull();
+      expect(fixture.nativeElement.querySelector("button[nz-tooltip='Show Tree']")).toBeNull();
     });
 
     it("binds the dataset name input and saves it from the template", () => {
@@ -1954,6 +1941,7 @@ describe("DatasetDetailComponent behavior", () => {
       const onDownload = vi.spyOn(component, "onClickDownloadCurrentFile").mockImplementation(() => {});
 
       const downloadBtn = fixture.debugElement
+        .query(By.css(".file-actions"))
         .queryAll(By.css("button"))
         .find(btn => btn.nativeElement.querySelector("i.anticon-download"));
       expect(downloadBtn).toBeTruthy();
@@ -1976,37 +1964,6 @@ describe("DatasetDetailComponent behavior", () => {
       expect(component.isMaximized).toBe(true);
     });
 
-    // ─── sider resize ───────────────────────────────────────────────────────
-
-    it("applies the dragged sider width on the next animation frame", async () => {
-      renderWith({ did: 5 });
-
-      component.onSideResize({ width: 321 } as NzResizeEvent);
-      // the handler defers to requestAnimationFrame; let that frame run
-      await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
-
-      expect(component.siderWidth).toBe(321);
-    });
-
-    it("cancels the frame the previous resize scheduled", () => {
-      renderWith({ did: 5 });
-      // Hand out a known frame id so the assertion below pins down *which* frame is
-      // cancelled: the component starts with id = -1, so merely asserting that
-      // cancelAnimationFrame was called would pass even if the id were never tracked.
-      const request = vi.spyOn(globalThis, "requestAnimationFrame").mockReturnValue(100);
-      const cancel = vi.spyOn(globalThis, "cancelAnimationFrame");
-      try {
-        component.onSideResize({ width: 100 } as NzResizeEvent);
-        cancel.mockClear(); // drop the initial cancel(-1)
-
-        component.onSideResize({ width: 200 } as NzResizeEvent);
-
-        expect(cancel).toHaveBeenCalledWith(100);
-      } finally {
-        cancel.mockRestore();
-        request.mockRestore();
-      }
-    });
   });
 });
 
@@ -2448,25 +2405,10 @@ describe("DatasetDetailComponent rendered template", () => {
       expect(byTooltip("Minimize View")).toBeUndefined();
     });
 
-    it("applies a width the resize handle reports, between the bounds it declares", async () => {
-      const sider = fixture.debugElement.query(By.css("nz-sider"));
-      expect(sider.nativeElement.style.width).toBe("400px");
-
-      // The drag itself belongs to NzResizableDirective; what this component owns
-      // is the bounds it hands the directive and what it does with the reported
-      // width. Both have to be pinned, and in the right order — swapped bounds
-      // would let the handle collapse the sider past its minimum.
-      const resizable = sider.injector.get(NzResizableDirective);
-      expect(resizable.nzMinWidth).toBe(component.MIN_SIDER_WIDTH);
-      expect(resizable.nzMaxWidth).toBe(component.MAX_SIDER_WIDTH);
-      expect(resizable.nzMinWidth).toBeLessThan(resizable.nzMaxWidth as number);
-
-      sider.triggerEventHandler("nzResize", { width: 520 });
-      // The new width is applied on the next animation frame.
-      await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
-      fixture.detectChanges();
-
-      expect(sider.nativeElement.style.width).toBe("520px");
+    it("does not render a files sider beside the table", () => {
+      expect(fixture.nativeElement.querySelector(".dataset-header")).not.toBeNull();
+      expect(fixture.debugElement.query(By.css("nz-sider"))).toBeNull();
+      expect(fixture.debugElement.query(By.css("texera-user-dataset-version-filetree"))).toBeNull();
     });
   });
 
@@ -2481,7 +2423,7 @@ describe("DatasetDetailComponent rendered template", () => {
     });
 
     it("offers every known version and loads the one that is picked", async () => {
-      const select = fixture.debugElement.query(By.css("nz-select"));
+      const select = fixture.debugElement.query(By.css(".version-switcher"));
       /** Picks a version through the control and reports the name it then shows. */
       const pick = async (version: DatasetVersion): Promise<string> => {
         select.triggerEventHandler("ngModelChange", version);
@@ -2511,7 +2453,7 @@ describe("DatasetDetailComponent rendered template", () => {
     it("loads a picked version over the anonymous endpoint when nobody is signed in", () => {
       render({ isLogin: false });
 
-      fixture.debugElement.query(By.css("nz-select")).triggerEventHandler("ngModelChange", v2);
+      fixture.debugElement.query(By.css(".version-switcher")).triggerEventHandler("ngModelChange", v2);
 
       expect(datasetService.retrieveDatasetVersionFileTree).toHaveBeenCalledWith(5, 12, false);
     });
@@ -2521,10 +2463,30 @@ describe("DatasetDetailComponent rendered template", () => {
 
       expect(downloadService.downloadDatasetVersion).toHaveBeenCalledWith(5, 11, "ds", "v1");
     });
+
+    it("does not put a files sider next to the version picker", () => {
+      expect(fixture.debugElement.query(By.css("texera-user-dataset-version-filetree"))).toBeNull();
+      expect(fixture.nativeElement.querySelector(".right-sider")).toBeNull();
+    });
+
+    it("opens a Create New Version upload popup from the top bar", () => {
+      render({ userDatasetAccessLevel: "WRITE" });
+      openTab("Versions & Files");
+      const createBtn = fixture.debugElement
+        .queryAll(By.css("button"))
+        .find(btn => (btn.nativeElement.textContent ?? "").replace(/\s+/g, " ").includes("Create New Version"));
+      expect(createBtn).toBeTruthy();
+      expect(component.isCreateVersionModalVisible).toBe(false);
+      expect(fixture.debugElement.query(By.css("texera-version-uploader"))).toBeNull();
+
+      createBtn!.triggerEventHandler("click", null);
+      fixture.detectChanges();
+      expect(component.isCreateVersionModalVisible).toBe(true);
+      expect(fixture.debugElement.query(By.css(".create-version-dialog texera-version-uploader"))).toBeTruthy();
+    });
   });
 
   describe("version file tree", () => {
-    const tree = (): DebugElement => fixture.debugElement.query(By.css("texera-user-dataset-version-filetree"));
     // The first four segments (datasets/owner/dataset/version) are the prefix the
     // relative path strips, so "nested" is the first segment the backend sees.
     const leaf = (name: string): DatasetFileNode => ({
@@ -2539,17 +2501,10 @@ describe("DatasetDetailComponent rendered template", () => {
       openTab("Versions & Files");
     });
 
-    it("hands the tree the nodes of the version on screen", () => {
-      const nodes = [leaf("b.csv"), leaf("c.csv")];
-      render({ fileTreeNodeList: nodes });
-
-      expect(tree().componentInstance.fileTreeNodes).toEqual(nodes);
-    });
-
-    it("shows the file the tree selected", () => {
+    it("shows the file a tree node selection would open", () => {
       expect(text(q<HTMLElement>(fixture.nativeElement, ".file-title-main"))).not.toContain("b.csv");
 
-      tree().triggerEventHandler("selectedTreeNode", leaf("b.csv"));
+      component.onVersionFileTreeNodeSelected(leaf("b.csv"));
       fixture.detectChanges();
 
       // The heading is the full path — the copy-path button beside it copies
@@ -2561,30 +2516,14 @@ describe("DatasetDetailComponent rendered template", () => {
       expect(text(q<HTMLElement>(fixture.nativeElement, ".file-size"))).toBe("2.00 KB");
     });
 
-    it("deletes the file the tree asked to remove", () => {
-      tree().triggerEventHandler("deletedTreeNode", leaf("b.csv"));
+    it("deletes the file a tree node asked to remove", () => {
+      component.onPreviouslyUploadedFileDeleted(leaf("b.csv"));
 
       expect(datasetService.deleteDatasetFile).toHaveBeenCalledWith(5, "nested/b.csv");
     });
 
-    it("offers the tree's write controls only to a writer", () => {
-      // A fresh page per access level: the Settings tab is gated on write access, so flipping the
-      // level on a live component removes a tab and nz-tabs can tear down the pane being asserted on.
-      const treeFor = (level: "READ" | "WRITE"): DebugElement => {
-        render({ userDatasetAccessLevel: level });
-        openTab("Versions & Files");
-        return tree();
-      };
-
-      expect(treeFor("WRITE").componentInstance.isTreeNodeDeletable).toBe(true);
-      expect(treeFor("WRITE").componentInstance.isCoverSettable).toBe(true);
-
-      expect(treeFor("READ").componentInstance.isTreeNodeDeletable).toBe(false);
-      expect(treeFor("READ").componentInstance.isCoverSettable).toBe(false);
-    });
-
-    it("adopts the cover image the tree offered, qualified by the selected version", () => {
-      tree().triggerEventHandler("setCoverImage", "nested/b.png");
+    it("adopts the cover image offered by a file path, qualified by the selected version", () => {
+      component.onSetCoverImage("nested/b.png");
 
       expect(datasetService.updateDatasetCoverImage).toHaveBeenCalledWith(5, "v1/nested/b.png");
     });
@@ -2611,8 +2550,12 @@ describe("DatasetDetailComponent rendered template", () => {
     it("locks the name field while an upload is in flight", () => {
       const el = render({ did: 5, datasetName: "ds", userDatasetAccessLevel: "WRITE" });
       openTab("Versions & Files");
+      component.openCreateVersionModal();
+      fixture.detectChanges();
 
-      fixture.debugElement.query(By.css("texera-version-uploader")).triggerEventHandler("uploadsInFlightChange", true);
+      fixture.debugElement
+        .query(By.css(".create-version-dialog texera-version-uploader"))
+        .triggerEventHandler("uploadsInFlightChange", true);
       flush();
       openTab("Settings");
 

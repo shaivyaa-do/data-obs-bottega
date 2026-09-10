@@ -23,6 +23,7 @@ import { DashboardComponent } from "./dashboard/component/dashboard.component";
 import { UserWorkflowComponent } from "./dashboard/component/user/user-workflow/user-workflow.component";
 import { UserQuotaComponent } from "./dashboard/component/user/user-quota/user-quota.component";
 import { UserComputingUnitComponent } from "./dashboard/component/user/user-computing-unit/user-computing-unit.component";
+import { UserAgentComponent } from "./dashboard/component/user/user-agent/user-agent.component";
 import { UserVenvComponent } from "./dashboard/component/user/user-venv/user-venv.component";
 import { WorkspaceComponent } from "./workspace/component/workspace.component";
 import { WorkflowFormComponent } from "./workspace/component/workflow-form/workflow-form.component";
@@ -165,6 +166,10 @@ routes.push({
         {
           path: "model/:mid",
           component: ModelDetailComponent,
+        },
+        {
+          path: "agent",
+          component: UserAgentComponent,
         },
         {
           path: "compute",

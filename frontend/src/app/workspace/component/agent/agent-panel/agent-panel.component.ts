@@ -18,13 +18,14 @@
  */
 
 import { Component, HostListener, Input, OnDestroy, OnInit, OnChanges, SimpleChanges } from "@angular/core";
+import { Router } from "@angular/router";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { NzResizeEvent, NzResizableDirective, NzResizeHandlesComponent } from "ng-zorro-antd/resizable";
 import { AgentService, AgentInfo } from "../../../service/agent/agent.service";
 import { WorkflowActionService } from "../../../service/workflow-graph/model/workflow-action.service";
-import { NotificationService } from "../../../../common/service/notification/notification.service";
 import { calculateTotalTranslate3d } from "../../../../common/util/panel-dock";
 import { NgIf, NgClass, NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
@@ -33,8 +34,7 @@ import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { CdkDrag, CdkDragHandle } from "@angular/cdk/drag-drop";
 import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
-import { NzTabsComponent, NzTabBarExtraContentDirective, NzTabComponent, NzTabDirective } from "ng-zorro-antd/tabs";
-import { AgentRegistrationComponent } from "./agent-registration/agent-registration.component";
+import { NzSelectComponent, NzOptionComponent } from "ng-zorro-antd/select";
 import { AgentChatComponent } from "./agent-chat/agent-chat.component";
 
 @UntilDestroy()
@@ -56,12 +56,10 @@ import { AgentChatComponent } from "./agent-chat/agent-chat.component";
     NgClass,
     NzMenuItemComponent,
     CdkDragHandle,
-    NzTabsComponent,
-    NzTabBarExtraContentDirective,
-    NzTabComponent,
-    NzTabDirective,
-    AgentRegistrationComponent,
+    FormsModule,
     NgFor,
+    NzSelectComponent,
+    NzOptionComponent,
     AgentChatComponent,
     NzResizeHandlesComponent,
   ],
@@ -86,17 +84,23 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
   returnPosition = { x: 0, y: 0 };
   isDocked = true;
 
-  // Tab management
-  selectedTabIndex: number = 0; // 0 = registration tab, 1+ = agent tabs
+  // Index of the agent shown in the chat (and bound to the model dropdown).
+  selectedTabIndex: number = 0;
   agents: AgentInfo[] = [];
 
   // Active agent tracking - only one agent can be connected at a time
   activeAgentId: string | null = null;
+  /** Agent currently being rebound to this workflow; blocks ensureActiveAgent from racing. */
+  private attachingAgentId: string | null = null;
+
+  get selectedAgent(): AgentInfo | undefined {
+    return this.agents[this.selectedTabIndex] ?? this.agents[0];
+  }
 
   constructor(
     private agentService: AgentService,
     private workflowActionService: WorkflowActionService,
-    private notificationService: NotificationService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -108,9 +112,7 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
         .getAllAgents()
         .pipe(untilDestroyed(this))
         .subscribe(agents => {
-          this.agents = agents;
-          // Try to activate the agent if agentIdToActivate is set
-          this.tryActivateAgentFromInput();
+          this.applyAgentList(agents);
         });
     });
 
@@ -119,9 +121,7 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
       .getAllAgents()
       .pipe(untilDestroyed(this))
       .subscribe(agents => {
-        this.agents = agents;
-        // Try to activate the agent if agentIdToActivate is set
-        this.tryActivateAgentFromInput();
+        this.applyAgentList(agents);
       });
   }
 
@@ -129,6 +129,31 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
     if (changes["agentIdToActivate"] && this.agentIdToActivate) {
       this.tryActivateAgentFromInput();
     }
+  }
+
+  /**
+   * Replace the in-memory agent list and keep the current selection in range.
+   */
+  private applyAgentList(agents: AgentInfo[]): void {
+    this.agents = agents;
+    if (this.selectedTabIndex >= this.agents.length) {
+      this.selectedTabIndex = Math.max(0, this.agents.length - 1);
+    }
+    this.tryActivateAgentFromInput();
+    if (this.width > 0) {
+      this.ensureActiveAgent();
+    }
+  }
+
+  /**
+   * Connect the first agent when the panel is open and none is active.
+   * Any agent can work on the current workflow; bind happens in attachAndActivate.
+   */
+  private ensureActiveAgent(): void {
+    if (this.activeAgentId || this.attachingAgentId || this.agents.length === 0) {
+      return;
+    }
+    this.attachAndActivate(this.agents[0], 0);
   }
 
   /**
@@ -150,21 +175,9 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
       this.width = AgentPanelComponent.MIN_PANEL_WIDTH;
     }
 
-    // Switch to the agent's tab and activate it
     const agent = this.agents[agentIndex];
-
-    // Deactivate previous agent if any
-    if (this.activeAgentId) {
-      this.agentService.deactivateAgent(this.activeAgentId);
-    }
-
-    // Activate the specified agent
-    this.activeAgentId = agent.id;
-    this.agentService.activateAgent(agent.id);
-    this.selectedTabIndex = agentIndex + 1; // +1 because tab 0 is registration
-
-    // Clear the input so we don't re-activate on every change
     this.agentIdToActivate = undefined;
+    this.attachAndActivate(agent, agentIndex);
   }
 
   @HostListener("window:beforeunload")
@@ -181,11 +194,34 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
     if (this.width === 0) {
       // Open panel
       this.width = AgentPanelComponent.MIN_PANEL_WIDTH;
+      this.ensureActiveAgent();
     } else {
       // Close panel (dock it)
       this.width = 0;
       this.isDocked = true;
     }
+  }
+
+  /**
+   * Dropdown label: agent name plus the configured model.
+   */
+  public agentDropdownLabel(agent: AgentInfo): string {
+    return `${agent.name} · ${agent.modelType}`;
+  }
+
+  /**
+   * Handle the model/agent dropdown under the ask bar.
+   */
+  public onAgentDropdownChange(agentId: string): void {
+    const index = this.agents.findIndex(agent => agent.id === agentId);
+    this.onTabSelectChange(index);
+  }
+
+  /**
+   * Navigate to the user agents management dashboard
+   */
+  public navigateToAgentsDashboard(): void {
+    this.router.navigate(["/user/agent"]);
   }
 
   /**
@@ -206,48 +242,54 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
       .getAllAgents()
       .pipe(untilDestroyed(this))
       .subscribe(agents => {
-        this.agents = agents;
+        this.applyAgentList(agents);
         const agentIndex = agents.findIndex(agent => agent.id === agentId);
         if (agentIndex !== -1) {
-          this.selectedTabIndex = agentIndex + 1; // +1 because tab 0 is registration
+          this.selectedTabIndex = agentIndex;
         }
       });
   }
 
   /**
-   * Handle tab selection change - validates workflow compatibility before switching
+   * Handle tab selection change — bind the agent to the open workflow, then connect.
    */
   public onTabSelectChange(index: number): void {
-    // Tab 0 is registration - always allow
-    if (index === 0) {
-      this.deactivateCurrentAgent();
-      this.selectedTabIndex = 0;
+    if (index < 0 || index >= this.agents.length) {
       return;
     }
 
-    // Get the agent for this tab (index - 1 because tab 0 is registration)
-    const agentIndex = index - 1;
-    if (agentIndex < 0 || agentIndex >= this.agents.length) {
+    this.attachAndActivate(this.agents[index], index);
+  }
+
+  /**
+   * Rebind the agent to the current workflow if needed, then open its websocket.
+   * Bind failures do not activate: tools would otherwise edit the wrong workflow.
+   */
+  private attachAndActivate(agent: AgentInfo, index: number): void {
+    const currentWid = this.workflowActionService.getWorkflowMetadata().wid;
+    const alreadyOnCurrent = currentWid !== undefined && agent.delegate?.workflowId === currentWid;
+
+    if (currentWid && !alreadyOnCurrent) {
+      this.attachingAgentId = agent.id;
+      this.agentService
+        .bindAgentToWorkflow(agent.id, currentWid)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          next: updated => {
+            this.attachingAgentId = null;
+            const i = this.agents.findIndex(a => a.id === agent.id);
+            if (i !== -1) {
+              this.agents[i] = { ...this.agents[i], ...updated, delegate: updated.delegate };
+            }
+            this.switchToAgent(agent.id, index);
+          },
+          error: () => {
+            this.attachingAgentId = null;
+          },
+        });
       return;
     }
 
-    const agent = this.agents[agentIndex];
-    const agentWorkflowId = agent.delegate?.workflowId;
-    const currentWorkflowId = this.workflowActionService.getWorkflowMetadata().wid;
-
-    // If agent has a workflow ID, check if it matches the current workflow
-    if (agentWorkflowId !== undefined && agentWorkflowId !== 0) {
-      if (currentWorkflowId !== agentWorkflowId) {
-        // Block switching - workflow mismatch
-        this.notificationService.warning(
-          `Cannot switch to agent "${agent.name}": It's working on a different workflow. ` +
-            `Open workflow #${agentWorkflowId} to interact with this agent.`
-        );
-        return;
-      }
-    }
-
-    // Workflow matches or agent has no workflow - allow switch
     this.switchToAgent(agent.id, index);
   }
 
@@ -282,18 +324,6 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Check if an agent's workflow matches the current workspace workflow
-   */
-  public canSwitchToAgent(agent: AgentInfo): boolean {
-    const agentWorkflowId = agent.delegate?.workflowId;
-    if (agentWorkflowId === undefined || agentWorkflowId === 0) {
-      return true; // Agent has no workflow - always allow
-    }
-    const currentWorkflowId = this.workflowActionService.getWorkflowMetadata().wid;
-    return currentWorkflowId === agentWorkflowId;
-  }
-
-  /**
    * Delete an agent
    */
   public deleteAgent(agentId: string, event: Event): void {
@@ -313,11 +343,9 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
         .pipe(untilDestroyed(this))
         .subscribe({
           next: () => {
-            // If we're on the deleted agent's tab, switch to registration
-            if (agentIndex !== -1 && this.selectedTabIndex === agentIndex + 1) {
-              this.selectedTabIndex = 0;
-            } else if (this.selectedTabIndex > agentIndex + 1) {
-              // Adjust selected index if we deleted a tab before the current one
+            if (agentIndex !== -1 && this.selectedTabIndex === agentIndex) {
+              this.selectedTabIndex = Math.max(0, agentIndex - 1);
+            } else if (this.selectedTabIndex > agentIndex) {
               this.selectedTabIndex--;
             }
           },

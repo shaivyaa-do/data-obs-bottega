@@ -19,63 +19,111 @@
 
 :host {
   display: block;
-  width: 100%;
-  height: 100%;
   position: fixed;
-  z-index: 3;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
 }
 
 #agent-container {
-  position: absolute;
-  top: calc(-100% + 80px);
-  right: 0;
-  z-index: 3;
-  background: white;
+  position: fixed;
+  bottom: 36px;
+  right: 20px;
+  top: auto !important;
+  left: auto;
+  z-index: 10;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
 }
 
 #title {
-  padding: 5px 9px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 0 72px 0 12px;
+  border-bottom: 1px solid #f0f0f0;
   position: absolute;
   top: 0;
-  background: white;
+  left: 0;
+  background: #ffffff;
   width: 100%;
+  height: 38px;
+  line-height: 38px;
   z-index: 2;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: move;
+  user-select: none;
+  box-sizing: border-box;
+
+  .title-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 #agent-docked-button {
   position: fixed;
-  bottom: 40px; // Position above the mini-map button
-  right: 10px;
-  z-index: 4;
-  box-shadow:
-    0 3px 1px -2px #0003,
-    0 2px 2px #00000024,
-    0 1px 5px #0000001f;
+  bottom: 36px;
+  right: 20px;
+  z-index: 10;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
 #return-button {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 3px;
+  right: 6px;
   z-index: 3;
   display: flex;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  .ant-menu-item {
+    height: 32px;
+    line-height: 32px;
+    padding: 0 8px;
+    border-radius: 4px;
+    color: #6b7280;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+  }
 }
 
 #content {
   width: 100%;
   height: 100%;
-  padding-top: 32px;
-  display: inline-block;
-  overflow-y: auto;
+  padding-top: 38px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-height: 0;
 }
 
 .shadow {
-  border-radius: 5px;
-  box-shadow:
-    0 3px 1px -2px #0003,
-    0 2px 2px #00000024,
-    0 1px 5px #0000001f;
+  box-shadow: none;
 }
 
 .ant-menu-item {
@@ -85,62 +133,72 @@
   padding: 0 9px;
 }
 
-.agent-tabs {
-  height: calc(100% - 32px); // Account for the title bar
+.empty-agents-view {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  background: #ffffff;
 
-  ::ng-deep {
-    .ant-tabs {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 280px;
+
+    .empty-icon {
+      font-size: 40px;
+      color: #9ca3af;
+      margin-bottom: 16px;
     }
 
-    .ant-tabs-nav {
-      margin-bottom: 0;
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 8px 0;
     }
 
-    .ant-tabs-content-holder {
-      flex: 1;
-      overflow: hidden;
+    p {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin: 0 0 20px 0;
     }
 
-    .ant-tabs-content {
-      height: 100%;
-    }
-
-    .ant-tabs-tabpane {
-      height: 100%;
-      overflow: hidden;
-      padding: 0;
+    button {
+      border-radius: 6px;
     }
   }
 }
 
-.agent-tab-title {
+.chat-view {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 
-  .agent-tab-name {
+  texera-agent-chat {
     flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
+}
 
-  // Visual feedback for agents on different workflows
-  &.workflow-mismatch {
-    opacity: 0.6;
+.agent-switcher {
+  flex-shrink: 0;
+  padding: 0 12px 12px;
+  background: #ffffff;
 
-    .agent-tab-name {
-      color: #8c8c8c;
-    }
-  }
-
-  .workflow-lock-icon {
-    color: #faad14;
-    font-size: 12px;
-    margin-left: -4px;
+  .agent-model-select {
+    width: 220px;
+    max-width: 100%;
+    display: inline-block;
   }
 }
 

@@ -60,7 +60,7 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzTabsComponent, NzTabComponent } from "ng-zorro-antd/tabs";
 
 export const DEFAULT_WIDTH = 800;
-export const DEFAULT_HEIGHT = 500;
+export const DEFAULT_HEIGHT = 350;
 /**
  * ResultPanelComponent is the bottom level area that displays the
  *  execution result of a workflow after the execution finishes.
@@ -400,8 +400,8 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
   }
 
   handleStartDrag() {
-    let visualizationResult = this.componentOutlets.nativeElement.querySelector("#html-content");
-    if (visualizationResult !== null) {
+    const visualizationResult = this.componentOutlets?.nativeElement?.querySelector("#html-content");
+    if (visualizationResult) {
       visualizationResult.style.zIndex = -1;
     }
   }
@@ -412,8 +412,8 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
      */
     const { x, y } = source.getFreeDragPosition();
     this.dragPosition = { x: x, y: y };
-    let visualizationResult = this.componentOutlets.nativeElement.querySelector("#html-content");
-    if (visualizationResult !== null) {
+    const visualizationResult = this.componentOutlets?.nativeElement?.querySelector("#html-content");
+    if (visualizationResult) {
       visualizationResult.style.zIndex = 0;
     }
   }
@@ -428,11 +428,9 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateReturnPosition(prevHeight: number, newHeight: number | undefined) {
-    /**
-     * Updating returnPosition ensures that even if the panel gets resized,it can be docked correctly to the left-bottom corner of the canvas.
-     */
+  updateReturnPosition(_prevHeight: number, newHeight: number | undefined) {
+    // Docked against the canvas bottom (`bottom: 100%` of the host), so height
+    // changes grow upward and must not shift the return origin.
     if (!isDefined(newHeight)) return;
-    this.returnPosition = { x: this.returnPosition.x, y: this.returnPosition.y + prevHeight - newHeight };
   }
 }

@@ -1,125 +1,113 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="60" failures="0" errors="0" time="0.390978083">
-    <testsuite name="src/app/hub/component/login/texera-login.component.spec.ts" timestamp="2026-09-09T08:49:08.850Z" hostname="Shaivyaas-MacBook-Air.local" tests="60" failures="0" errors="0" skipped="0" time="0.390978083">
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; should create the component" time="0.045645333">
+<testsuites name="vitest tests" tests="54" failures="0" errors="0" time="1.142586292">
+    <testsuite name="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" timestamp="2026-09-10T17:24:46.516Z" hostname="Shaivyaas-MacBook-Air.local" tests="54" failures="0" errors="0" skipped="0" time="1.142586292">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; loads the agents once on init and shows the selected agent with a model dropdown" time="0.121178083">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; prefills username/password from defaultLocalUser when populated" time="0.005818291">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; shows empty state when there are no agents" time="0.02458475">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; does not prefill when defaultLocalUser is empty" time="0.004066375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; reloads the agent list when the service signals an agent change" time="0.029328709">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; sends an already-signed-in visitor to their workflows" time="0.003923958">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; feeds the selected agent&apos;s chat and whether it is the active one" time="0.028177834">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; honours a returnUrl when redirecting an already-signed-in visitor" time="0.006971792">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; opens the panel, activates the agent and selects its tab once agents load" time="0.026722209">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; ngOnInit &gt; skips the prefill and the Google subscription when already signed in" time="0.003199791">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; binds a query-param agent to the current workflow instead of navigating away" time="0.027266583">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; setMode &gt; switches mode and clears the error message" time="0.002927875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; ignores an id that matches no agent and keeps the input for a later retry" time="0.022612042">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; togglePasswordVisibility &gt; flips the passwordVisible flag" time="0.002934584">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; defers activation until the agent list arrives through agentChange$" time="0.017632834">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; confirmationValidator (via the confirm control) &gt; flags a mismatch only in sign-up mode" time="0.006107291">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; deactivates the previously active agent and keeps an already-open panel width" time="0.022807375">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; confirmationValidator (via the confirm control) &gt; does not flag a mismatch in sign-in mode" time="0.003048166">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; does nothing when the input change clears the id" time="0.02027325">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; short-circuits and sets errorMessage when the username is blank" time="0.002558666">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; openPanel and docked state &gt; the docked button opens the panel and the minimize button docks it again" time="0.018876584">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; sets errorMessage when the password is shorter than 6 characters" time="0.0023165">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; openPanel and docked state &gt; opening the panel activates the first switchable agent so chat is ready" time="0.026114208">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; calls UserService.login with a trimmed username and navigates to USER_WORKFLOW" time="0.00231375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; activates the new agent and switches to its tab after refreshing the list" time="0.020120667">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; navigates to queryParams.returnUrl when present" time="0.004291041">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; deactivates the previously active agent before activating the created one" time="0.01848775">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; surfaces the error message on login failure and does not navigate" time="0.002357209">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; leaves the tab selection alone when the created agent is missing from the refreshed list" time="0.018142125">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; login (sign-in mode) &gt; falls back to a default message when the login error has no message" time="0.002329542">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; activates the created agent directly on onAgentCreated" time="0.019375959">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; sets errorMessage when the email is missing or malformed" time="0.00236875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; activates the newly selected agent and deactivates the previous one" time="0.019188042">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; sets errorMessage when passwords are inconsistent" time="0.002214833">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; ignores a tab index beyond the agent list" time="0.018418292">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; calls UserService.register with username, email and password, then notifies success" time="0.002134375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; activates the agent behind the selected tab" time="0.021328166">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; mails a code when asked, without creating the account" time="0.00224175">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; binds the selected agent to the current workflow instead of navigating away" time="0.017428375">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; does not mail anything when the form is submitted" time="0.002110125">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; does not activate when binding to the current workflow fails" time="0.01818875">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; refuses to send a code for an address that is not one" time="0.002165875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; skips the bind request when the agent is already on the current workflow" time="0.017624417">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; shows the server&apos;s reason when a code cannot be sent, not the generic HTTP text" time="0.002103583">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; binds an unbound agent (workflowId 0) to the current workflow" time="0.017302125">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; submits the typed code with the same fields" time="0.002063875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; re-selecting the already-active agent tab is a no-op" time="0.017209666">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; asks for the code rather than submitting an empty one" time="0.001979">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; the model dropdown switches to the chosen agent" time="0.022661375">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; reports a refused code" time="0.002023042">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; re-activates without deactivating when the same agent moved to a different tab" time="0.018631792">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; with email verification on &gt; clears a code that was typed when the tab changes" time="0.002186834">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agent dropdown &gt; keeps every agent selectable, including those last used on another workflow" time="0.018765667">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; submit -&gt; register (sign-up mode) &gt; surfaces the error message on registration failure" time="0.002228625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; stops the event and does nothing when the deletion is not confirmed" time="0.016978208">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; google sign-in (authState) &gt; hands the id token to UserService.googleLogin and navigates" time="0.008735959">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; deactivates and deletes the active agent" time="0.018151625">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; google sign-in (authState) &gt; ignores a null auth state" time="0.012453375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; shifts the selected index down when deleting a tab before the current one" time="0.017077209">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; google sign-in (authState) &gt; notifies and does not navigate when the google exchange fails" time="0.007691583">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; keeps the selected index when deleting a tab after the current one" time="0.020755875">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; orcid sign-in &gt; redirects to ORCID with the server&apos;s client id and redirect uri, and a fresh state" time="0.008651375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; logs and leaves the tabs untouched when the backend delete fails" time="0.020165875">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; orcid sign-in &gt; uses a different state on each attempt" time="0.007083125">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; the close button in the header asks for confirmation and deletes through the service" time="0.018770209">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; orcid sign-in &gt; reports unavailable and does not redirect when the config fetch failed" time="0.006868625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel geometry &gt; onResize coalesces updates through requestAnimationFrame" time="0.014518458">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; renders the local form and both social buttons when all are enabled" time="0.007247584">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel geometry &gt; handleDragStart undocks the panel" time="0.013536875">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; drops both social buttons but keeps the form when only local login is enabled" time="0.00668475">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; restores a saved width only when the panel was left undocked" time="0.013080042">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; drops the tabs and the form but keeps the google button when only google is enabled" time="0.003304375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; stays docked when the panel was saved docked, regardless of the saved width" time="0.013126166">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; keeps the orcid button and the divider when google is disabled but orcid is not" time="0.006877459">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; rejects a saved width below the minimum" time="0.017550125">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; drops the tabs and the form but keeps the orcid button when only orcid is enabled" time="0.002987333">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; rejects a non-numeric saved width" time="0.015420208">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; provider flags &gt; renders no sign-in path when every provider is disabled" time="0.002870167">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; restores a saved height at or above the minimum" time="0.015896667">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; shows only the sign-in fields by default" time="0.006811875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; keeps the default height when the saved height is below the minimum" time="0.014496958">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; adds the email, confirm and password-policy hint in sign-up mode" time="0.01410475">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; re-applies the saved container style and derives the return position from its transform" time="0.016237334">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; switches mode from the tab strip in both directions" time="0.01103">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; counts as docked when the saved transform nets out to the origin" time="0.017483709">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; binds the selected tab to the current mode" time="0.010820417">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; persists dimensions, docked flag and container style, and deactivates the agent on destroy" time="0.021872584">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; sign-in / sign-up mode &gt; submits the form through its ngSubmit binding" time="0.00765">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; saves docked=true for a closed panel and skips the style when no container exists" time="0.024629542">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; starts hidden on both password fields" time="0.012247292">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; reveals the body and sizes it from the bound width and height when opened" time="0.014568958">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; reveals both password fields when the toggle is clicked" time="0.012166291">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; bounds the resizable box by the configured minimum and a fraction of the window" time="0.0091115">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; also toggles from the keyboard, so the control is reachable without a mouse" time="0.010023709">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; applies a resize reported by the resizable directive to the rendered box" time="0.009559541">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; password visibility &gt; hides them again on a second click" time="0.016874458">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; drags from the title bar within the workspace and undocks on drag start" time="0.008757041">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; starts on the identity step and keeps both sign-in inputs in the DOM" time="0.006560958">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; renders the selected agent&apos;s chat, not one chat per agent" time="0.033308875">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; advances to the password step when the username is valid" time="0.006198584">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; changing the model dropdown activates that agent and shows only its chat" time="0.027973">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; stays on the identity step when the username is blank" time="0.006133917">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; keeps every dropdown option enabled so any agent can be selected on this workflow" time="0.024120416">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; two-step visual &gt; resets to the identity step when the mode changes" time="0.0062985">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; the close button in the header deletes the shown agent without switching to another" time="0.026049834">
         </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; renders the time and weather widgets around the existing form" time="0.005480167">
-        </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; formats a valid clock date by stripping the locale comma" time="0.002271792">
-        </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; clears the clock strings when given an invalid date" time="0.001924625">
-        </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; fills the weather card from the catalog Open-Meteo payload" time="0.034244459">
-        </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; marks weather unavailable when the catalog weather request fails" time="0.002755209">
-        </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; still requests the catalog Mumbai fallback when geolocation is missing" time="0.002321292">
-        </testcase>
-        <testcase classname="src/app/hub/component/login/texera-login.component.spec.ts" name="TexeraLoginComponent &gt; template &gt; catalog chrome &gt; renders Microsoft and GitLab logos beside Google" time="0.0057885">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; offers resize handles on the left and bottom edges only" time="0.008711458">
         </testcase>
     </testsuite>
 </testsuites>

@@ -18,8 +18,9 @@
 -->
 <nz-card
   class="card-item"
+  [nzBordered]="false"
   [class.selected]="entry.checked"
-  [nzBodyStyle]="{ padding: '0' }"
+  [nzBodyStyle]="{ padding: '0', background: 'transparent' }"
   (mouseenter)="hovering = true"
   (mouseleave)="hovering = false">
   <!-- Preview Section (Blank Space) -->
@@ -125,17 +126,6 @@
     <!-- Meta Info: Owner, Dates, Size, Views -->
     <div class="card-meta">
       <div class="meta-details">
-        <div class="meta-row">
-          <span
-            class="owner-info"
-            title="{{ entry.ownerName || 'User' }}">
-            <texera-user-avatar
-              [avatar]="entry.ownerAvatar"
-              userColor="#1E90FF"
-              [userName]="entry.ownerName || 'User'"></texera-user-avatar>
-            <span class="owner-name truncate-single-line">{{ entry.ownerName || "User" }}</span>
-          </span>
-        </div>
         <div class="meta-row">
           <span title="Created"
             ><i

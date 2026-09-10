@@ -136,6 +136,13 @@ export class LeftPanelComponent implements OnDestroy, OnInit, AfterViewInit {
       this.resetPanelPosition();
       this.openFrame(1);
     });
+    this.panelService.togglePanelStream.pipe(untilDestroyed(this)).subscribe(index => {
+      if (this.width && this.currentIndex === index) {
+        this.openFrame(0);
+      } else {
+        this.openFrame(index);
+      }
+    });
   }
 
   // Calculates the sum of level one operator tabs, and sets minPanelHeight to this value

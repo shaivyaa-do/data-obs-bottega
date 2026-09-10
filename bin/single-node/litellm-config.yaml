@@ -27,3 +27,47 @@ model_list:
     litellm_params:
       model: claude-haiku-4-5-20251001
       api_key: "os.environ/ANTHROPIC_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+
+  # Google AI Studio free tier — https://aistudio.google.com/apikey
+  - model_name: gemini-2.5-flash
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: "os.environ/GEMINI_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+  - model_name: gemini-2.0-flash
+    litellm_params:
+      model: gemini/gemini-2.0-flash
+      api_key: "os.environ/GEMINI_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+
+  # Groq free tier (rate-limited) — https://console.groq.com/keys
+  - model_name: groq-llama-3.1-8b-instant
+    litellm_params:
+      model: groq/llama-3.1-8b-instant
+      api_key: "os.environ/GROQ_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+  - model_name: groq-llama-3.3-70b-versatile
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: "os.environ/GROQ_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+
+  # OpenRouter Free Models Router — picks any available :free model.
+  # LiteLLM needs the doubled prefix so the API receives `openrouter/free`.
+  # https://openrouter.ai/keys
+  - model_name: openrouter-free
+    litellm_params:
+      model: openrouter/openrouter/free
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+  - model_name: openrouter-gpt-oss-20b-free
+    litellm_params:
+      model: openrouter/openai/gpt-oss-20b:free
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+  - model_name: openrouter-llama-3.3-70b-free
+    litellm_params:
+      model: openrouter/meta-llama/llama-3.3-70b-instruct:free
+      api_key: "os.environ/OPENROUTER_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]

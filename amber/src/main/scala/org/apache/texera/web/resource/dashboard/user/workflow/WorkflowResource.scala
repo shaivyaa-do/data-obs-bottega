@@ -489,20 +489,22 @@ class WorkflowResource extends LazyLogging {
   }
 
   /**
-    * Persists a plain save by updating only the fields the client sends
-    * (name/description/content/is_public). It deliberately leaves `default_view` untouched --
-    * that column is owned by /set-default-view alone -- so a save can never clobber a
-    * concurrent change. Timestamps are likewise not rewritten here.
+    * Persists a plain save by updating the fields the client sends (name/description/content).
+    * `is_public` is only rewritten when the body actually carries it -- a missing or null
+    * value must not clobber the stored visibility (the column is NOT NULL). `default_view`
+    * is owned by /set-default-view alone, so a save can never clobber a concurrent change.
+    * Timestamps are likewise not rewritten here.
     */
   private def saveWorkflowFields(workflow: Workflow): Unit = {
-    context
+    val base = context
       .update(WORKFLOW)
       .set(WORKFLOW.NAME, workflow.getName)
       .set(WORKFLOW.DESCRIPTION, workflow.getDescription)
       .set(WORKFLOW.CONTENT, workflow.getContent)
-      .set(WORKFLOW.IS_PUBLIC, workflow.getIsPublic)
-      .where(WORKFLOW.WID.eq(workflow.getWid))
-      .execute()
+    val withPublic =
+      if (workflow.getIsPublic != null) base.set(WORKFLOW.IS_PUBLIC, workflow.getIsPublic)
+      else base
+    withPublic.where(WORKFLOW.WID.eq(workflow.getWid)).execute()
   }
 
   /**

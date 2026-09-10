@@ -136,7 +136,7 @@ export class TexeraLoginComponent implements OnInit {
       // Registration requires an email; sign-in does not, so the control is only
       // validated and submitted in sign-up mode.
       email: new FormControl("", [Validators.email]),
-      password: new FormControl("", [Validators.required, Validators.minLength(6)]),
+      password: new FormControl("", [Validators.required, Validators.minLength(5)]),
       confirm: new FormControl("", [this.confirmationValidator]),
       // Carries the mailed code. Only collected, and only required, where
       // `user-sys.email-verification` is on.
@@ -362,8 +362,8 @@ export class TexeraLoginComponent implements OnInit {
       this.errorMessage = validation.message;
       return;
     }
-    if (!password || password.length < 6) {
-      this.errorMessage = "Password length should be greater than 5.";
+    if (!password || password.length < 5) {
+      this.errorMessage = "Password length should be at least 5 characters.";
       return;
     }
 

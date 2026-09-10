@@ -750,6 +750,14 @@ describe("AgentChatComponent", () => {
   });
 
   describe("template rendering", () => {
+    it("shows an empty-chat placeholder until there are messages", () => {
+      createComponent();
+      expect(fixture.nativeElement.querySelector(".chat-empty").textContent).toContain(
+        "Send a message to start chatting."
+      );
+      expect(fixture.nativeElement.querySelectorAll(".messages-container .message").length).toBe(0);
+    });
+
     it("renders user and agent message bubbles with roles, content and tool summary", async () => {
       createComponent();
       const userStep = makeStep({ messageId: "m1", stepId: 0, role: "user", content: "hello agent" });

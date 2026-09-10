@@ -67,10 +67,10 @@ describe("AgentRegistrationComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should create and default customAgentName to 'Texera Agent'", () => {
+  it("should create with an empty agent name for the user to fill in", () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
-    expect(component.customAgentName).toBe("Texera Agent");
+    expect(component.customAgentName).toBe("");
   });
 
   describe("ngOnInit", () => {
@@ -135,26 +135,38 @@ describe("AgentRegistrationComponent", () => {
   describe("createAgent", () => {
     it("emits agentCreated with the new id and resets the form on success", () => {
       component.selectedModelType = "gpt";
+      component.customAgentName = "Night shift";
       createAgent.mockReturnValue(of({ id: "agent-1" }));
       const emitted: string[] = [];
       component.agentCreated.subscribe(id => emitted.push(id));
 
       component.createAgent();
 
-      expect(createAgent).toHaveBeenCalledWith("gpt", "Texera Agent", 123);
+      expect(createAgent).toHaveBeenCalledWith("gpt", "Night shift", 123, undefined);
       expect(emitted).toEqual(["agent-1"]);
       expect(component.selectedModelType).toBeNull();
       expect(component.isCreating).toBe(false);
     });
 
-    it("passes undefined as the name when customAgentName is blank", () => {
+    it("does not create when the agent name is blank", () => {
       component.selectedModelType = "gpt";
-      component.customAgentName = "";
+      component.customAgentName = "   ";
       createAgent.mockReturnValue(of({ id: "agent-2" }));
 
       component.createAgent();
 
-      expect(createAgent).toHaveBeenCalledWith("gpt", undefined, 123);
+      expect(createAgent).not.toHaveBeenCalled();
+    });
+
+    it("passes a trimmed provider API key when one is entered", () => {
+      component.selectedModelType = "gpt";
+      component.customAgentName = "Night shift";
+      component.providerApiKey = "  sk-ant-from-canvas  ";
+      createAgent.mockReturnValue(of({ id: "agent-3" }));
+
+      component.createAgent();
+
+      expect(createAgent).toHaveBeenCalledWith("gpt", "Night shift", 123, "sk-ant-from-canvas");
     });
 
     it("does nothing when no model type is selected", () => {
@@ -165,6 +177,7 @@ describe("AgentRegistrationComponent", () => {
 
     it("does nothing when a creation is already in progress", () => {
       component.selectedModelType = "gpt";
+      component.customAgentName = "Night shift";
       component.isCreating = true;
       component.createAgent();
       expect(createAgent).not.toHaveBeenCalled();
@@ -172,6 +185,7 @@ describe("AgentRegistrationComponent", () => {
 
     it("notifies and clears isCreating when creation fails", () => {
       component.selectedModelType = "gpt";
+      component.customAgentName = "Night shift";
       createAgent.mockReturnValue(throwError(() => "network down"));
 
       component.createAgent();
@@ -182,12 +196,17 @@ describe("AgentRegistrationComponent", () => {
   });
 
   describe("canCreate", () => {
-    it("is true only with a selected model, an idle form, and a connected computing unit", () => {
+    it("is true only with a selected model, a name, an idle form, and a connected computing unit", () => {
       component.selectedModelType = "gpt";
+      component.customAgentName = "Night shift";
       component.isCreating = false;
       component.computingUnitConnected = true;
       expect(component.canCreate()).toBe(true);
 
+      component.customAgentName = "   ";
+      expect(component.canCreate()).toBe(false);
+
+      component.customAgentName = "Night shift";
       component.computingUnitConnected = false;
       expect(component.canCreate()).toBe(false);
 
@@ -240,9 +259,10 @@ describe("AgentRegistrationComponent", () => {
       // synchronously inside detectChanges, so drain it before reading the box.
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      const input = fixture.debugElement.query(By.css("input[nz-input]")).nativeElement as HTMLInputElement;
+      const input = fixture.debugElement.query(By.css('input[placeholder="Give this agent a name"]'))
+        .nativeElement as HTMLInputElement;
       expect(input.disabled).toBe(false);
-      expect(input.value).toBe("Texera Agent");
+      expect(input.value).toBe("");
 
       // Typed rather than assigned -- the write-back is the untested direction.
       input.value = "My Analyst";
@@ -272,7 +292,7 @@ describe("AgentRegistrationComponent", () => {
       expect(button.classList).toContain("ant-btn-loading");
     });
 
-    it("keeps the submit button shut, and says why, until a model and a computing unit are both there", () => {
+    it("keeps the submit button shut, and says why, until a model, a name, and a computing unit are all there", () => {
       // canCreate() is unit-tested above; what is pinned here is the template
       // actually honouring it. Nothing else in this file reads the button's
       // gate, so an inverted `[disabled]` binding -- Create enabled exactly
@@ -299,6 +319,7 @@ describe("AgentRegistrationComponent", () => {
 
       component.computingUnitConnected = true;
       component.selectedModelType = MODEL.id;
+      component.customAgentName = "Night shift";
       fixture.detectChanges();
 
       expect(component.canCreate()).toBe(true);

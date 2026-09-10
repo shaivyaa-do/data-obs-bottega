@@ -23,7 +23,6 @@ import { USER_DATASET } from "../../../../../app-routing.constant";
 import { extractErrorMessage } from "../../../../../common/util/error";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { DatasetService, validateDatasetName } from "../../../../service/user/dataset/dataset.service";
-import { NzResizeEvent, NzResizableDirective, NzResizeHandleComponent } from "ng-zorro-antd/resizable";
 import {
   DatasetFileNode,
   getFullPathFromDatasetFileNode,
@@ -58,18 +57,16 @@ import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { NzSwitchComponent } from "ng-zorro-antd/switch";
 import { FormsModule } from "@angular/forms";
 import { MarkdownDescriptionComponent } from "../../markdown-description/markdown-description.component";
-import { NzLayoutComponent, NzContentComponent, NzSiderComponent } from "ng-zorro-antd/layout";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { NzEmptyComponent } from "ng-zorro-antd/empty";
 import { NzTabsComponent, NzTabComponent } from "ng-zorro-antd/tabs";
 import { UserDatasetFileRendererComponent } from "./user-dataset-file-renderer/user-dataset-file-renderer.component";
-import { NzCollapseComponent, NzCollapsePanelComponent } from "ng-zorro-antd/collapse";
 import { NzSelectComponent, NzOptionComponent } from "ng-zorro-antd/select";
-import { UserDatasetVersionFiletreeComponent } from "./user-dataset-version-filetree/user-dataset-version-filetree.component";
 import { NzDividerComponent } from "ng-zorro-antd/divider";
 import { VersionUploaderComponent } from "../../version-uploader/version-uploader.component";
 import { DATASET_FILE_RESOURCE_ENDPOINT } from "../../../../service/user/file-resource/file-resource-endpoint";
 import { NzInputDirective } from "ng-zorro-antd/input";
+import { NzCollapseComponent, NzCollapsePanelComponent } from "ng-zorro-antd/collapse";
 
 export const THROTTLE_TIME_MS = 1000;
 
@@ -92,22 +89,14 @@ export const THROTTLE_TIME_MS = 1000;
     NzSwitchComponent,
     FormsModule,
     MarkdownDescriptionComponent,
-    NzLayoutComponent,
-    NzContentComponent,
     NzWaveDirective,
     NzEmptyComponent,
     NzTabsComponent,
     NzTabComponent,
     UserDatasetFileRendererComponent,
-    NzSiderComponent,
-    NzResizableDirective,
-    NzResizeHandleComponent,
-    NzCollapseComponent,
-    NzCollapsePanelComponent,
     NzSelectComponent,
     NgFor,
     NzOptionComponent,
-    UserDatasetVersionFiletreeComponent,
     NzDividerComponent,
     VersionUploaderComponent,
     NzInputDirective,
@@ -115,6 +104,8 @@ export const THROTTLE_TIME_MS = 1000;
     NzDropdownMenuComponent,
     NzMenuDirective,
     NzMenuItemComponent,
+    NzCollapseComponent,
+    NzCollapsePanelComponent,
   ],
 })
 export class DatasetDetailComponent implements OnInit {
@@ -136,8 +127,8 @@ export class DatasetDetailComponent implements OnInit {
   public currentFileSize: number | undefined;
   public currentDatasetVersionSize: number | undefined;
 
-  public isRightBarCollapsed = false;
   public isMaximized = false;
+  public isCreateVersionModalVisible = false;
 
   public versions: ReadonlyArray<DatasetVersion> = [];
   public selectedVersion: DatasetVersion | undefined;
@@ -183,18 +174,6 @@ export class DatasetDetailComponent implements OnInit {
         this.currentUid = this.userService.getCurrentUser()?.uid;
         this.isLogin = this.userService.isLogin();
       });
-  }
-
-  // item for control the resizeable sider
-  MAX_SIDER_WIDTH = 600;
-  MIN_SIDER_WIDTH = 150;
-  siderWidth = 400;
-  id = -1;
-  onSideResize({ width }: NzResizeEvent): void {
-    cancelAnimationFrame(this.id);
-    this.id = requestAnimationFrame(() => {
-      this.siderWidth = width!;
-    });
   }
 
   ngOnInit(): void {
@@ -249,6 +228,15 @@ export class DatasetDetailComponent implements OnInit {
   onVersionCreated(): void {
     this.retrieveDatasetVersionList();
     this.retrieveLatestVersionFile();
+    this.isCreateVersionModalVisible = false;
+  }
+
+  openCreateVersionModal(): void {
+    this.isCreateVersionModalVisible = true;
+  }
+
+  closeCreateVersionModal(): void {
+    this.isCreateVersionModalVisible = false;
   }
 
   public onClickDownloadVersionAsZip() {
@@ -419,10 +407,6 @@ export class DatasetDetailComponent implements OnInit {
 
   onClickScaleTheView() {
     this.isMaximized = !this.isMaximized;
-  }
-
-  onClickHideRightBar() {
-    this.isRightBarCollapsed = !this.isRightBarCollapsed;
   }
 
   onVersionSelected(version: DatasetVersion | undefined): void {

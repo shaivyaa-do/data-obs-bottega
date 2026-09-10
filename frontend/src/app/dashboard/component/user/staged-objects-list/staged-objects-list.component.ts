@@ -36,7 +36,6 @@ import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { NzEmptyComponent } from "ng-zorro-antd/empty";
 import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 
 @UntilDestroy()
@@ -57,7 +56,6 @@ import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport } 
     NzButtonComponent,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
-    NzEmptyComponent,
   ],
 })
 export class StagedObjectsListComponent implements OnInit {

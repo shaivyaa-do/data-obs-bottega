@@ -645,7 +645,7 @@ describe("ListItemComponent", () => {
       render();
 
       expect(q("input.resource-name-edit-input")).toBeNull();
-      button("Rename").triggerEventHandler("click", new MouseEvent("click"));
+      component.onEditName();
       fixture.detectChanges();
 
       const input = q("input.resource-name-edit-input");
@@ -668,11 +668,11 @@ describe("ListItemComponent", () => {
       expect(click.stopPropagation).toHaveBeenCalledTimes(1);
     });
 
-    it("opens the description editor from its button and from the description line", () => {
-      const edit = vi.spyOn(component, "onEditDescription").mockImplementation(() => {});
+    it("opens the edit modal from the edit button and from the description line", () => {
+      const edit = vi.spyOn(component, "openEditModal").mockImplementation(() => {});
       render({ description: "hello" });
 
-      button("Edit Description").triggerEventHandler("click", new MouseEvent("click"));
+      button("Edit").triggerEventHandler("click", new MouseEvent("click"));
       q(".resource-description").triggerEventHandler("click", new MouseEvent("click"));
 
       expect(edit).toHaveBeenCalledTimes(2);

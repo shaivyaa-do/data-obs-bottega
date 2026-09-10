@@ -55,6 +55,7 @@ import {
   USER_DATASET,
   USER_DISCUSSION,
   USER_MODEL,
+  USER_AGENT,
   USER_QUOTA,
   USER_WORKFLOW,
 } from "../../app-routing.constant";
@@ -262,24 +263,50 @@ describe("DashboardComponent", () => {
     expect(component.isNavbarEnabled("/user/workflow")).toBe(true);
   });
 
-  it("uses full-width content on workflow and dataset pages", () => {
+  it("hides the dashboard sider and uses workspace-mode on a workflow canvas route", () => {
+    (routerMock as { url: string }).url = "/user/workflow/1";
+    component.checkRoute();
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css(".nav-sider"))).toBeNull();
+    expect(fixture.debugElement.query(By.css(".shell-header"))).toBeNull();
+    expect(fixture.debugElement.query(By.css("nz-layout.workspace-mode"))).toBeTruthy();
+  });
+
+  it("keeps the dashboard sider on the workflows list", () => {
+    (routerMock as { url: string }).url = USER_WORKFLOW;
+    component.checkRoute();
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css(".nav-sider"))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css("nz-layout.workspace-mode"))).toBeNull();
+  });
+
+  it("uses full-width content on workflow and opened dataset pages", () => {
     expect(component.isContentNarrow(USER_WORKFLOW)).toBe(false);
     expect(component.isContentNarrow(`${USER_WORKFLOW}/42`)).toBe(false);
-    expect(component.isContentNarrow(USER_DATASET)).toBe(false);
+    expect(component.isContentNarrow(`${USER_DATASET}/2`)).toBe(false);
     expect(component.isContentNarrow(`${USER_DATASET}/create`)).toBe(false);
     expect(component.isContentNarrow(HUB_WORKFLOW)).toBe(false);
     expect(component.isContentNarrow(HUB_DATASET)).toBe(false);
+    expect(component.isContentNarrow(HOME)).toBe(false);
   });
 
   it("keeps narrow content on other dashboard pages", () => {
-    expect(component.isContentNarrow(HOME)).toBe(true);
     expect(component.isContentNarrow(ABOUT)).toBe(true);
     expect(component.isContentNarrow(USER_QUOTA)).toBe(true);
     expect(component.isContentNarrow(USER_MODEL)).toBe(true);
+    expect(component.isContentNarrow(USER_DATASET)).toBe(true);
+    expect(component.isContentNarrow(USER_AGENT)).toBe(true);
   });
 
-  it("does not apply content-narrow on workflow and dataset routes", () => {
+  it("applies content-narrow on dataset list, agent, and quota routes, but not workflow or opened dataset", () => {
     (routerMock as { url: string }).url = USER_WORKFLOW;
+    component.checkRoute();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeNull();
+
+    (routerMock as { url: string }).url = `${USER_DATASET}/2`;
     component.checkRoute();
     fixture.detectChanges();
     expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeNull();
@@ -287,7 +314,12 @@ describe("DashboardComponent", () => {
     (routerMock as { url: string }).url = USER_DATASET;
     component.checkRoute();
     fixture.detectChanges();
-    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeNull();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeTruthy();
+
+    (routerMock as { url: string }).url = USER_AGENT;
+    component.checkRoute();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeTruthy();
 
     (routerMock as { url: string }).url = USER_QUOTA;
     component.checkRoute();
@@ -329,9 +361,9 @@ describe("DashboardComponent", () => {
     };
     fixture.detectChanges();
 
-    // 7 "Your Work" links (incl. Python Venvs and Models) + 4 admin links
-    // + 1 feedback link = 12 (About is not in the signed-in nav)
-    expect(fixture.debugElement.queryAll(By.directive(RouterLink)).length).toBe(12);
+    // 8 "Your Work" links (incl. Agents, Python Venvs and Models) + 4 admin links
+    // + 1 feedback link = 13 (About is not in the signed-in nav)
+    expect(fixture.debugElement.queryAll(By.directive(RouterLink)).length).toBe(13);
   });
 
   describe("sidebar active-route highlighting (#3490)", () => {
@@ -381,6 +413,9 @@ describe("DashboardComponent", () => {
       const quota = menuItemByLabel("Quota");
       expect(quota).toBeTruthy();
       expect(quota!.componentInstance.nzMatchRouter).toBe(true);
+      const agents = menuItemByLabel("Agents");
+      expect(agents).toBeTruthy();
+      expect(agents!.componentInstance.nzMatchRouter).toBe(true);
     });
   });
 

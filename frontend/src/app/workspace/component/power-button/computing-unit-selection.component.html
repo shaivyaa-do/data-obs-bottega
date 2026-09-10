@@ -67,15 +67,6 @@
     (nzVisibleChange)="onDropdownVisibilityChange($event)"
     class="computing-units-dropdown-button">
     <div class="button-content">
-      <texera-user-avatar
-        *ngIf="selectedComputingUnit"
-        [avatar]="selectedComputingUnit ? selectedComputingUnit.ownerAvatar : ''"
-        userColor="grey"
-        [userName]="selectedComputingUnit ? selectedComputingUnit.ownerName : ''"
-        [style.transform]="'scale(0.65)'"
-        [style.opacity]="0.7"
-        [style.padding-right.px]="2">
-      </texera-user-avatar>
       <nz-badge
         [nzStatus]="computeStatus()"
         [nz-tooltip]="selectedComputingUnit ? selectedComputingUnit.status : ''"

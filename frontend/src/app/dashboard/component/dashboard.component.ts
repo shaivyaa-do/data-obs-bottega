@@ -36,6 +36,7 @@ import {
   USER_COMPUTING_UNIT,
   USER_DATASET,
   USER_MODEL,
+  USER_AGENT,
   USER_DISCUSSION,
   USER_PYTHON_VENV,
   USER_QUOTA,
@@ -123,6 +124,7 @@ export class DashboardComponent implements OnInit {
   protected readonly USER_WORKFLOW = USER_WORKFLOW;
   protected readonly USER_DATASET = USER_DATASET;
   protected readonly USER_MODEL = USER_MODEL;
+  protected readonly USER_AGENT = USER_AGENT;
   protected readonly MODEL_ICON = MODEL_ICON;
   protected readonly USER_COMPUTING_UNIT = USER_COMPUTING_UNIT;
   protected readonly USER_PYTHON_VENV = USER_PYTHON_VENV;
@@ -310,7 +312,12 @@ export class DashboardComponent implements OnInit {
       return false;
     }
     const path = currentRoute.split("?")[0];
-    const fullWidthPrefixes = [USER_WORKFLOW, USER_DATASET, HUB_WORKFLOW, HUB_DATASET];
+    // An opened dataset (/user/dataset/:did, /user/dataset/create) is full-width.
+    // The dataset list (/user/dataset) stays narrow (820px max-width).
+    if (path.startsWith(`${USER_DATASET}/`)) {
+      return false;
+    }
+    const fullWidthPrefixes = [HOME, USER_WORKFLOW, HUB_WORKFLOW, HUB_DATASET];
     return !fullWidthPrefixes.some(prefix => path === prefix || path.startsWith(`${prefix}/`));
   }
 

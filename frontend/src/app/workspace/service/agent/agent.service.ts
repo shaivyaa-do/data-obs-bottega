@@ -93,6 +93,9 @@ export interface ModelType {
   icon: string;
 }
 
+/** sessionStorage key for the provider API key entered on the Agents page. */
+export const LLM_PROVIDER_API_KEY_STORAGE_KEY = "texera.llm.providerApiKey";
+
 /**
  * API response types
  */
@@ -650,8 +653,14 @@ export class AgentService {
    * @param modelType - The LLM model type to use
    * @param customName - Optional custom name for the agent
    * @param workflowId - Optional workflow ID for delegate mode
+   * @param providerApiKey - Optional Anthropic/OpenAI key used for this agent's LLM calls
    */
-  public createAgent(modelType: string, customName?: string, workflowId?: number): Observable<AgentInfo> {
+  public createAgent(
+    modelType: string,
+    customName?: string,
+    workflowId?: number,
+    providerApiKey?: string
+  ): Observable<AgentInfo> {
     return defer(() => {
       const body: any = {
         modelType,
@@ -660,6 +669,10 @@ export class AgentService {
 
       if (workflowId !== undefined) {
         body.workflowId = workflowId;
+      }
+      const trimmedKey = providerApiKey?.trim();
+      if (trimmedKey) {
+        body.providerApiKey = trimmedKey;
       }
       // Include computing unit ID for workflow execution
       const selectedUnit = this.computingUnitStatusService.getSelectedComputingUnitValue();
@@ -702,6 +715,60 @@ export class AgentService {
           return throwError(() => new Error(errorMsg));
         })
       );
+    });
+  }
+
+  /**
+   * Point an existing agent at the given workflow (and the currently selected
+   * computing unit). Any agent can work on any workflow; the workspace dropdown
+   * calls this before opening the websocket.
+   */
+  public bindAgentToWorkflow(agentId: string, workflowId: number): Observable<AgentInfo> {
+    const existing = this.agents.get(agentId);
+    if (existing?.delegate?.workflowId === workflowId) {
+      return of(existing);
+    }
+
+    return defer(() => {
+      const body: { workflowId: number; computingUnitId?: number } = { workflowId };
+      const selectedUnit = this.computingUnitStatusService.getSelectedComputingUnitValue();
+      if (selectedUnit) {
+        body.computingUnitId = selectedUnit.computingUnit.cuid;
+      }
+
+      return this.http
+        .patch<ApiAgentInfo>(`${this.AGENT_API_BASE}/agents/${agentId}/delegate`, body, this.agentHeaders(agentId))
+        .pipe(
+          map(response => {
+            const agentInfo: AgentInfo = {
+              id: response.id,
+              name: response.name,
+              modelType: response.modelType,
+              isBaselineMode: false,
+              createdAt: new Date(response.createdAt),
+              state: this.mapStateToAgentState(response.state),
+              delegate: response.delegate
+                ? {
+                    userInfo: response.delegate.userInfo,
+                    workflowId: response.delegate.workflowId,
+                    workflowName: response.delegate.workflowName,
+                  }
+                : undefined,
+              settings: response.settings,
+            };
+
+            this.agents.set(agentId, agentInfo);
+            const tracking = this.getOrCreateStateTracking(agentId, workflowId);
+            tracking.workflowId = workflowId;
+            return agentInfo;
+          }),
+          catchError((error: unknown) => {
+            const err = error as { error?: { error?: string }; message?: string };
+            const errorMsg = err.error?.error || err.message || "Failed to attach agent to this workflow";
+            this.notificationService.error(errorMsg);
+            return throwError(() => new Error(errorMsg));
+          })
+        );
     });
   }
 

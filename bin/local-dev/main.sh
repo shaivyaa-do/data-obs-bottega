@@ -712,7 +712,14 @@ export FILE_SERVICE_GET_DATASET_PRESIGNED_URL_ENDPOINT="${FILE_SERVICE_GET_DATAS
 export FILE_SERVICE_UPLOAD_ONE_FILE_TO_DATASET_ENDPOINT="${FILE_SERVICE_UPLOAD_ONE_FILE_TO_DATASET_ENDPOINT:-http://localhost:9092/api/dataset/did/upload}"
 export LITELLM_BASE_URL="${LITELLM_BASE_URL:-http://localhost:4000}"
 export LITELLM_MASTER_KEY="${LITELLM_MASTER_KEY:-sk-texera-internal-do-not-share}"
-export LLM_ENDPOINT="${LLM_ENDPOINT:-http://localhost:8080}"
+# Matches bin/single-node/.env. Without this, ACS GET /models returns 403 and
+# the Agents page shows an empty list even when LiteLLM is healthy.
+export GUI_WORKFLOW_WORKSPACE_COPILOT_ENABLED="${GUI_WORKFLOW_WORKSPACE_COPILOT_ENABLED:-true}"
+# Agent-service generateText goes to this host + /api/chat/completions.
+# That route lives on access-control-service (:9096), which authenticates the
+# user JWT and forwards to LiteLLM. Amber (:8080) does not serve it — pointing
+# here at 8080 makes every chat reply "Error: Not Found".
+export LLM_ENDPOINT="${LLM_ENDPOINT:-http://localhost:9096}"
 export LLM_API_KEY="${LLM_API_KEY:-dummy}"
 
 # Email verification ships on, and refuses to issue a code when no SMTP sender is configured
@@ -721,6 +728,8 @@ export LLM_API_KEY="${LLM_API_KEY:-dummy}"
 # default for local dev only; `export USER_SYS_EMAIL_VERIFICATION=true` (with the
 # USER_SYS_GOOGLE_SMTP_* credentials filled in) to exercise the real flow.
 export USER_SYS_EMAIL_VERIFICATION="${USER_SYS_EMAIL_VERIFICATION:-false}"
+export USER_SYS_ADMIN_USERNAME="${USER_SYS_ADMIN_USERNAME:-admin}"
+export USER_SYS_ADMIN_PASSWORD="${USER_SYS_ADMIN_PASSWORD:-admin}"
 
 # --------- texera version (dynamic) ---------
 # The sbt-native-packager dist directory and jar names embed the project

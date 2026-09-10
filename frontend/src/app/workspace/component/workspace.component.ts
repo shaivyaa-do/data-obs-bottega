@@ -136,6 +136,13 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit() {
     this.workflowActionService.setHighlightingEnabled(true);
+    this.agentIdToActivate = this.route.snapshot.queryParams["agent"];
+    // Flip the spinner on before the first CD when a workflow id is already in
+    // the route. Setting it in ngAfterViewInit used to throw NG0100
+    // (`[nzSpinning]="isLoading"` went false → true in the same cycle).
+    if (this.route.snapshot.params.id) {
+      this.isLoading = true;
+    }
     // Clear session state when the user switches computing units in-canvas, so
     // the previous unit's status/console/results don't linger.
     this.computingUnitStatusService
@@ -161,10 +168,10 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
      */
     // clear the current workspace, reset as `WorkflowActionService.DEFAULT_WORKFLOW`
     this.workflowActionService.resetAsNewWorkflow();
-    // if a workflow id is present in the route, display loading spinner immediately while loading
+    // isLoading was already set in ngOnInit when a wid is present; only disable
+    // edits here so the spinner binding stays stable across the first CD.
     const widInRoute = this.route.snapshot.params.id;
     if (widInRoute) {
-      this.isLoading = true;
       this.workflowActionService.disableWorkflowModification();
     }
     this.onWIDChange();
@@ -263,6 +270,7 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
             relativeTo: this.route,
             fragment: fragment !== null ? fragment : undefined,
             preserveFragment: false,
+            queryParamsHandling: "preserve",
           });
           // highlight the operator, comment box, or link in the URL fragment
           if (fragment) {
@@ -343,8 +351,21 @@ export class WorkspaceComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   private setLoadingState(isLoading: boolean): void {
-    this.isLoading = isLoading;
-    this.changeDetectorRef.detectChanges();
+    if (this.isLoading === isLoading) {
+      return;
+    }
+    // Turning the spinner off can happen synchronously inside ngAfterViewInit
+    // when retrieveWorkflow is already cached (`of(...)` in tests). Defer so
+    // `[nzSpinning]` does not change in the same CD that first rendered it.
+    const apply = () => {
+      this.isLoading = isLoading;
+      this.changeDetectorRef.detectChanges();
+    };
+    if (!isLoading) {
+      Promise.resolve().then(apply);
+      return;
+    }
+    apply();
   }
 
   public get copilotEnabled(): boolean {

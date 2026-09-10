@@ -57,11 +57,9 @@ import { NzSpaceCompactItemDirective, NzSpaceCompactComponent } from "ng-zorro-a
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { NzAvatarComponent } from "ng-zorro-antd/avatar";
 import { FormsModule } from "@angular/forms";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { CoeditorUserIconComponent } from "./coeditor-user-icon/coeditor-user-icon.component";
-import { UserIconComponent } from "../../../dashboard/component/user/user-icon/user-icon.component";
 import { NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
 import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
 import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
@@ -71,6 +69,7 @@ import { NzSwitchComponent } from "ng-zorro-antd/switch";
 import { NzBadgeComponent } from "ng-zorro-antd/badge";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.service";
+import { OperatorMenuComponent } from "../left-panel/operator-menu/operator-menu.component";
 
 /**
  * MenuComponent is the top level menu bar that shows
@@ -98,12 +97,10 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
     NzButtonComponent,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
-    NzAvatarComponent,
     FormsModule,
     NzWaveDirective,
     NgFor,
     CoeditorUserIconComponent,
-    UserIconComponent,
     RouterLink,
     NzDropdownDirective,
     NzDropdownMenuComponent,
@@ -121,6 +118,7 @@ import { JupyterPanelService } from "../../service/jupyter-panel/jupyter-panel.s
     DatePipe,
     NzSpaceCompactComponent,
     AsyncPipe,
+    OperatorMenuComponent,
   ],
 })
 export class MenuComponent implements OnInit, OnDestroy {
@@ -479,6 +477,14 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   public onClickResetPanels(): void {
     this.panelService.resetPanels();
+  }
+
+  public onClickToggleVersions(): void {
+    this.panelService.togglePanel(2);
+  }
+
+  public onClickToggleSettings(): void {
+    this.panelService.togglePanel(3);
   }
 
   /**

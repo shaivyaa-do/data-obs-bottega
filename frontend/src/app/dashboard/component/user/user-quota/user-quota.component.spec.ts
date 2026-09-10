@@ -528,10 +528,10 @@ describe("UserQuotaComponent", () => {
     });
 
     it("pages the executions rather than listing all of them", () => {
-      const executions = Array.from({ length: 5 }, (_, i) => execution(100 + i, 1, 1, 1, 1));
+      const executions = Array.from({ length: 8 }, (_, i) => execution(100 + i, 1, 1, 1, 1));
       const host = renderCache([workflow(1, executions)]);
 
-      expect(host.querySelectorAll("tbody tr").length).toBe(3);
+      expect(host.querySelectorAll("tbody tr").length).toBe(5);
     });
 
     it("reorders the rows by total cache size when the Cache Size header is used", async () => {

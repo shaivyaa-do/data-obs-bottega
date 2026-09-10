@@ -18,7 +18,7 @@
 -->
 
 <nz-card
-  [nzBodyStyle]="{padding: '3px'}"
+  [nzBodyStyle]="{padding: '0px'}"
   class="list-item-card"
   [class.selected]="entry.checked"
   [class.has-button-group]="isPrivateSearch"
@@ -31,15 +31,16 @@
     nzAlign="middle">
     <div
       nz-col
-      nzFlex="20px">
+      nzFlex="0"
+      *ngIf="isPrivateSearch && entry.type==='workflow'"
+      style="margin-right: 6px;">
       <input
         type="checkbox"
         class="large-checkbox"
         [ngClass]="{showc: entry.checked}"
         [checked]="entry.checked"
         (change)="onCheckboxChange(entry)"
-        (click)="$event.stopPropagation()"
-        *ngIf="isPrivateSearch && entry.type==='workflow'" />
+        (click)="$event.stopPropagation()" />
     </div>
 
     <div
@@ -60,31 +61,17 @@
 
     <div
       nz-col
-      nzFlex="30px"
+      class="edit-button"
       *ngIf="isPrivateSearch">
-      <div class="edit-button">
-        <button
-          nz-button
-          nzType="text"
-          title="Rename"
-          (click)="onEditName();$event.stopPropagation()">
-          <i
-            nz-icon
-            nzType="edit"></i>
-        </button>
-      </div>
-
-      <div class="edit-button">
-        <button
-          nz-button
-          nzType="text"
-          title="Edit Description"
-          (click)="onEditDescription();$event.stopPropagation()">
-          <i
-            nz-icon
-            nzType="form"></i>
-        </button>
-      </div>
+      <button
+        nz-button
+        nzType="text"
+        title="Edit"
+        (click)="openEditModal();$event.stopPropagation()">
+        <i
+          nz-icon
+          nzType="edit"></i>
+      </button>
     </div>
 
     <div
@@ -92,9 +79,16 @@
       nzFlex="1"
       class="resource-name-group">
       <div
-        class="resource-name truncate-single-line"
+        class="resource-name-container"
         *ngIf="!editingName">
-        {{ entry.name }}
+        <span class="resource-name">{{ entry.name }}</span>
+        <span
+          class="resource-description truncate-single-line"
+          (click)="openEditModal(); $event.stopPropagation()"
+          *ngIf="renderedDescription || (hovering && editable)">
+          {{ renderedDescription ? renderedDescription.slice(0, 200) : (hovering && editable) ? 'Write a description...' :
+          '' }}
+        </span>
       </div>
       <input
         *ngIf="editingName"
@@ -105,65 +99,39 @@
         (keydown.enter)="confirmUpdateCustomName(entry.name)"
         (click)="$event.stopPropagation()"
         autofocus />
-
-      <div
-        class="resource-description truncate-single-line"
-        (click)="onEditDescription(); $event.stopPropagation()">
-        {{ renderedDescription ? renderedDescription.slice(0, 200) : (hovering && editable) ? 'Write a description...' :
-        '' }}
-      </div>
     </div>
 
     <div
       nz-col
-      nzFlex="50px"
-      class="resource-info">
-      <texera-user-avatar
-        [avatar]="entry.ownerAvatar"
-        userColor="#1E90FF"
-        [userName]="entry.ownerName || 'User'"
-        [isOwner]="entry.ownerId === this.currentUid">
-      </texera-user-avatar>
-    </div>
-
-    <div
-      nz-col
-      nzFlex="55px"
-      class="resource-info">
-      Views:<br />
-      {{ formatCount(this.viewCount) }}
-    </div>
-
-    <div
-      nz-col
-      nzFlex="75px"
-      class="resource-info">
-      Size: <br />
-      {{ formatSize(size) }}
-    </div>
-
-    <div
-      nz-col
-      nzFlex="90px"
-      class="resource-info">
-      Created:<br />
-      {{ formatRelativeTime(entry.creationTime) }}
-    </div>
-
-    <div
-      nz-col
-      nzFlex="90px"
-      class="resource-info">
-      Edited:<br />
-      {{ formatRelativeTime(entry.lastModifiedTime) }}
+      class="resource-info-group resource-info">
+      <span
+        class="resource-info-item"
+        *ngIf="viewCount !== undefined">
+        <span class="info-label">Views:</span>
+        <span class="info-value">{{ formatCount(this.viewCount) }}</span>
+      </span>
+      <span
+        class="resource-info-item"
+        *ngIf="size">
+        <span class="info-label">Size:</span>
+        <span class="info-value">{{ formatSize(size) }}</span>
+      </span>
+      <span class="resource-info-item">
+        <span class="info-label">Created:</span>
+        <span class="info-value">{{ formatRelativeTime(entry.creationTime) }}</span>
+      </span>
+      <span class="resource-info-item">
+        <span class="info-label">Edited:</span>
+        <span class="info-value">{{ formatRelativeTime(entry.lastModifiedTime) }}</span>
+      </span>
     </div>
 
     <div
       nz-col
       nzFlex="0"
-      class="resource-info">
+      class="resource-info"
+      *ngIf="!isPrivateSearch">
       <button
-        *ngIf="!isPrivateSearch"
         nz-button
         nzType="default"
         class="like-button"
@@ -238,3 +206,25 @@
     </button>
   </div>
 </nz-card>
+
+<ng-template #editModalTpl>
+  <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 8px;">
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-weight: 500; font-size: 13px; color: #27272a;">Name</label>
+      <input
+        nz-input
+        [(ngModel)]="tempEditName"
+        placeholder="Enter name"
+        style="height: 34px; border-radius: 6px;" />
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-weight: 500; font-size: 13px; color: #27272a;">Description</label>
+      <textarea
+        nz-input
+        rows="4"
+        [(ngModel)]="tempEditDescription"
+        placeholder="Enter description"
+        style="border-radius: 6px; resize: vertical;"></textarea>
+    </div>
+  </div>
+</ng-template>

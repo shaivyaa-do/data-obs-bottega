@@ -27,8 +27,9 @@ import { NzResizableDirective } from "ng-zorro-antd/resizable";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { MarkdownModule } from "ngx-markdown";
 import { Observable, Subject, of, throwError } from "rxjs";
+import { Router } from "@angular/router";
+import { RouterTestingModule } from "@angular/router/testing";
 import { AgentPanelComponent } from "./agent-panel.component";
-import { AgentRegistrationComponent } from "./agent-registration/agent-registration.component";
 import { AgentChatComponent } from "./agent-chat/agent-chat.component";
 import { AgentInfo, AgentService, ModelType } from "../../../service/agent/agent.service";
 import { AgentState, ReActStep } from "../../../service/agent/agent-types";
@@ -39,6 +40,7 @@ import { ComputingUnitStatusService } from "../../../../common/service/computing
 import { ComputingUnitState } from "../../../../common/type/computing-unit-connection.interface";
 import { Workflow } from "../../../../common/type/workflow";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
+import { NzSelectComponent, NzOptionComponent } from "ng-zorro-antd/select";
 
 const CURRENT_WID = 42;
 const USER_INFO = { uid: 1, name: "user", email: "user@example.com", role: "REGULAR" };
@@ -57,12 +59,28 @@ class MockAgentService {
   public activateAgent = vi.fn((): boolean => true);
   public deactivateAgent = vi.fn();
   public deleteAgent = vi.fn((): Observable<boolean> => of(true));
+  public bindAgentToWorkflow = vi.fn((agentId: string, workflowId: number): Observable<AgentInfo> => {
+    const agent = this.agentList.find(a => a.id === agentId) ?? makeAgent(agentId);
+    const updated: AgentInfo = {
+      ...agent,
+      delegate: {
+        userInfo: agent.delegate?.userInfo ?? USER_INFO,
+        workflowId,
+        workflowName: agent.delegate?.workflowName,
+      },
+    };
+    const index = this.agentList.findIndex(a => a.id === agentId);
+    if (index !== -1) {
+      this.agentList[index] = updated;
+    }
+    return of(updated);
+  });
 }
 
 /**
  * Child components have their own specs (agent-chat, agent-registration); the panel
  * spec shallow-renders them via Recipe F stubs so the panel's template still renders
- * every tab (nzForceRender) without pulling in markdown / computing-unit machinery.
+ * the selected agent's chat without pulling in markdown / computing-unit machinery.
  */
 @Component({
   selector: "texera-agent-registration",
@@ -116,12 +134,12 @@ describe("AgentPanelComponent", () => {
     notification = { success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() };
 
     TestBed.overrideComponent(AgentPanelComponent, {
-      remove: { imports: [AgentRegistrationComponent, AgentChatComponent] },
-      add: { imports: [StubAgentRegistrationComponent, StubAgentChatComponent] },
+      remove: { imports: [AgentChatComponent] },
+      add: { imports: [StubAgentChatComponent] },
     });
 
     await TestBed.configureTestingModule({
-      imports: [AgentPanelComponent, HttpClientTestingModule, NoopAnimationsModule],
+      imports: [AgentPanelComponent, HttpClientTestingModule, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: AgentService, useValue: agentService },
         { provide: WorkflowActionService, useValue: workflowAction },
@@ -166,7 +184,16 @@ describe("AgentPanelComponent", () => {
   }
 
   describe("initialization and agent list wiring", () => {
-    it("loads the agents once on init and renders one tab per agent plus the registration tab", () => {
+    function dropdownOptions(): NzOptionComponent[] {
+      const select = fixture.debugElement.query(By.directive(NzSelectComponent));
+      if (!select) {
+        return [];
+      }
+      const list = (select.componentInstance as NzSelectComponent).listOfNzOptionComponent;
+      return typeof list.toArray === "function" ? list.toArray() : Array.from(list);
+    }
+
+    it("loads the agents once on init and shows the selected agent with a model dropdown", () => {
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
 
@@ -174,18 +201,16 @@ describe("AgentPanelComponent", () => {
       expect(component.agents).toEqual(agentService.agentList);
 
       const text = fixture.nativeElement.textContent as string;
-      expect(text).toContain("+ Agent");
-      expect(text).toContain("2 agent(s)");
-      const names = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll(".agent-tab-name")).map(
-        el => el.textContent
-      );
-      expect(names).toEqual(["Agent a", "Agent b"]);
+      expect(text).not.toContain("+ Agent");
+      expect(fixture.nativeElement.querySelector(".title-name").textContent).toContain("Agent a");
+      expect(dropdownOptions().map(option => option.nzValue)).toEqual(["a", "b"]);
+      expect(dropdownOptions().map(option => option.nzLabel)).toEqual(["Agent a · gpt-test", "Agent b · gpt-test"]);
     });
 
-    it("shows only the registration tab and a zero count when there are no agents", () => {
+    it("shows empty state when there are no agents", () => {
       createComponent();
-      expect(fixture.nativeElement.querySelectorAll(".agent-tab-name").length).toBe(0);
-      expect(fixture.nativeElement.textContent).toContain("0 agent(s)");
+      expect(fixture.debugElement.query(By.directive(NzSelectComponent))).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("No Agents Configured");
     });
 
     it("reloads the agent list when the service signals an agent change", () => {
@@ -201,10 +226,10 @@ describe("AgentPanelComponent", () => {
       expect(agentService.getAllAgents).toHaveBeenCalledTimes(2);
       expect(component.agents).toEqual([a, b]);
       fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).toContain("2 agent(s)");
+      expect(dropdownOptions().map(option => option.nzValue)).toEqual(["a", "b"]);
     });
 
-    it("feeds each agent-chat tab its agent and whether it is the active one", () => {
+    it("feeds the selected agent's chat and whether it is the active one", () => {
       const a = makeAgent("a");
       const b = makeAgent("b");
       agentService.agentList = [a, b];
@@ -212,12 +237,17 @@ describe("AgentPanelComponent", () => {
 
       const chats = () =>
         fixture.debugElement.queryAll(By.directive(StubAgentChatComponent)).map(d => d.componentInstance);
-      expect(chats().map(c => c.agentInfo)).toEqual([a, b]);
-      expect(chats().map(c => c.isActive)).toEqual([false, false]);
+      expect(chats().map(c => c.agentInfo)).toEqual([a]);
+      expect(chats().map(c => c.isActive)).toEqual([false]);
+
+      component.onTabSelectChange(0);
+      fixture.detectChanges();
+      expect(chats().map(c => c.isActive)).toEqual([true]);
 
       component.onTabSelectChange(1);
       fixture.detectChanges();
-      expect(chats().map(c => c.isActive)).toEqual([true, false]);
+      expect(chats().map(c => c.agentInfo?.id)).toEqual(["b"]);
+      expect(chats().map(c => c.isActive)).toEqual([true]);
     });
   });
 
@@ -229,8 +259,20 @@ describe("AgentPanelComponent", () => {
       expect(component.width).toBe(400); // panel opened from docked state
       expect(component.activeAgentId).toBe("b");
       expect(agentService.activateAgent).toHaveBeenCalledWith("b");
-      expect(component.selectedTabIndex).toBe(2); // tab 0 is registration
+      expect(component.selectedTabIndex).toBe(1); // tab index 1 is agent b
       expect(component.agentIdToActivate).toBeUndefined(); // consumed
+    });
+
+    it("binds a query-param agent to the current workflow instead of navigating away", () => {
+      agentService.agentList = [makeDelegateAgent("foreign", 99)];
+      const navigate = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      createComponent("foreign");
+
+      expect(navigate).not.toHaveBeenCalled();
+      expect(agentService.bindAgentToWorkflow).toHaveBeenCalledWith("foreign", CURRENT_WID);
+      expect(agentService.activateAgent).toHaveBeenCalledWith("foreign");
+      expect(component.activeAgentId).toBe("foreign");
+      expect(component.agentIdToActivate).toBeUndefined();
     });
 
     it("ignores an id that matches no agent and keeps the input for a later retry", () => {
@@ -245,20 +287,25 @@ describe("AgentPanelComponent", () => {
 
     it("defers activation until the agent list arrives through agentChange$", () => {
       createComponent("b"); // no agents yet: both ngOnChanges and ngOnInit bail out
-      expect(agentService.activateAgent).not.toHaveBeenCalled();
+
+      expect(component.width).toBe(0);
+      expect(component.activeAgentId).toBeNull();
+      expect(component.agentIdToActivate).toBe("b");
 
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       agentService.agentChangeSubject.next();
 
-      expect(component.activeAgentId).toBe("b");
-      expect(component.selectedTabIndex).toBe(2);
       expect(component.width).toBe(400);
+      expect(component.activeAgentId).toBe("b");
+      expect(agentService.activateAgent).toHaveBeenCalledWith("b");
+      expect(component.selectedTabIndex).toBe(1);
+      expect(component.agentIdToActivate).toBeUndefined();
     });
 
     it("deactivates the previously active agent and keeps an already-open panel width", () => {
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
-      component.onTabSelectChange(1); // activate "a"
+      component.onTabSelectChange(0); // activate "a"
       component.width = 640; // panel already open at a custom size
 
       fixture.componentRef.setInput("agentIdToActivate", "b");
@@ -266,7 +313,7 @@ describe("AgentPanelComponent", () => {
 
       expect(agentService.deactivateAgent).toHaveBeenCalledWith("a");
       expect(component.activeAgentId).toBe("b");
-      expect(component.selectedTabIndex).toBe(2);
+      expect(component.selectedTabIndex).toBe(1);
       expect(component.width).toBe(640); // not reset to the minimum width
     });
 
@@ -305,6 +352,17 @@ describe("AgentPanelComponent", () => {
       expect(component.isDocked).toBe(true);
       expect(fixture.nativeElement.querySelector("#agent-docked-button")).toBeTruthy();
     });
+
+    it("opening the panel activates the first switchable agent so chat is ready", () => {
+      agentService.agentList = [makeAgent("a"), makeAgent("b")];
+      createComponent();
+      expect(agentService.activateAgent).not.toHaveBeenCalled();
+
+      component.openPanel();
+
+      expect(agentService.activateAgent).toHaveBeenCalledWith("a");
+      expect(component.activeAgentId).toBe("a");
+    });
   });
 
   describe("onAgentCreated", () => {
@@ -321,13 +379,13 @@ describe("AgentPanelComponent", () => {
       expect(agentService.activateAgent).toHaveBeenCalledWith("b");
       expect(component.activeAgentId).toBe("b");
       expect(component.agents).toEqual([a, b]);
-      expect(component.selectedTabIndex).toBe(2);
+      expect(component.selectedTabIndex).toBe(1);
     });
 
     it("deactivates the previously active agent before activating the created one", () => {
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
-      component.onTabSelectChange(1); // activate "a"
+      component.onTabSelectChange(0); // activate "a"
 
       component.onAgentCreated("b");
 
@@ -346,33 +404,30 @@ describe("AgentPanelComponent", () => {
       expect(component.selectedTabIndex).toBe(0);
     });
 
-    it("is wired to the registration tab's agentCreated output", () => {
+    it("activates the created agent directly on onAgentCreated", () => {
       agentService.agentList = [makeAgent("a")];
       createComponent();
 
-      const registration = fixture.debugElement.query(By.directive(StubAgentRegistrationComponent))
-        .componentInstance as StubAgentRegistrationComponent;
-      registration.agentCreated.emit("a");
+      component.onAgentCreated("a");
 
       expect(agentService.activateAgent).toHaveBeenCalledWith("a");
-      expect(component.selectedTabIndex).toBe(1);
+      expect(component.selectedTabIndex).toBe(0);
     });
   });
 
   describe("onTabSelectChange", () => {
-    it("selecting the registration tab deactivates the current agent", () => {
-      agentService.agentList = [makeAgent("a")];
+    it("activates the newly selected agent and deactivates the previous one", () => {
+      agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
 
-      component.onTabSelectChange(0); // nothing active yet: deactivation is a no-op
-      expect(agentService.deactivateAgent).not.toHaveBeenCalled();
+      component.onTabSelectChange(0); // activate "a"
+      expect(agentService.activateAgent).toHaveBeenCalledWith("a");
+      expect(component.activeAgentId).toBe("a");
 
-      component.onTabSelectChange(1); // activate "a"
-      component.onTabSelectChange(0);
-
+      component.onTabSelectChange(1); // switch to "b"
       expect(agentService.deactivateAgent).toHaveBeenCalledWith("a");
-      expect(component.activeAgentId).toBeNull();
-      expect(component.selectedTabIndex).toBe(0);
+      expect(agentService.activateAgent).toHaveBeenCalledWith("b");
+      expect(component.activeAgentId).toBe("b");
     });
 
     it("ignores a tab index beyond the agent list", () => {
@@ -389,57 +444,80 @@ describe("AgentPanelComponent", () => {
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
 
-      component.onTabSelectChange(2);
+      component.onTabSelectChange(1);
 
       expect(agentService.activateAgent).toHaveBeenCalledWith("b");
       expect(component.activeAgentId).toBe("b");
-      expect(component.selectedTabIndex).toBe(2);
+      expect(component.selectedTabIndex).toBe(1);
     });
 
-    it("blocks switching to an agent bound to a different workflow and warns", () => {
+    it("binds the selected agent to the current workflow instead of navigating away", () => {
       agentService.agentList = [makeDelegateAgent("foreign", 99)];
       createComponent();
+      const navigate = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
-      component.onTabSelectChange(1);
+      component.onTabSelectChange(0);
 
-      expect(notification.warning).toHaveBeenCalledTimes(1);
-      const message = notification.warning.mock.calls[0][0] as string;
-      expect(message).toContain('Cannot switch to agent "Agent foreign"');
-      expect(message).toContain("Open workflow #99");
-      expect(agentService.activateAgent).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(agentService.bindAgentToWorkflow).toHaveBeenCalledWith("foreign", CURRENT_WID);
+      expect(agentService.activateAgent).toHaveBeenCalledWith("foreign");
+      expect(component.activeAgentId).toBe("foreign");
       expect(component.selectedTabIndex).toBe(0);
     });
 
-    it("allows switching when the agent's workflow matches the current one", () => {
+    it("does not activate when binding to the current workflow fails", () => {
+      agentService.agentList = [makeDelegateAgent("foreign", 99)];
+      agentService.bindAgentToWorkflow.mockReturnValueOnce(throwError(() => new Error("Failed to load workflow")));
+      createComponent();
+
+      component.onTabSelectChange(0);
+
+      expect(agentService.activateAgent).not.toHaveBeenCalled();
+      expect(component.activeAgentId).toBeNull();
+    });
+
+    it("skips the bind request when the agent is already on the current workflow", () => {
       agentService.agentList = [makeDelegateAgent("bound", CURRENT_WID)];
       createComponent();
 
-      component.onTabSelectChange(1);
+      component.onTabSelectChange(0);
 
-      expect(notification.warning).not.toHaveBeenCalled();
+      expect(agentService.bindAgentToWorkflow).not.toHaveBeenCalled();
       expect(agentService.activateAgent).toHaveBeenCalledWith("bound");
-      expect(component.selectedTabIndex).toBe(1);
+      expect(component.selectedTabIndex).toBe(0);
     });
 
-    it("treats workflowId 0 as unbound and allows the switch", () => {
+    it("binds an unbound agent (workflowId 0) to the current workflow", () => {
       agentService.agentList = [makeDelegateAgent("unbound", 0)];
       createComponent();
 
-      component.onTabSelectChange(1);
+      component.onTabSelectChange(0);
 
+      expect(agentService.bindAgentToWorkflow).toHaveBeenCalledWith("unbound", CURRENT_WID);
       expect(agentService.activateAgent).toHaveBeenCalledWith("unbound");
-      expect(component.selectedTabIndex).toBe(1);
+      expect(component.selectedTabIndex).toBe(0);
     });
 
     it("re-selecting the already-active agent tab is a no-op", () => {
       agentService.agentList = [makeAgent("a")];
       createComponent();
 
-      component.onTabSelectChange(1);
-      component.onTabSelectChange(1);
+      component.onTabSelectChange(0);
+      component.onTabSelectChange(0);
 
       expect(agentService.activateAgent).toHaveBeenCalledTimes(1);
       expect(agentService.deactivateAgent).not.toHaveBeenCalled();
+    });
+
+    it("the model dropdown switches to the chosen agent", () => {
+      agentService.agentList = [makeAgent("a"), makeAgent("b")];
+      createComponent();
+
+      component.onAgentDropdownChange("b");
+
+      expect(agentService.activateAgent).toHaveBeenCalledWith("b");
+      expect(component.activeAgentId).toBe("b");
+      expect(component.selectedTabIndex).toBe(1);
     });
 
     it("re-activates without deactivating when the same agent moved to a different tab", () => {
@@ -447,37 +525,29 @@ describe("AgentPanelComponent", () => {
       const b = makeAgent("b");
       agentService.agentList = [a, b];
       createComponent();
-      component.onTabSelectChange(1); // activate "a" on tab 1
+      component.onTabSelectChange(0); // activate "a" on tab 0
 
-      agentService.agentList = [b, a]; // "a" is now behind tab 2
+      agentService.agentList = [b, a]; // "a" is now behind tab 1
       agentService.agentChangeSubject.next();
-      component.onTabSelectChange(2);
+      component.onTabSelectChange(1);
 
       expect(agentService.deactivateAgent).not.toHaveBeenCalled();
       expect(agentService.activateAgent).toHaveBeenCalledTimes(2);
       expect(agentService.activateAgent).toHaveBeenLastCalledWith("a");
-      expect(component.selectedTabIndex).toBe(2);
+      expect(component.selectedTabIndex).toBe(1);
     });
   });
 
-  describe("canSwitchToAgent", () => {
-    it("permits agents with no delegate, no workflow id, or a matching workflow id", () => {
-      createComponent();
-      expect(component.canSwitchToAgent(makeAgent("plain"))).toBe(true);
-      expect(component.canSwitchToAgent(makeDelegateAgent("no-wid", undefined))).toBe(true);
-      expect(component.canSwitchToAgent(makeDelegateAgent("zero", 0))).toBe(true);
-      expect(component.canSwitchToAgent(makeDelegateAgent("same", CURRENT_WID))).toBe(true);
-      expect(component.canSwitchToAgent(makeDelegateAgent("other", 99))).toBe(false);
-    });
-
-    it("renders a lock icon and mismatch style only on agents from another workflow", () => {
+  describe("agent dropdown", () => {
+    it("keeps every agent selectable, including those last used on another workflow", () => {
       agentService.agentList = [makeAgent("local"), makeDelegateAgent("foreign", 99)];
       createComponent();
 
-      expect(fixture.nativeElement.querySelectorAll(".workflow-lock-icon").length).toBe(1);
-      const titles = fixture.nativeElement.querySelectorAll(".agent-tab-title");
-      expect(titles[0].classList.contains("workflow-mismatch")).toBe(false);
-      expect(titles[1].classList.contains("workflow-mismatch")).toBe(true);
+      const select = fixture.debugElement.query(By.directive(NzSelectComponent));
+      const list = (select.componentInstance as NzSelectComponent).listOfNzOptionComponent;
+      const options: NzOptionComponent[] = typeof list.toArray === "function" ? list.toArray() : Array.from(list);
+      expect(options[0].nzDisabled).toBe(false);
+      expect(options[1].nzDisabled).toBe(false);
     });
   });
 
@@ -495,11 +565,11 @@ describe("AgentPanelComponent", () => {
       expect(agentService.deleteAgent).not.toHaveBeenCalled();
     });
 
-    it("deactivates and deletes the active agent, returning to the registration tab", () => {
+    it("deactivates and deletes the active agent", () => {
       vi.spyOn(window, "confirm").mockReturnValue(true);
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
-      component.onTabSelectChange(1); // "a" active on its own tab
+      component.onTabSelectChange(0); // "a" active on its own tab
 
       component.deleteAgent("a", new Event("click"));
 
@@ -513,25 +583,25 @@ describe("AgentPanelComponent", () => {
       vi.spyOn(window, "confirm").mockReturnValue(true);
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
-      component.onTabSelectChange(2); // "b" active on tab 2
+      component.onTabSelectChange(1); // "b" active on tab 1
 
       component.deleteAgent("a", new Event("click"));
 
       expect(agentService.deactivateAgent).not.toHaveBeenCalled(); // "b" stays active
       expect(component.activeAgentId).toBe("b");
-      expect(component.selectedTabIndex).toBe(1);
+      expect(component.selectedTabIndex).toBe(0);
     });
 
     it("keeps the selected index when deleting a tab after the current one", () => {
       vi.spyOn(window, "confirm").mockReturnValue(true);
       agentService.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
-      component.onTabSelectChange(1); // "a" active on tab 1
+      component.onTabSelectChange(0); // "a" active on tab 0
 
       component.deleteAgent("b", new Event("click"));
 
       expect(agentService.deleteAgent).toHaveBeenCalledWith("b");
-      expect(component.selectedTabIndex).toBe(1);
+      expect(component.selectedTabIndex).toBe(0);
     });
 
     it("logs and leaves the tabs untouched when the backend delete fails", () => {
@@ -540,15 +610,15 @@ describe("AgentPanelComponent", () => {
       agentService.agentList = [makeAgent("a")];
       agentService.deleteAgent.mockReturnValueOnce(throwError(() => new Error("boom")));
       createComponent();
-      component.onTabSelectChange(1);
+      component.onTabSelectChange(0);
 
       component.deleteAgent("a", new Event("click"));
 
       expect(consoleError).toHaveBeenCalledWith("Failed to delete agent:", expect.any(Error));
-      expect(component.selectedTabIndex).toBe(1);
+      expect(component.selectedTabIndex).toBe(0);
     });
 
-    it("the close button in a tab title asks for confirmation and deletes through the service", () => {
+    it("the close button in the header asks for confirmation and deletes through the service", () => {
       const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
       agentService.agentList = [makeAgent("a")];
       createComponent();
@@ -658,7 +728,7 @@ describe("AgentPanelComponent", () => {
     it("persists dimensions, docked flag and container style, and deactivates the agent on destroy", () => {
       agentService.agentList = [makeAgent("a")];
       createComponent();
-      component.onTabSelectChange(1); // "a" active
+      component.onTabSelectChange(0); // "a" active
       component.openPanel(); // width 0 -> 400
       const height = component.height;
 
@@ -745,15 +815,14 @@ describe("AgentPanelComponent", () => {
       return fixture.nativeElement.querySelector("#agent-container") as HTMLElement;
     }
 
-    // A header click does not reach the panel in the same turn: NzTabSetComponent
-    // queues the nzSelectedIndexChange emit as a microtask from its own
-    // ngAfterContentChecked, so onTabSelectChange can run a turn after
-    // detectChanges(). Yielding a macrotask turn drains it — Angular's whenStable()
-    // is not an option here, since this fixture never reaches stability.
-    const settle = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 0));
-
-    function tabHeaders(): HTMLElement[] {
-      return Array.from(fixture.nativeElement.querySelectorAll(".ant-tabs-tab"));
+    // Dropdown change emits ngModelChange in the same turn, unlike the old tab headers.
+    function dropdownOptions(): NzOptionComponent[] {
+      const select = fixture.debugElement.query(By.directive(NzSelectComponent));
+      if (!select) {
+        return [];
+      }
+      const list = (select.componentInstance as NzSelectComponent).listOfNzOptionComponent;
+      return typeof list.toArray === "function" ? list.toArray() : Array.from(list);
     }
 
     function chats(): AgentChatComponent[] {
@@ -828,74 +897,58 @@ describe("AgentPanelComponent", () => {
       expect(component.isDocked).toBe(false);
     });
 
-    it("force-renders every tab body: the registration form and one chat per agent", () => {
+    it("renders the selected agent's chat, not one chat per agent", () => {
       service.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
 
-      // The agent tabs are unselected here, so their bodies exist only because they are
-      // force-rendered.
       const rendered = fixture.nativeElement.querySelectorAll("texera-agent-chat .agent-chat-container");
-      expect(rendered.length).toBe(2);
-      expect(chats().map(c => c.agentInfo?.id)).toEqual(["a", "b"]);
-
-      // The registration form needs the mirror case: while tab 0 is selected it renders whether or
-      // not it is force-rendered, so asserting it there pins nothing. Move off it first.
-      component.selectedTabIndex = 1;
-      fixture.detectChanges();
-      expect(fixture.nativeElement.querySelectorAll("texera-agent-registration .model-card").length).toBe(1);
+      expect(rendered.length).toBe(1);
+      expect(chats().map(c => c.agentInfo?.id)).toEqual(["a"]);
+      expect(dropdownOptions().map(option => option.nzValue)).toEqual(["a", "b"]);
     });
 
-    it("clicking an agent's tab header activates that agent and marks only its chat active", async () => {
+    it("changing the model dropdown activates that agent and shows only its chat", () => {
       service.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
-      expect(chats().map(c => c.isActive)).toEqual([false, false]);
+      expect(chats().map(c => c.isActive)).toEqual([false]);
 
-      // Header 0 is the registration tab, so agent "b" sits behind header 2.
-      (tabHeaders()[2].querySelector(".ant-tabs-tab-btn") as HTMLElement).click();
-      fixture.detectChanges();
-      await settle();
+      fixture.debugElement.query(By.directive(NzSelectComponent)).triggerEventHandler("ngModelChange", "b");
       fixture.detectChanges();
 
       expect(service.activateAgent).toHaveBeenCalledWith("b");
-      expect(chats().map(c => c.isActive)).toEqual([false, true]);
+      expect(chats().map(c => c.agentInfo?.id)).toEqual(["b"]);
+      expect(chats().map(c => c.isActive)).toEqual([true]);
     });
 
-    it("disables the tab of an agent bound to another workflow so a click cannot select it", () => {
+    it("keeps every dropdown option enabled so any agent can be selected on this workflow", () => {
       service.agentList = [makeAgent("local"), makeDelegateAgent("foreign", 99)];
       createComponent();
 
-      const headers = tabHeaders();
-      expect(headers[1].classList.contains("ant-tabs-tab-disabled")).toBe(false);
-      expect(headers[2].classList.contains("ant-tabs-tab-disabled")).toBe(true);
+      const options = dropdownOptions();
+      expect(options[0].nzDisabled).toBe(false);
+      expect(options[1].nzDisabled).toBe(false);
 
-      (headers[2].querySelector(".ant-tabs-tab-btn") as HTMLElement).click();
-      fixture.detectChanges();
-
-      // Disabled by the template, so onTabSelectChange never runs and never warns.
       expect(notification.warning).not.toHaveBeenCalled();
       expect(service.activateAgent).not.toHaveBeenCalled();
-      expect(chats().map(c => c.isActive)).toEqual([false, false]);
+      expect(chats().map(c => c.isActive)).toEqual([false]);
     });
 
-    it("the close button on a tab header deletes that agent without selecting its tab", () => {
+    it("the close button in the header deletes the shown agent without switching to another", () => {
       vi.spyOn(window, "confirm").mockReturnValue(true);
       service.agentList = [makeAgent("a"), makeAgent("b")];
       createComponent();
 
       const closeButtons = fixture.nativeElement.querySelectorAll(".agent-tab-close");
-      expect(closeButtons.length).toBe(2);
-      // Start on the FIRST agent's tab. Asserting from tab 0 with activateAgent never called
-      // proves nothing: both hold with the stopPropagation deleted, because neither value moves.
-      // From here, a click that propagated would activate agent "b".
-      component.selectedTabIndex = 1;
+      expect(closeButtons.length).toBe(1);
+
+      component.selectedTabIndex = 0;
       fixture.detectChanges();
       (service.activateAgent as unknown as { mock: { calls: unknown[] } }).mock.calls.length = 0;
 
-      (closeButtons[1] as HTMLButtonElement).click();
+      (closeButtons[0] as HTMLButtonElement).click();
       fixture.detectChanges();
 
-      expect(service.deleteAgent).toHaveBeenCalledWith("b");
-      // The click is stopped, so the tab underneath it never activates its agent.
+      expect(service.deleteAgent).toHaveBeenCalledWith("a");
       expect(service.activateAgent).not.toHaveBeenCalledWith("b");
     });
 

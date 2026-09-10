@@ -20,6 +20,38 @@
 @use "../../section-style" as *;
 @use "../../button-style" as *;
 
+:host ::ng-deep .section-title.ant-card > .ant-card-body {
+  flex-direction: column;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+:host .page-title {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+:host .button-group {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.create-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+:host ::ng-deep .workflow-card-item .ant-card.card-item,
+:host ::ng-deep .workflow-card-item .ant-card.card-item .ant-card-body {
+  background: var(--app-bg-canvas) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 ::ng-deep .ant-badge-dot {
   right: 8px;
   top: 5px;

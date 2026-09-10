@@ -24,7 +24,7 @@ import { DatasetService } from "../../../../../service/user/dataset/dataset.serv
 import { ModelService } from "../../../../../service/user/model/model.service";
 import { EntityType } from "../../../../../../hub/service/hub.service";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
-import { DomSanitizer } from "@angular/platform-browser";
+import { By, DomSanitizer } from "@angular/platform-browser";
 import { commonTestProviders } from "../../../../../../common/testing/test-utils";
 import { of } from "rxjs";
 import * as Papa from "papaparse";
@@ -244,6 +244,22 @@ describe("UserDatasetFileRendererComponent", () => {
       expect(component.tableDataHeader).toEqual(["a", "b", "c"]);
       expect(component.tableContent[0]).toEqual(["1", "2", ""]); // short row padded to the header width
       expect(component.tableContent[1]).toEqual(["x", "y", "z", "w"]);
+    });
+
+    it("loadTabularFile filters out completely empty rows and trailing empty rows", () => {
+      (component as unknown as { loadTabularFile: (d: unknown[][]) => void }).loadTabularFile([
+        ["a", "b"],
+        ["1", "2"],
+        ["", ""],
+        ["3", "4"],
+        ["  "],
+      ]);
+
+      expect(component.tableDataHeader).toEqual(["a", "b"]);
+      expect(component.tableContent).toEqual([
+        ["1", "2"],
+        ["3", "4"],
+      ]);
     });
 
     it("loadTabularFile leaves state unchanged for empty data", () => {
@@ -735,6 +751,51 @@ describe("UserDatasetFileRendererComponent rendering", () => {
       expect(el.querySelector("nz-table")).not.toBeNull();
       expect(el.textContent).toContain("cell");
     });
+
+    it("fits table columns in the preview without horizontal scroll", () => {
+      render(c => {
+        c.displayCSV = true;
+        c.tableDataHeader = ["building_id", "building_name", "city", "building_type", "sqft", "site_manager"];
+        c.tableContent = [["B-01", "Harbor", "Austin", "Office", "220000", "Lee"]];
+      });
+
+      const table = fixture.debugElement.query(By.css("nz-table"));
+      expect(table).toBeTruthy();
+      expect(table.componentInstance.nzScroll?.x).toBeFalsy();
+      expect(fixture.nativeElement.querySelector(".file-preview-shell")).toBeTruthy();
+    });
+
+    it("paginates a long preview so only one page of rows is on screen", () => {
+      const pageSize = UserDatasetFileRendererComponent.TABLE_PAGE_SIZE;
+      const extra = 5;
+      render(c => {
+        c.displayCSV = true;
+        c.tableDataHeader = ["id"];
+        c.tableContent = Array.from({ length: pageSize + extra }, (_, i) => [`row-${i}`]);
+      });
+
+      const table = fixture.debugElement.query(By.css("nz-table"));
+      expect(table.componentInstance.nzShowPagination).toBe(true);
+      expect(table.componentInstance.nzPageSize).toBe(pageSize);
+      expect(table.componentInstance.nzHideOnSinglePage).toBe(true);
+      expect(fixture.nativeElement.querySelectorAll("tbody tr").length).toBe(pageSize);
+      expect(fixture.nativeElement.textContent).toContain("row-0");
+      expect(fixture.nativeElement.textContent).not.toContain(`row-${pageSize}`);
+    });
+
+    it("hides pagination when every row already fits on one page", () => {
+      render(c => {
+        c.displayCSV = true;
+        c.tableDataHeader = ["id"];
+        c.tableContent = [["only-row"]];
+      });
+
+      const table = fixture.debugElement.query(By.css("nz-table"));
+      expect(table.componentInstance.nzHideOnSinglePage).toBe(true);
+      const pagination = fixture.nativeElement.querySelector(".ant-pagination");
+      expect(!pagination || pagination.hasAttribute("hidden") || (pagination as HTMLElement).hidden).toBe(true);
+      expect(fixture.nativeElement.querySelectorAll("tbody tr").length).toBe(1);
+    });
   });
 
   describe("media previews", () => {
@@ -828,11 +889,12 @@ describe("UserDatasetFileRendererComponent rendering", () => {
     expect(area.textContent?.trim()).toBe("");
   });
 
-  it("fills the container height only when maximized", () => {
-    const outer = render(c => (c.isMaximized = false)).querySelector<HTMLElement>("div")!;
-    expect(outer.style.height).toBe("80%");
+  it("fills the preview pane so the table can scroll", () => {
+    const outer = render(c => (c.isMaximized = false)).querySelector<HTMLElement>(".file-preview-shell")!;
+    expect(outer).toBeTruthy();
+    expect(outer.style.height).toBe("");
 
-    const maximized = render(c => (c.isMaximized = true)).querySelector<HTMLElement>("div")!;
-    expect(maximized.style.height).toBe("100%");
+    const maximized = render(c => (c.isMaximized = true)).querySelector<HTMLElement>(".file-preview-shell")!;
+    expect(maximized).toBeTruthy();
   });
 });

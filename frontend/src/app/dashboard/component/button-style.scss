@@ -25,8 +25,12 @@
   min-width: 0;
 
   texera-filters {
-    margin-left: auto;
+    margin-left: 0;
     flex-shrink: 0;
+  }
+
+  .right-aligned-btn {
+    margin-left: auto !important;
   }
 
   button.create-btn {
@@ -34,25 +38,35 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    height: 28px;
-    padding: 0 10px;
+    height: 32px !important;
+    padding: 0 14px !important;
     flex-shrink: 0;
     font-family: var(--app-font-sans);
-    font-size: 12px;
-    font-weight: 510;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
     line-height: 1;
-    background-color: #18181b;
-    color: #ffffff;
-    border: 1px solid #18181b;
-    border-radius: 6px;
-    box-shadow: none;
+    background-color: #18181b !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
     cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    i,
+    span[nz-icon] {
+      font-size: 13px !important;
+    }
 
     &:hover,
     &:focus {
-      background-color: #27272a;
-      border-color: #27272a;
-      color: #ffffff;
+      background-color: #27272a !important;
+      border-color: #27272a !important;
+      color: #ffffff !important;
+    }
+
+    &:active {
+      background-color: #3f3f46 !important;
     }
   }
 }

@@ -18,7 +18,8 @@
  */
 
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
-import { AgentService, ModelType } from "../../../../service/agent/agent.service";
+import { AgentService, LLM_PROVIDER_API_KEY_STORAGE_KEY, ModelType } from "../../../../service/agent/agent.service";
+import { sessionGetObject, sessionSetObject } from "../../../../../common/util/storage";
 import { NotificationService } from "../../../../../common/service/notification/notification.service";
 import { WorkflowActionService } from "../../../../service/workflow-graph/model/workflow-action.service";
 import { ComputingUnitStatusService } from "../../../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
@@ -60,7 +61,9 @@ export class AgentRegistrationComponent implements OnInit, OnDestroy {
 
   public modelTypes: ModelType[] = [];
   public selectedModelType: string | null = null;
-  public customAgentName: string = "Texera Agent";
+  public customAgentName: string = "";
+  public providerApiKey = "";
+  public apiKeyVisible = false;
   public isLoadingModels: boolean = false;
   public hasLoadingError: boolean = false;
   public computingUnitConnected: boolean = false;
@@ -76,6 +79,10 @@ export class AgentRegistrationComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    const savedKey = sessionGetObject<string>(LLM_PROVIDER_API_KEY_STORAGE_KEY);
+    if (typeof savedKey === "string") {
+      this.providerApiKey = savedKey;
+    }
     this.isLoadingModels = true;
     this.hasLoadingError = false;
 
@@ -116,8 +123,12 @@ export class AgentRegistrationComponent implements OnInit, OnDestroy {
     this.selectedModelType = modelTypeId;
   }
 
+  public selectSuggestion(suggestion: string): void {
+    this.customAgentName = suggestion;
+  }
+
   public createAgent(): void {
-    if (!this.selectedModelType || this.isCreating) {
+    if (!this.selectedModelType || this.trimmedAgentName() === "" || this.isCreating) {
       return;
     }
 
@@ -126,8 +137,13 @@ export class AgentRegistrationComponent implements OnInit, OnDestroy {
     const workflowMetadata = this.workflowActionService.getWorkflowMetadata();
     const workflowId = workflowMetadata?.wid;
 
+    const providerApiKey = this.providerApiKey.trim() || undefined;
+    if (providerApiKey) {
+      sessionSetObject(LLM_PROVIDER_API_KEY_STORAGE_KEY, providerApiKey);
+    }
+
     this.agentService
-      .createAgent(this.selectedModelType!, this.customAgentName || undefined, workflowId)
+      .createAgent(this.selectedModelType!, this.trimmedAgentName(), workflowId, providerApiKey)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: agentInfo => {
@@ -148,6 +164,10 @@ export class AgentRegistrationComponent implements OnInit, OnDestroy {
   }
 
   public canCreate(): boolean {
-    return this.selectedModelType !== null && !this.isCreating && this.computingUnitConnected;
+    return this.selectedModelType !== null && this.trimmedAgentName() !== "" && !this.isCreating && this.computingUnitConnected;
+  }
+
+  public trimmedAgentName(): string {
+    return this.customAgentName.trim();
   }
 }

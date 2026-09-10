@@ -210,6 +210,18 @@ describe("WorkspaceComponent", () => {
       component.ngOnInit();
       expect(workflowActionService.setHighlightingEnabled).toHaveBeenCalledWith(true);
     });
+
+    it("reads the agent query param onto agentIdToActivate", async () => {
+      await createFixture(configureRoute({ id: "42" }, { agent: "agent-9" }));
+      component.ngOnInit();
+      expect(component.agentIdToActivate).toBe("agent-9");
+    });
+
+    it("sets isLoading=true when the route already has a workflow id", async () => {
+      await createFixture(configureRoute({ id: "42" }));
+      component.ngOnInit();
+      expect(component.isLoading).toBe(true);
+    });
   });
 
   describe("ngAfterViewInit", () => {
@@ -221,17 +233,14 @@ describe("WorkspaceComponent", () => {
       expect(operatorMetadataService.getOperatorMetadata).toHaveBeenCalled();
     });
 
-    it("warm start (wid in route): sets isLoading=true and disables modification before load", async () => {
+    it("warm start (wid in route): sets isLoading=true before the first CD so the spinner binding is stable", async () => {
       await createFixture(configureRoute({ id: "42" }));
       // retrieveWorkflow is consumed inside loadWorkflowWithId — keep it pending so
       // we can observe the pre-completion loading state.
       workflowPersistService.retrieveWorkflow.mockReturnValue(new Subject());
-      // Drive the lifecycle hooks directly. Going through fixture.detectChanges()
-      // would re-render `[nzSpinning]="isLoading"` mid-cycle (isLoading flips from
-      // false to true inside ngAfterViewInit) and Angular's dev-mode stability
-      // check would throw NG0100.
-      component.ngOnInit();
-      component.ngAfterViewInit();
+      // isLoading must already be true before the first CD. Flipping it inside
+      // ngAfterViewInit used to throw NG0100 on `[nzSpinning]="isLoading"`.
+      expect(() => fixture.detectChanges()).not.toThrow();
       expect(component.isLoading).toBe(true);
       expect(workflowActionService.disableWorkflowModification).toHaveBeenCalled();
     });
@@ -245,6 +254,7 @@ describe("WorkspaceComponent", () => {
       expect(workflowActionService.reloadWorkflow).toHaveBeenCalledWith(stubWorkflow, undefined);
       expect(undoRedoService.clearUndoStack).toHaveBeenCalled();
       expect(undoRedoService.clearRedoStack).toHaveBeenCalled();
+      await fixture.whenStable();
       expect(component.isLoading).toBe(false);
     });
 
@@ -255,6 +265,7 @@ describe("WorkspaceComponent", () => {
       expect(workflowActionService.resetAsNewWorkflow).toHaveBeenCalled();
       expect(workflowActionService.enableWorkflowModification).toHaveBeenCalled();
       expect(messageService.error).toHaveBeenCalledWith(expect.stringContaining("don't have access"));
+      await fixture.whenStable();
       expect(component.isLoading).toBe(false);
     });
 

@@ -37,6 +37,8 @@ import org.scalatest.matchers.should.Matchers
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
 
+import scala.jdk.CollectionConverters._
+
 // Wires the LiteLLM proxy resources through the same Jersey auth pipeline
 // production uses and fires HTTP requests with no / wrong-role / right-role
 // Bearer tokens. The @RolesAllowed annotations are only enforced when
@@ -107,7 +109,9 @@ class LiteLLMProxyAuthSpec extends AnyFlatSpec with Matchers with BeforeAndAfter
   private val mockModelsBody = """{"data":[{"id":"mock-gpt"}]}"""
 
   private val mockLiteLLM: HttpServer = HttpServer.create(new InetSocketAddress(0), 0)
-  mockLiteLLM.createContext("/chat/completions", respondWith(200, mockChatBody))
+  @volatile private var lastChatRequestBody = ""
+  @volatile private var lastChatHadProviderHeader = false
+  mockLiteLLM.createContext("/chat/completions", captureChatAndRespond())
   mockLiteLLM.createContext("/models", respondWith(200, mockModelsBody))
 
   private def respondWith(status: Int, body: String): HttpHandler =
@@ -115,6 +119,20 @@ class LiteLLMProxyAuthSpec extends AnyFlatSpec with Matchers with BeforeAndAfter
       val bytes = body.getBytes(StandardCharsets.UTF_8)
       exchange.getResponseHeaders.add("Content-Type", MediaType.APPLICATION_JSON)
       exchange.sendResponseHeaders(status, bytes.length.toLong)
+      val os = exchange.getResponseBody
+      try os.write(bytes)
+      finally os.close()
+    }
+
+  private def captureChatAndRespond(): HttpHandler =
+    (exchange: HttpExchange) => {
+      lastChatRequestBody = new String(exchange.getRequestBody.readAllBytes(), StandardCharsets.UTF_8)
+      lastChatHadProviderHeader = exchange.getRequestHeaders.keySet().asScala.exists(
+        _.equalsIgnoreCase(LiteLLMProxyResource.ProviderApiKeyHeader)
+      )
+      val bytes = mockChatBody.getBytes(StandardCharsets.UTF_8)
+      exchange.getResponseHeaders.add("Content-Type", MediaType.APPLICATION_JSON)
+      exchange.sendResponseHeaders(200, bytes.length.toLong)
       val os = exchange.getResponseBody
       try os.write(bytes)
       finally os.close()
@@ -253,6 +271,48 @@ class LiteLLMProxyAuthSpec extends AnyFlatSpec with Matchers with BeforeAndAfter
       .post(Entity.json(chatBody))
     response.getStatus shouldBe 200
     response.readEntity(classOf[String]) shouldBe mockChatBody
+  }
+
+  it should "inject the provider API key into the LiteLLM body and not forward the header" in {
+    lastChatRequestBody = ""
+    lastChatHadProviderHeader = false
+    val response = resourcesMockLiteLLM
+      .target("/chat/completions")
+      .request(MediaType.APPLICATION_JSON)
+      .header("Authorization", s"Bearer ${token(UserRoleEnum.REGULAR)}")
+      .header(LiteLLMProxyResource.ProviderApiKeyHeader, "sk-ant-from-ui")
+      .post(Entity.json(chatBody))
+    response.getStatus shouldBe 200
+    lastChatHadProviderHeader shouldBe false
+    testMapper.readTree(lastChatRequestBody).get("api_key").asText() shouldBe "sk-ant-from-ui"
+    testMapper.readTree(lastChatRequestBody).get("model").asText() shouldBe "gpt-4o-mini"
+  }
+
+  it should "leave the LiteLLM body unchanged when no provider API key is sent" in {
+    lastChatRequestBody = ""
+    val response = resourcesMockLiteLLM
+      .target("/chat/completions")
+      .request(MediaType.APPLICATION_JSON)
+      .header("Authorization", s"Bearer ${token(UserRoleEnum.REGULAR)}")
+      .post(Entity.json(chatBody))
+    response.getStatus shouldBe 200
+    testMapper.readTree(lastChatRequestBody).has("api_key") shouldBe false
+  }
+
+  "LiteLLMProxyResource.injectProviderApiKey" should "put a trimmed key onto an object body" in {
+    val out = LiteLLMProxyResource.injectProviderApiKey(chatBody, Some("  sk-ant-test  "))
+    testMapper.readTree(out).get("api_key").asText() shouldBe "sk-ant-test"
+    testMapper.readTree(out).get("model").asText() shouldBe "gpt-4o-mini"
+  }
+
+  it should "leave the body unchanged when the key is missing or blank" in {
+    LiteLLMProxyResource.injectProviderApiKey(chatBody, None) shouldBe chatBody
+    LiteLLMProxyResource.injectProviderApiKey(chatBody, Some("   ")) shouldBe chatBody
+    LiteLLMProxyResource.injectProviderApiKey(chatBody, Some("")) shouldBe chatBody
+  }
+
+  it should "leave malformed JSON unchanged" in {
+    LiteLLMProxyResource.injectProviderApiKey("not-json", Some("sk-ant-test")) shouldBe "not-json"
   }
 
   "GET /models" should "forward the upstream response when copilot is on and upstream is reachable" in {

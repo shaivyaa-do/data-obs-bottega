@@ -25,9 +25,11 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
 } from "@angular/core";
 import { Component } from "@angular/core";
+import { NzInputDirective } from "ng-zorro-antd/input";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { DashboardEntry } from "src/app/dashboard/type/dashboard-entry";
@@ -51,7 +53,6 @@ import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { FormsModule } from "@angular/forms";
-import { UserAvatarComponent } from "../user-avatar/user-avatar.component";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 
@@ -72,9 +73,9 @@ import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
     NzSpaceCompactItemDirective,
     NzButtonComponent,
     FormsModule,
-    UserAvatarComponent,
     NzWaveDirective,
     NzPopconfirmDirective,
+    NzInputDirective,
   ],
 })
 export class ListItemComponent implements OnChanges {
@@ -87,9 +88,12 @@ export class ListItemComponent implements OnChanges {
   @Input() currentUid: number | undefined;
   @ViewChild("nameInput") nameInput!: ElementRef;
   @ViewChild("descriptionInput") descriptionInput!: ElementRef;
+  @ViewChild("editModalTpl") editModalTpl!: TemplateRef<any>;
   editingName = false;
   editingDescription = false;
   renderedDescription = "";
+  tempEditName: string = "";
+  tempEditDescription: string = "";
 
   likeCount: number = 0;
   viewCount = 0;
@@ -198,6 +202,31 @@ export class ListItemComponent implements OnChanges {
     if (!this.entry.id || !download) return;
     download(this.entry.id, this.entry.name).pipe(untilDestroyed(this)).subscribe();
   };
+
+  openEditModal(): void {
+    if (!this.editable) return;
+    this.originalName = this.entry.name;
+    this.originalDescription = this.entry.description;
+    this.tempEditName = this.entry.name;
+    this.tempEditDescription = this.entry.description ?? "";
+
+    this.modalService.create({
+      nzTitle: "Edit Details",
+      nzContent: this.editModalTpl,
+      nzWidth: "480px",
+      nzOkText: "Save",
+      nzCancelText: "Cancel",
+      nzOnOk: () => {
+        const trimmed = this.tempEditName?.trim();
+        if (trimmed && trimmed !== this.originalName) {
+          this.confirmUpdateCustomName(trimmed);
+        }
+        if (this.tempEditDescription !== (this.originalDescription ?? "")) {
+          this.confirmUpdateCustomDescription(this.tempEditDescription);
+        }
+      },
+    });
+  }
 
   onEditName(): void {
     this.originalName = this.entry.name;

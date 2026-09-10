@@ -249,12 +249,14 @@ describe("ResultPanelComponent", () => {
       expect(component.dragPosition).toEqual({ x: 3, y: 9 });
     });
 
-    it("updateReturnPosition shifts y by the height delta", () => {
+    it("updateReturnPosition keeps the docked y when height changes", () => {
+      // The panel is bottom-anchored on the canvas (`bottom: 100%` of the host),
+      // so height changes grow upward and must not shift the return origin.
       component.returnPosition = { x: 4, y: 10 };
 
-      component.updateReturnPosition(500, 300); // y + (500 - 300)
+      component.updateReturnPosition(500, 300);
 
-      expect(component.returnPosition).toEqual({ x: 4, y: 210 });
+      expect(component.returnPosition).toEqual({ x: 4, y: 10 });
     });
 
     it("updateReturnPosition is a no-op when the new height is undefined", () => {
@@ -625,6 +627,12 @@ describe("ResultPanelComponent", () => {
       component.componentOutlets = {
         nativeElement: { querySelector: () => null },
       } as unknown as ElementRef;
+
+      expect(() => component.handleStartDrag()).not.toThrow();
+    });
+
+    it("handleStartDrag is a no-op when the visualization outlet is not yet created", () => {
+      component.componentOutlets = undefined as unknown as ElementRef;
 
       expect(() => component.handleStartDrag()).not.toThrow();
     });

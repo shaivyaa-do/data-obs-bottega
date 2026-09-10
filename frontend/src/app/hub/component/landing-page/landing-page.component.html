@@ -18,64 +18,112 @@
 -->
 
 <div class="landing-page-container">
-  <div class="section-intro">
+  <div
+    *ngIf="isLogin"
+    class="welcome-hero">
+    <p class="welcome-kicker">{{ greetingDate }}</p>
+    <h1>Welcome to DO Bottega</h1>
+    <p class="welcome-hello">
+      Hello,
+      <span class="welcome-name">{{ displayName }}</span>
+    </p>
+    <p class="welcome-lede">
+      Build data workflows, talk to an agent, and keep your datasets and compute in one workspace.
+    </p>
+    <div class="welcome-actions">
+      <button
+        type="button"
+        class="welcome-btn welcome-btn-primary"
+        (click)="openWorkflows()">
+        Open workflows
+      </button>
+      <button
+        type="button"
+        class="welcome-btn"
+        (click)="openAgent()">
+        Create with an agent
+      </button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="!isLogin"
+    class="section-intro">
     <div class="section-intro-text">
-      <h1>{{ isLogin ? "Dashboard" : "DO Bottega Hub" }}</h1>
-      <p *ngIf="!isLogin">
+      <h1>DO Bottega Hub</h1>
+      <p>
         Join our community to explore public workflows, collaborate with others, and enhance your data analytics
         capabilities.
       </p>
     </div>
   </div>
 
-  <div class="stat-grid">
-    <button
-      type="button"
-      class="stat-card"
-      (click)="navigateToSearch('workflow')">
-      <span class="stat-value">{{ workflowCount }}</span>
-      <span class="stat-label">Workflows</span>
-    </button>
-    <button
-      type="button"
-      class="stat-card"
-      (click)="navigateToSearch('dataset')">
-      <span class="stat-value">{{ datasetCount }}</span>
-      <span class="stat-label">Datasets</span>
-    </button>
-    <button
-      type="button"
-      class="stat-card"
-      (click)="navigateToSearch('model')">
-      <span class="stat-value">{{ modelCount }}</span>
-      <span class="stat-label">Models</span>
-    </button>
-  </div>
-
-  <div
+  <section
     *ngIf="isLogin"
-    class="shortcut-grid">
-    <a
-      class="shortcut-card"
-      [routerLink]="USER_WORKFLOW">
-      My Workflows
-    </a>
-    <a
-      class="shortcut-card"
-      [routerLink]="USER_DATASET">
-      My Datasets
-    </a>
-    <a
-      class="shortcut-card"
-      [routerLink]="USER_COMPUTING_UNIT">
-      Compute
-    </a>
-    <a
-      class="shortcut-card"
-      [routerLink]="USER_QUOTA">
-      Quota
-    </a>
-  </div>
+    class="home-section">
+    <h2 class="home-section-title">Your work</h2>
+    <div class="shortcut-grid">
+      <button
+        type="button"
+        class="shortcut-card"
+        (click)="openWorkflows()">
+        <span class="shortcut-title">My Workflows</span>
+        <span class="shortcut-hint">Open, edit, and run your pipelines</span>
+      </button>
+      <button
+        type="button"
+        class="shortcut-card"
+        (click)="openAgent()">
+        <span class="shortcut-title">Create with Agent</span>
+        <span class="shortcut-hint">Describe a workflow in natural language</span>
+      </button>
+      <button
+        type="button"
+        class="shortcut-card"
+        (click)="openDatasets()">
+        <span class="shortcut-title">My Datasets</span>
+        <span class="shortcut-hint">Upload and explore the data you use</span>
+      </button>
+      <button
+        type="button"
+        class="shortcut-card"
+        (click)="openCompute()">
+        <span class="shortcut-title">Compute</span>
+        <span class="shortcut-hint">Start a unit before you run a job</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2
+      *ngIf="isLogin"
+      class="home-section-title">
+      Hub at a glance
+    </h2>
+    <div class="stat-grid">
+      <button
+        type="button"
+        class="stat-card"
+        (click)="navigateToSearch('workflow')">
+        <span class="stat-value">{{ workflowCount }}</span>
+        <span class="stat-label">Workflows</span>
+      </button>
+      <button
+        type="button"
+        class="stat-card"
+        (click)="navigateToSearch('dataset')">
+        <span class="stat-value">{{ datasetCount }}</span>
+        <span class="stat-label">Datasets</span>
+      </button>
+      <button
+        type="button"
+        class="stat-card"
+        (click)="navigateToSearch('model')">
+        <span class="stat-value">{{ modelCount }}</span>
+        <span class="stat-label">Models</span>
+      </button>
+    </div>
+  </section>
 
   <div>
     <texera-browse-section

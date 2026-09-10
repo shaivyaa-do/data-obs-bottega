@@ -38,18 +38,19 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { distinctUntilChanged, filter } from "rxjs/operators";
 import { PortPropertyEditFrameComponent } from "./port-property-edit-frame/port-property-edit-frame.component";
 import { NzResizeEvent, NzResizableDirective, NzResizeHandlesComponent } from "ng-zorro-antd/resizable";
-import { calculateTotalTranslate3d } from "../../../common/util/panel-dock";
 import { PanelService } from "../../service/panel/panel.service";
 import { FormBindingService } from "../../service/form-binding/form-binding.service";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
-import { NzMenuDirective, NzMenuItemComponent, NzMenuDividerDirective } from "ng-zorro-antd/menu";
+import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
 import { NgClass, NgIf, NgComponentOutlet } from "@angular/common";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
-import { CdkDrag, CdkDragHandle } from "@angular/cdk/drag-drop";
 import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
+
+/** Space reserved for the workspace menu; the property sidebar fills the rest. */
+export const PROPERTY_PANEL_TOP_OFFSET_PX = 80;
 
 /**
  * PropertyEditorComponent is the panel that allows user to edit operator properties.
@@ -70,12 +71,9 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
     ɵNzTransitionPatchDirective,
     NzIconDirective,
     NzTooltipDirective,
-    CdkDrag,
     NzResizableDirective,
     NzSpaceCompactItemDirective,
     NzButtonComponent,
-    NzMenuDividerDirective,
-    CdkDragHandle,
     NgComponentOutlet,
     NzResizeHandlesComponent,
   ],
@@ -83,9 +81,11 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 export class PropertyEditorComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild("contentWrapper") contentWrapperRef!: ElementRef;
   protected readonly window = window;
+  private static readonly DOCK_SIDE_KEY = "property-panel-dock";
+  private static readonly DOCK_SIDE = "left";
   id = -1;
   width = 260;
-  height = Math.max(300, window.innerHeight * 0.6);
+  height = PropertyEditorComponent.fullPanelHeight();
   currentComponent: Type<any> | null = null;
   /**
    * Set while an author is choosing which properties the Form View offers.
@@ -112,6 +112,8 @@ export class PropertyEditorComponent implements OnInit, OnDestroy, OnChanges {
   componentInputs = {};
   dragPosition = { x: 0, y: 0 };
   returnPosition = { x: 0, y: 0 };
+  /** Pixels from the left of the viewport; sits beside the operators panel when that panel is open. */
+  leftDockOffset = 0;
   constructor(
     public workflowActionService: WorkflowActionService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -121,7 +123,11 @@ export class PropertyEditorComponent implements OnInit, OnDestroy, OnChanges {
   ) {
     const width = localStorage.getItem("right-panel-width");
     if (width) this.width = Number(width);
-    this.height = Number(localStorage.getItem("right-panel-height")) || this.height;
+    this.height = PropertyEditorComponent.fullPanelHeight();
+  }
+
+  public static fullPanelHeight(): number {
+    return Math.max(300, window.innerHeight - PROPERTY_PANEL_TOP_OFFSET_PX);
   }
 
   /**
@@ -137,11 +143,11 @@ export class PropertyEditorComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    const style = localStorage.getItem("right-panel-style");
-    if (style) document.getElementById("right-container")!.style.cssText = style;
-    const translates = document.getElementById("right-container")!.style.transform;
-    const [xOffset, yOffset, _] = calculateTotalTranslate3d(translates);
-    this.returnPosition = { x: -xOffset, y: -yOffset };
+    // Do not restore a saved transform from when this panel was right-docked.
+    this.dragPosition = { x: 0, y: 0 };
+    this.returnPosition = { x: 0, y: 0 };
+    localStorage.setItem(PropertyEditorComponent.DOCK_SIDE_KEY, PropertyEditorComponent.DOCK_SIDE);
+    this.updateLeftDockOffset();
     this.registerHighlightEventsHandler();
     // The toolbar's "choose fields" toggle lives in the service so both the canvas toolbar
     // and this panel see the same state. Re-emit the frame's inputs when it changes, so tick
@@ -166,15 +172,7 @@ export class PropertyEditorComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private updateHeightBasedOnContent(): void {
-    setTimeout(() => {
-      const contentEl = this.contentWrapperRef?.nativeElement;
-      if (contentEl) {
-        const contentHeight = contentEl.scrollHeight;
-        const maxHeight = this.window.innerHeight * 0.6;
-        this.height = Math.min(contentHeight + 40, maxHeight);
-        this.changeDetectorRef.detectChanges();
-      }
-    });
+    this.height = PropertyEditorComponent.fullPanelHeight();
   }
 
   /**
@@ -257,21 +255,39 @@ export class PropertyEditorComponent implements OnInit, OnDestroy, OnChanges {
           this.componentInputs = {};
           this.workflowActionService.getTexeraGraph().updateSharedModelAwareness("currentlyEditing", undefined);
         }
+        this.updateLeftDockOffset();
         this.changeDetectorRef.detectChanges();
         this.updateHeightBasedOnContent();
       });
   }
-  onResize({ width, height }: NzResizeEvent) {
+
+  /**
+   * Sit flush left, or immediately to the right of the operators panel when that panel is open.
+   */
+  public updateLeftDockOffset(): void {
+    const leftPanel = document.getElementById("left-container");
+    const width = leftPanel?.offsetWidth ?? 0;
+    this.leftDockOffset = width > 0 ? Math.round(width) : 0;
+  }
+  @HostListener("window:resize")
+  onWindowResize(): void {
+    this.updateHeightBasedOnContent();
+  }
+
+  onResize({ width }: NzResizeEvent) {
     cancelAnimationFrame(this.id);
     this.id = requestAnimationFrame(() => {
-      this.width = width!;
-      this.height = height!;
+      if (width) {
+        this.width = width;
+      }
     });
   }
 
   openPanel() {
     this.width = 280;
-    this.height = 300;
+    this.height = PropertyEditorComponent.fullPanelHeight();
+    this.dragPosition = { x: 0, y: 0 };
+    this.updateLeftDockOffset();
     this.updateHeightBasedOnContent();
   }
 

@@ -18,8 +18,10 @@
  */
 
 #menu-container {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   width: 100%;
+  pointer-events: auto;
 }
 
 #logo {
@@ -40,33 +42,95 @@
 .workflow-name {
   min-width: 100px;
   max-width: 800px;
-  font-size: 18px;
-  padding: 2px 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--app-text-primary, #18181b);
+  padding: 4px 8px;
   border: none;
+  border-radius: 6px;
   box-sizing: content-box;
+  background: transparent;
 
   &:hover {
     box-shadow: 0 0 0 1px rgb(202, 202, 202);
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px #007bff;
+    box-shadow: 0 0 0 2px #18181b;
+    background: #ffffff;
   }
 }
 
 #menu-user {
-  height: 36px;
-  margin: 1px;
-  border-bottom: 1px solid #cacaca;
+  height: 46px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--app-border-subtle, #e4e4e7);
   display: flex;
+  align-items: center;
+  background: var(--app-bg-surface, #ffffff);
 }
 
 #metadata {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
-#user-icon {
-  width: 120px;
+#back-to-workflows-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+#back-to-workflows {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--app-border-subtle, #e4e4e7);
+  background: var(--app-bg-canvas, #f4f4f5);
+  color: var(--app-text-primary, #18181b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--app-bg-hover, #e4e4e7);
+    border-color: #d4d4d8;
+  }
+
+  i {
+    font-size: 14px;
+    color: var(--app-text-primary, #18181b);
+  }
+}
+
+.workflow-title-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+.workflow-id-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--app-text-muted, #71717a);
+  user-select: none;
+}
+
+.autosave-state {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--app-text-muted, #71717a);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 #button-groups {
@@ -75,60 +139,214 @@
   justify-content: space-between;
   min-width: 0;
   gap: 16px;
-  margin: 3px 5px;
+  padding: 8px 16px;
+  margin: 0;
 }
 
 #user-buttons,
-#execution-buttons,
-nz-button-group,
-texera-computing-unit-selection {
+nz-button-group {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.toolbar-left-group {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
 }
 
-#user-buttons,
-#execution-buttons,
-nz-button-group {
-  flex-wrap: nowrap;
-}
-
-#share-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  font-weight: 400;
-}
-
-i {
+.toolbar-right-group {
   display: inline-flex;
-  align-content: center;
-  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
-[nz-button] {
-  width: 32px;
-  padding: 0;
+.operators-dropdown-button {
+  display: inline-flex;
+  align-items: center;
+  height: 32px !important;
+  width: auto !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+  background: var(--app-bg-surface, #ffffff) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--app-text-primary, #18181b) !important;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: #a1a1aa !important;
+    background: #fafafa !important;
+  }
+
+  .button-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+
+    i[nzType="appstore"] {
+      font-size: 13px;
+      color: var(--app-text-primary, #18181b);
+    }
+
+    .operators-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--app-text-primary, #18181b);
+    }
+
+    i[nzType="down"] {
+      font-size: 11px;
+      color: var(--app-text-muted, #71717a);
+    }
+  }
 }
 
-#save-state {
-  font-size: 10px;
-  color: royalblue;
-  font-style: italic;
+#floating-execution-bar {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  pointer-events: auto;
+}
+
+.execution-computing-row {
+  display: inline-flex;
+  align-items: center;
+}
+
+.execution-controls-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+texera-computing-unit-selection {
+  display: inline-flex;
+  align-items: center;
+
+  ::ng-deep .computing-units-selection {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+  }
+
+  ::ng-deep .computing-units-dropdown-button {
+    height: 32px !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    padding: 0 12px !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+    background: var(--app-bg-surface, #ffffff) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+
+    &:hover {
+      border-color: #a1a1aa !important;
+      background: #fafafa !important;
+    }
+
+    .button-content {
+      gap: 8px;
+    }
+
+    .unit-name-text {
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: var(--app-text-primary, #18181b) !important;
+      margin: 0 !important;
+      max-width: none !important;
+    }
+
+    i[nz-icon] {
+      font-size: 11px !important;
+      color: var(--app-text-muted, #71717a) !important;
+    }
+  }
+}
+
+.kill-button {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: 8px !important;
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  color: #ef4444 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not([disabled]) {
+    background: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+    color: #dc2626 !important;
+  }
+
+  &[disabled] {
+    background: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: #f87171 !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 12px !important;
+    font-weight: 700;
+  }
 }
 
 #run-button {
-  width: 140px;
-  padding-left: 10px;
-  text-align: left;
+  height: 32px !important;
+  padding: 0 14px !important;
+  font-weight: 500;
+  width: auto !important;
+  border-radius: 8px !important;
+  background: #18181b !important;
+  border: 1px solid #18181b !important;
+  color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
 
-  &[disabled].computing-unit-status {
-    color: rgba(0, 0, 0, 0.5);
-    border-color: #d9d9d9;
-    background-color: #f5f5f5;
-    text-shadow: none;
-    box-shadow: none;
+  &:hover:not([disabled]) {
+    background: #27272a !important;
+    border-color: #27272a !important;
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .anticon-loading {
@@ -149,6 +367,53 @@ i {
   }
 }
 
+#checkpoint-button {
+  height: 32px !important;
+  width: 32px !important;
+  border-radius: 8px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+.execution-timer-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  height: 32px;
+  background: var(--app-bg-surface, #ffffff);
+  border: 1px solid var(--app-border-subtle, #e4e4e7);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.execution-timer-text {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 32px;
+}
+
+i {
+  display: inline-flex;
+  align-content: center;
+  justify-content: center;
+}
+
+[nz-button] {
+  width: 32px;
+  padding: 0;
+}
+
+#save-state {
+  font-size: 10px;
+  color: royalblue;
+  font-style: italic;
+}
+
 @keyframes loading {
   0% {
     transform: rotate(0deg);
@@ -160,10 +425,8 @@ i {
 
 #expanded-utilities {
   display: flex;
-  flex: 1 1 auto;
-  justify-content: center;
+  flex: 0 0 auto;
   min-width: 0;
-  overflow: hidden;
 
   @media screen and (max-width: 1250px) {
     display: none;
@@ -214,4 +477,49 @@ texera-coeditor-user-icon {
   height: 1.1em;
   width: auto;
   vertical-align: -0.2em;
+}
+
+::ng-deep .operator-menu-dropdown {
+  .ant-dropdown {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .operator-dropdown-panel {
+    width: 290px;
+    max-height: 480px;
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--app-border-subtle, #e4e4e7);
+    padding: 8px;
+    position: relative;
+
+    texera-operator-menu {
+      display: block;
+      position: relative;
+
+      #search-box {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        padding: 4px 0 8px 0;
+        background: #ffffff;
+        border-bottom: 1px solid #e4e4e7;
+        z-index: 2;
+
+        input {
+          width: 100%;
+          border-radius: 6px;
+          border: 1px solid #d4d4d8;
+          padding: 4px 8px;
+        }
+      }
+
+      #spacer {
+        margin-top: 8px;
+      }
+    }
+  }
 }

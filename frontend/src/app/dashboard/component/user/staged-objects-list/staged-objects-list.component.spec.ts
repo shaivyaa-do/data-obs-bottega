@@ -147,6 +147,14 @@ describe("StagedObjectsListComponent", () => {
     expect(overlayText).toContain("Upload time");
   });
 
+  it("hides the empty state instead of showing No pending changes", async () => {
+    getDiffSpy.mockReturnValue(of([]));
+    await renderList();
+
+    expect(fixture.nativeElement.textContent).not.toContain("No pending changes");
+    expect(fixture.nativeElement.querySelector("nz-empty")).toBeNull();
+  });
+
   it("re-measures the viewport on request", async () => {
     await renderList();
     const viewport = fixture.debugElement.query(By.directive(CdkVirtualScrollViewport)).componentInstance;

@@ -19,6 +19,7 @@
 
 <div class="contributor-form">
   <form
+    class="ant-form ant-form-vertical"
     [formGroup]="contributorForm"
     (ngSubmit)="submit()">
     <formly-form
@@ -26,20 +27,22 @@
       [model]="model"
       [fields]="fields"></formly-form>
 
-    <button
-      nz-button
-      nzType="primary"
-      type="submit"
-      class="save-btn">
-      Save
-    </button>
-    <button
-      nz-button
-      nzType="default"
-      type="button"
-      (click)="cancel()"
-      class="cancel-btn">
-      Cancel
-    </button>
+    <div class="modal-footer-actions">
+      <button
+        nz-button
+        nzType="default"
+        type="button"
+        (click)="cancel()"
+        class="cancel-btn">
+        Cancel
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        type="submit"
+        class="save-btn">
+        Save
+      </button>
+    </div>
   </form>
 </div>

@@ -41,7 +41,6 @@ import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patc
 import { NzModalService } from "ng-zorro-antd/modal";
 import { DashboardEntry } from "src/app/dashboard/type/dashboard-entry";
 import { ShareAccessComponent } from "../../share-access/share-access.component";
-import { UserAvatarComponent } from "../../user-avatar/user-avatar.component";
 import { firstValueFrom, Observable } from "rxjs";
 import { HubWorkflowDetailComponent } from "../../../../../hub/component/workflow/detail/hub-workflow-detail.component";
 import { ActionType, HubService } from "../../../../../hub/service/hub.service";
@@ -64,7 +63,6 @@ import { ResourceRegistryService } from "../../../../service/user/resource-regis
     NgIf,
     FormsModule,
     NzCheckboxComponent,
-    UserAvatarComponent,
     NzIconDirective,
     NzButtonComponent,
     NzPopconfirmDirective,

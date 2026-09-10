@@ -672,8 +672,15 @@ body {
   background: var(--app-bg-panel);
 }
 
+.ant-card.card-item {
+  background: var(--app-bg-canvas);
+  border: none;
+  box-shadow: none;
+}
+
 .ant-modal-content {
   border-radius: var(--app-radius-layout);
+  overflow: hidden;
 }
 
 .ant-tabs-ink-bar {
@@ -723,6 +730,15 @@ texera-login {
   border: none !important;
 }
 
+/* Standard dashboard list items: compact, borderless */
+.ant-list-split .ant-list-item {
+  border-bottom: none !important;
+}
+
+.ant-list-item {
+  border: none !important;
+}
+
 .ant-tag {
   border-radius: var(--app-radius-pill);
   font-size: var(--app-font-size-nano);
@@ -732,6 +748,57 @@ texera-login {
   font-family: var(--app-font-sans);
   font-size: var(--app-font-size-body);
   color: var(--app-text-primary);
+  border: 1px solid var(--app-border-light);
+  border-radius: var(--app-radius-sm);
+  overflow: hidden;
+  background: var(--app-bg-panel);
+
+  .ant-table-container {
+    border-radius: var(--app-radius-sm);
+  }
+
+  .ant-table-thead > tr > th {
+    background: #f4f4f5 !important;
+    color: var(--app-text-primary) !important;
+    font-family: var(--app-font-sans);
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid var(--app-border-light) !important;
+    padding: 10px 16px !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid var(--app-border-light) !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    color: var(--app-text-primary);
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background-color: var(--app-bg-hover) !important;
+  }
+
+  .ant-table-tbody > tr:last-child > td {
+    border-bottom: none;
+  }
+
+  .ant-table-placeholder {
+    border-bottom: none !important;
+    background: transparent !important;
+
+    .ant-empty {
+      margin: 28px 0 !important;
+    }
+  }
+}
+
+.ant-table.ant-table-bordered {
+  border: 1px solid var(--app-border-light) !important;
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    border-right: 1px solid var(--app-border-light) !important;
+  }
 }
 
 .ant-layout {

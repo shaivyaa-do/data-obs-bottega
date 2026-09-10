@@ -148,6 +148,23 @@ describe("AgentService", () => {
       expect(created?.modelType).toEqual("gpt-5-mini");
     });
 
+    it("includes a trimmed provider API key and never puts the user token in the payload", () => {
+      service.createAgent("gpt-5-mini", "Bob", undefined, "  sk-ant-secret  ").subscribe();
+
+      const req = httpMock.expectOne(r => r.method === "POST" && r.url === "/api/agents");
+      expect(req.request.body.providerApiKey).toEqual("sk-ant-secret");
+      expect(req.request.body.userToken).toBeUndefined();
+      req.flush(apiAgent);
+    });
+
+    it("omits providerApiKey when it is blank", () => {
+      service.createAgent("gpt-5-mini", "Bob", undefined, "   ").subscribe();
+
+      const req = httpMock.expectOne(r => r.method === "POST" && r.url === "/api/agents");
+      expect(req.request.body.providerApiKey).toBeUndefined();
+      req.flush(apiAgent);
+    });
+
     it("includes workflowId and the selected computing unit id in the payload", () => {
       selectedUnit = { computingUnit: { cuid: 7 } } as unknown as DashboardWorkflowComputingUnit;
       service.createAgent("gpt-5-mini", "Bob", 42).subscribe();
@@ -157,6 +174,84 @@ describe("AgentService", () => {
       expect(req.request.body.computingUnitId).toEqual(7);
       expect(req.request.body.userToken).toBeUndefined();
       req.flush(apiAgent);
+    });
+  });
+
+  describe("bindAgentToWorkflow", () => {
+    it("PATCHes the delegate endpoint with workflowId and the selected computing unit", () => {
+      selectedUnit = { computingUnit: { cuid: 7 } } as unknown as DashboardWorkflowComputingUnit;
+      seedAgent("agent-1");
+      let bound: AgentInfo | undefined;
+
+      service.bindAgentToWorkflow("agent-1", 42).subscribe(agent => (bound = agent));
+
+      const req = httpMock.expectOne(r => r.method === "PATCH" && r.url === "/api/agents/agent-1/delegate");
+      expect(req.request.body).toEqual({ workflowId: 42, computingUnitId: 7 });
+      req.flush({
+        ...apiAgent,
+        id: "agent-1",
+        delegate: {
+          userToken: "secret",
+          userInfo: { uid: 1, name: "u", email: "u@example.com", role: "REGULAR" },
+          workflowId: 42,
+          workflowName: "Current",
+        },
+      });
+
+      expect(bound?.delegate?.workflowId).toBe(42);
+      expect(bound?.delegate?.workflowName).toBe("Current");
+      expect((bound?.delegate as { userToken?: string } | undefined)?.userToken).toBeUndefined();
+      expect(service.getAgentWorkflowId("agent-1")).toBe(42);
+      expect((service as any).agentStateTracking.get("agent-1").workflowId).toBe(42);
+    });
+
+    it("skips the HTTP call when the agent is already bound to that workflow", () => {
+      seedAgent("agent-1", 42);
+      let bound: AgentInfo | undefined;
+
+      service.bindAgentToWorkflow("agent-1", 42).subscribe(agent => (bound = agent));
+
+      httpMock.expectNone(r => r.method === "PATCH" && r.url === "/api/agents/agent-1/delegate");
+      expect(bound?.delegate?.workflowId).toBe(42);
+    });
+
+    it("rebinds an agent that was already pointed at a different workflow", () => {
+      seedAgent("agent-1", 7);
+      let bound: AgentInfo | undefined;
+
+      service.bindAgentToWorkflow("agent-1", 42).subscribe(agent => (bound = agent));
+
+      httpMock
+        .expectOne(r => r.method === "PATCH" && r.url === "/api/agents/agent-1/delegate")
+        .flush({
+          ...apiAgent,
+          id: "agent-1",
+          delegate: {
+            userToken: "secret",
+            userInfo: { uid: 1, name: "u", email: "u@example.com", role: "REGULAR" },
+            workflowId: 42,
+            workflowName: "Rebound",
+          },
+        });
+
+      expect(bound?.delegate?.workflowId).toBe(42);
+      expect((service as any).agentStateTracking.get("agent-1").workflowId).toBe(42);
+    });
+
+    it("notifies and errors when the bind request fails", () => {
+      seedAgent("agent-1");
+      let message: string | undefined;
+
+      service.bindAgentToWorkflow("agent-1", 42).subscribe({
+        error: (e: unknown) => (message = (e as Error).message),
+      });
+
+      httpMock
+        .expectOne(r => r.method === "PATCH" && r.url === "/api/agents/agent-1/delegate")
+        .flush({ error: "Failed to retrieve workflow" }, { status: 500, statusText: "Server Error" });
+
+      expect(message).toBe("Failed to retrieve workflow");
+      expect(notification.error).toHaveBeenCalledWith("Failed to retrieve workflow");
     });
   });
 

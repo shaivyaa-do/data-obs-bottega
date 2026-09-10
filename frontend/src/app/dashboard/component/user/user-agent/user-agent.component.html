@@ -1,0 +1,206 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+
+<div class="section-container subsection-grid-container">
+  <nz-card class="section-title">
+    <h2 class="page-title">Agents</h2>
+  </nz-card>
+
+  <nz-card class="agent-page-card">
+    <p class="agent-lede">
+      Pick a model and create an agent. Open any workflow and select the agent from the dropdown to start chatting.
+    </p>
+
+    <nz-alert
+      *ngIf="!hasRunningComputingUnit"
+      nzType="warning"
+      nzShowIcon
+      nzMessage="Connect a running computing unit before the agent can execute operators."
+      style="margin-bottom: 16px"></nz-alert>
+    <p
+      *ngIf="!hasRunningComputingUnit"
+      class="computing-unit-alert">
+      <a [routerLink]="computingUnitRoute">Open Compute</a>
+    </p>
+
+    <h3 class="section-heading">Select Model</h3>
+    <div
+      *ngIf="isLoadingModels"
+      class="model-placeholder">
+      <nz-spin
+        nzSimple
+        nzSize="large"></nz-spin>
+      <p>Loading available models...</p>
+    </div>
+    <div
+      *ngIf="!isLoadingModels && modelTypes.length === 0"
+      class="model-placeholder">
+      <i
+        nz-icon
+        nzType="warning"
+        nzTheme="outline"></i>
+      <p>No models available. Check that LiteLLM is running, then enter a provider API key below.</p>
+    </div>
+    <div
+      *ngIf="!isLoadingModels && modelTypes.length > 0"
+      class="model-cards">
+      <button
+        *ngFor="let modelType of modelTypes"
+        type="button"
+        class="model-card"
+        [class.selected]="selectedModelType === modelType.id"
+        (click)="selectModelType(modelType.id)">
+        <i
+          nz-icon
+          [nzType]="modelType.icon"
+          nzTheme="outline"></i>
+        <span class="model-info">
+          <strong>{{ modelType.name }}</strong>
+          <span>{{ modelType.description }}</span>
+        </span>
+        <i
+          *ngIf="selectedModelType === modelType.id"
+          nz-icon
+          nzType="check-circle"
+          nzTheme="fill"
+          class="selected-check"></i>
+      </button>
+    </div>
+
+    <div class="agent-config-form">
+      <div class="form-group">
+        <h3 class="section-heading">Agent Name</h3>
+        <input
+          nz-input
+          class="agent-name-input"
+          [(ngModel)]="customAgentName"
+          placeholder="Give this agent a name (e.g. Data Assistant)"
+          (keydown.enter)="canCreate() && createAgent()" />
+      </div>
+
+      <div class="form-group">
+        <h3 class="section-heading">Provider API Key</h3>
+        <p class="agent-hint">
+          Use the key that matches the model: Google AI Studio for Gemini, Groq, OpenRouter
+          (<code>sk-or-…</code>), Anthropic (<code>sk-ant-…</code>), or OpenAI. Used for this agent only — not saved in the
+          database.
+        </p>
+        <div class="password-line">
+          <input
+            nz-input
+            class="provider-api-key"
+            [type]="apiKeyVisible ? 'text' : 'password'"
+            [(ngModel)]="providerApiKey"
+            placeholder="Paste your LLM API key"
+            autocomplete="off"
+            (keydown.enter)="canCreate() && createAgent()" />
+          <i
+            nz-icon
+            class="ant-input-password-icon"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="apiKeyVisible ? 'Hide API key' : 'Show API key'"
+            [nzType]="apiKeyVisible ? 'eye' : 'eye-invisible'"
+            nzTheme="outline"
+            (click)="apiKeyVisible = !apiKeyVisible"
+            (keydown.enter)="apiKeyVisible = !apiKeyVisible"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-actions">
+      <button
+        nz-button
+        nzType="primary"
+        class="submit-btn"
+        [nzLoading]="isCreating"
+        [disabled]="!canCreate()"
+        (click)="createAgent()">
+        <i
+          *ngIf="!isCreating"
+          nz-icon
+          nzType="check"
+          nzTheme="outline"></i>
+        {{ isCreating ? "Creating..." : "Submit" }}
+      </button>
+      <span *ngIf="!selectedModelType" class="action-hint">Select a model to continue</span>
+      <span *ngIf="selectedModelType && !trimmedAgentName()" class="action-hint">Enter an agent name</span>
+      <span *ngIf="selectedModelType && trimmedAgentName() && !trimmedProviderApiKey()" class="action-hint">Enter your provider API key</span>
+    </div>
+
+    <section class="configured-agents">
+      <h3 class="section-heading">Your Agents</h3>
+      <div class="configured-agents-card">
+        <div
+          *ngIf="isLoadingAgents"
+          class="model-placeholder">
+          <nz-spin
+            nzSimple
+            nzSize="large"></nz-spin>
+          <p>Loading agents...</p>
+        </div>
+        <p
+          *ngIf="!isLoadingAgents && agents.length === 0"
+          class="configured-agents-empty">
+          No agents configured yet. Create one above.
+        </p>
+        <ul
+          *ngIf="!isLoadingAgents && agents.length > 0"
+          class="configured-agent-list">
+          <li
+            *ngFor="let agent of agents"
+            class="configured-agent-item">
+            <button
+              type="button"
+              class="configured-agent-open"
+              (click)="openAgent(agent)">
+              <span class="configured-agent-icon">
+                <i
+                  nz-icon
+                  nzType="robot"
+                  nzTheme="outline"></i>
+              </span>
+              <span class="configured-agent-copy">
+                <strong class="configured-agent-name">{{ agent.name }}</strong>
+                <span class="configured-agent-description">{{ workflowLabel(agent) }}</span>
+              </span>
+              <span class="configured-agent-info">
+                <span class="info-label">Model</span>
+                <span class="info-value">{{ agent.modelType }}</span>
+              </span>
+            </button>
+            <div class="configured-agent-actions">
+              <button
+                nz-button
+                nzType="text"
+                class="configured-agent-delete"
+                (click)="deleteConfiguredAgent(agent, $event)"
+                title="Delete agent">
+                <i
+                  nz-icon
+                  nzType="delete"
+                  nzTheme="outline"></i>
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </nz-card>
+</div>

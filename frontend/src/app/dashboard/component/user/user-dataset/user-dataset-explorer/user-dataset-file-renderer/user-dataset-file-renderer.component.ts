@@ -26,7 +26,7 @@ import { ParseResult } from "papaparse";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import readXlsxFile from "read-excel-file";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
-import { NgStyle, NgIf, NgFor } from "@angular/common";
+import { NgIf, NgFor } from "@angular/common";
 import { NzSpinComponent } from "ng-zorro-antd/spin";
 import { NzAlertComponent } from "ng-zorro-antd/alert";
 import {
@@ -90,7 +90,6 @@ export const MIME_TYPE_SIZE_LIMITS_MB = {
   templateUrl: "./user-dataset-file-renderer.component.html",
   styleUrls: ["./user-dataset-file-renderer.component.scss"],
   imports: [
-    NgStyle,
     NgIf,
     NzSpinComponent,
     NzAlertComponent,
@@ -106,6 +105,9 @@ export const MIME_TYPE_SIZE_LIMITS_MB = {
   ],
 })
 export class UserDatasetFileRendererComponent implements OnInit, OnChanges, OnDestroy {
+  static readonly TABLE_PAGE_SIZE = 10;
+  readonly TABLE_PAGE_SIZE = UserDatasetFileRendererComponent.TABLE_PAGE_SIZE;
+  readonly TABLE_PAGE_SIZE_OPTIONS: number[] = [10, 20, 50, 100];
   private DEFAULT_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
   public fileURL: string | undefined;
@@ -272,6 +274,7 @@ export class UserDatasetFileRendererComponent implements OnInit, OnChanges, OnDe
                 this.displayCSV = true;
                 // Handle CSV display
                 Papa.parse(this.currentFile, {
+                  skipEmptyLines: "greedy",
                   complete: (results: ParseResult<any>) => {
                     if (results.data.length > 0) {
                       this.loadTabularFile(results.data);
@@ -364,23 +367,14 @@ export class UserDatasetFileRendererComponent implements OnInit, OnChanges, OnDe
       // Process the rest of the rows
       this.tableContent = data
         .slice(1)
+        .filter(row => row && row.some(cell => cell !== null && cell !== undefined && cell.toString().trim() !== ""))
         .map(row => {
           // Normalize the row length to match the header length
-          while (row.length < this.tableDataHeader.length) {
-            row.push("");
+          const padded = [...row];
+          while (padded.length < this.tableDataHeader.length) {
+            padded.push("");
           }
-          return row;
-        })
-        .filter(row => {
-          // filter out all empty row
-          let areCellAllEmpty = true;
-          for (const cell in row) {
-            if (cell != "") {
-              areCellAllEmpty = false;
-              break;
-            }
-          }
-          return !areCellAllEmpty;
+          return padded;
         });
     }
   }

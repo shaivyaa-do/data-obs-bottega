@@ -31,7 +31,6 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { NzDatePickerComponent, NzRangePickerComponent } from "ng-zorro-antd/date-picker";
 import { FormsModule } from "@angular/forms";
 import { NgFor, NgIf } from "@angular/common";
 import { NzMenuDirective, NzMenuItemComponent, NzSubMenuComponent } from "ng-zorro-antd/menu";
@@ -51,8 +50,6 @@ import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
     ɵNzTransitionPatchDirective,
     NzIconDirective,
     NzDropdownMenuComponent,
-    NzDatePickerComponent,
-    NzRangePickerComponent,
     FormsModule,
     NgFor,
     NzMenuDirective,

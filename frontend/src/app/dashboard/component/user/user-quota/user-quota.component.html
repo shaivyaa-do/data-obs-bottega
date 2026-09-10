@@ -31,7 +31,9 @@
     </h2>
   </nz-card>
   <div>
-    <nz-tabs nzCentered>
+    <nz-tabs
+      nzCentered
+      class="quota-pill-tabs">
       <nz-tab nzTitle="Quota Table">
         <div class="info-container">
           <div class="info-box">
@@ -80,7 +82,8 @@
             <nz-table
               #executionTable
               [nzData]="workflow.executions"
-              [nzPageSize]="3"
+              [nzPageSize]="getPageSize(workflow.workflowId)"
+              [nzShowPagination]="false"
               nzFrontPagination="true">
               <thead>
                 <tr>
@@ -112,6 +115,45 @@
                 </tr>
               </tbody>
             </nz-table>
+            <div
+              class="cache-show-more-row"
+              *ngIf="workflow.executions.length > INITIAL_ROW_COUNT">
+              <span class="cache-count-label">
+                Showing {{ Math.min(getPageSize(workflow.workflowId), workflow.executions.length) }} of {{ workflow.executions.length }} executions
+              </span>
+              <div class="cache-btn-group">
+                <button
+                  *ngIf="getPageSize(workflow.workflowId) < workflow.executions.length"
+                  nz-button
+                  nzSize="small"
+                  class="cache-action-btn"
+                  (click)="showMoreRows(workflow.workflowId, workflow.executions.length)">
+                  <span
+                    nz-icon
+                    nzType="down"></span>
+                  Show more rows
+                </button>
+                <button
+                  *ngIf="getPageSize(workflow.workflowId) < workflow.executions.length"
+                  nz-button
+                  nzSize="small"
+                  class="cache-action-btn"
+                  (click)="showAllRows(workflow.workflowId, workflow.executions.length)">
+                  Show all
+                </button>
+                <button
+                  *ngIf="getPageSize(workflow.workflowId) >= workflow.executions.length"
+                  nz-button
+                  nzSize="small"
+                  class="cache-action-btn"
+                  (click)="showFewerRows(workflow.workflowId)">
+                  <span
+                    nz-icon
+                    nzType="up"></span>
+                  Show fewer
+                </button>
+              </div>
+            </div>
           </nz-collapse-panel>
         </nz-collapse>
       </nz-tab>
@@ -119,11 +161,110 @@
         nzTitle="Diagrams"
         nzForceRender="true">
         <div class="charts-grid">
-          <div id="sizePieChart"></div>
-          <div id="datasetLineChart"></div>
-          <div id="workflowLineChart"></div>
+          <!-- Dataset Size Distribution -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <h3 class="chart-card-title">Dataset Size Distribution</h3>
+                <span class="chart-card-subtitle">Storage footprint per dataset</span>
+              </div>
+              <button
+                *ngIf="hasDatasetStorage"
+                nz-button
+                nzType="text"
+                nzSize="small"
+                class="chart-expand-btn"
+                title="Open in popup"
+                (click)="openChartModal('sizePieChart')">
+                <span
+                  nz-icon
+                  nzType="fullscreen"></span>
+              </button>
+            </div>
+            <div
+              id="sizePieChart"
+              [hidden]="!hasDatasetStorage"></div>
+            <div
+              class="chart-empty-state"
+              *ngIf="!hasDatasetStorage">
+              <span
+                nz-icon
+                nzType="pie-chart"
+                class="empty-chart-icon"></span>
+              <p class="empty-chart-title">No dataset storage data</p>
+              <p class="empty-chart-desc">Upload datasets to see storage distribution across your files.</p>
+            </div>
+          </div>
+
+          <!-- Dataset Upload Overview -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <h3 class="chart-card-title">Dataset Upload Overview</h3>
+                <span class="chart-card-subtitle">Uploads over time</span>
+              </div>
+              <button
+                nz-button
+                nzType="text"
+                nzSize="small"
+                class="chart-expand-btn"
+                title="Open in popup"
+                (click)="openChartModal('datasetLineChart')">
+                <span
+                  nz-icon
+                  nzType="fullscreen"></span>
+              </button>
+            </div>
+            <div id="datasetLineChart"></div>
+          </div>
+
+          <!-- Workflow Upload Overview -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <h3 class="chart-card-title">Workflow Upload Overview</h3>
+                <span class="chart-card-subtitle">Workflows created over time</span>
+              </div>
+              <button
+                nz-button
+                nzType="text"
+                nzSize="small"
+                class="chart-expand-btn"
+                title="Open in popup"
+                (click)="openChartModal('workflowLineChart')">
+                <span
+                  nz-icon
+                  nzType="fullscreen"></span>
+              </button>
+            </div>
+            <div id="workflowLineChart"></div>
+          </div>
         </div>
       </nz-tab>
     </nz-tabs>
   </div>
+
+  <!-- Popup Modal for Enlarged Chart -->
+  <nz-modal
+    [(nzVisible)]="isChartModalVisible"
+    [nzTitle]="modalHeaderTpl"
+    [nzFooter]="null"
+    [nzWidth]="760"
+    [nzCentered]="true"
+    (nzAfterOpen)="renderModalChart()"
+    (nzOnCancel)="closeChartModal()">
+    <ng-template #modalHeaderTpl>
+      <div class="popup-modal-header">
+        <h3 class="popup-modal-title">{{ chartModalTitle }}</h3>
+        <p class="popup-modal-subtitle">{{ chartModalSubtitle }}</p>
+      </div>
+    </ng-template>
+    <ng-container *nzModalContent>
+      <div class="popup-chart-modal-body">
+        <div
+          id="popupChart"
+          class="popup-chart-container"></div>
+      </div>
+    </ng-container>
+  </nz-modal>
 </div>

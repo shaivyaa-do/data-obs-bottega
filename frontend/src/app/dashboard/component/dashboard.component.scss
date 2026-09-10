@@ -106,7 +106,8 @@ nz-content {
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 0;
   flex: 1;
   background: var(--app-bg-panel);
@@ -116,6 +117,8 @@ nz-content {
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 :host ::ng-deep nz-content.content-narrow > *:not(router-outlet) {
@@ -124,12 +127,28 @@ nz-content {
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+}
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+.layout.workspace-mode {
+  padding: 0;
+  gap: 0;
+}
+
+.layout.workspace-mode .page-container,
+.layout.workspace-mode .context-card-container,
+.layout.workspace-mode .context-card-box {
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--app-bg-panel);
+}
+
+.layout.workspace-mode nz-content {
+  overflow: hidden;
+}
+
+:host ::ng-deep .layout.workspace-mode nz-content > *:not(router-outlet) {
+  overflow: hidden;
 }
 
 button {
@@ -140,15 +159,12 @@ button {
   border-right: none;
 }
 
-:host ::ng-deep {
-  .nav-sider.ant-layout-sider,
-  .ant-layout-sider {
-    background: var(--app-left-nav-bg) !important;
-    border-radius: var(--app-radius-layout);
-    overflow: hidden;
-  }
+:host ::ng-deep .nav-sider.ant-layout-sider {
+  background: var(--app-left-nav-bg) !important;
+  border-radius: var(--app-radius-layout);
+  overflow: hidden;
 
-  .ant-layout-sider-light {
+  &.ant-layout-sider-light {
     background: var(--app-left-nav-bg) !important;
   }
 
@@ -292,7 +308,9 @@ button {
   .ant-menu-inline-collapsed .ant-menu-submenu-title .anticon {
     display: inline-flex !important;
   }
+}
 
+:host ::ng-deep {
   .shell-header .ant-input-affix-wrapper,
   .shell-header .ant-input-affix-wrapper-lg {
     height: 32px !important;

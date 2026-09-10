@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { beforeEach, describe, expect, spyOn, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { buildApp, start, _resetAgentStoreForTests, _getAgentForTests } from "./server";
 import { WorkflowSystemMetadata } from "./agent/util/workflow-system-metadata";
 import { env } from "./config/env";
@@ -59,14 +59,52 @@ async function createAgent(body: Record<string, unknown> = {}, token: string | n
   return postJson(`${API}/agents`, { modelType: "m", ...body }, token ? { Authorization: `Bearer ${token}` } : {});
 }
 
-async function patchJson(path: string, body: unknown): Promise<Response> {
+async function patchJson(path: string, body: unknown, headers: Record<string, string> = {}): Promise<Response> {
   return app.handle(
     new Request(url(path), {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...headers },
       body: JSON.stringify(body),
     })
   );
+}
+
+async function patchJsonAuth(
+  path: string,
+  body: unknown,
+  token: string | null = TOKEN
+): Promise<Response> {
+  return patchJson(path, body, token ? { Authorization: `Bearer ${token}` } : {});
+}
+
+const EMPTY_WORKFLOW_CONTENT = {
+  operators: [],
+  operatorPositions: {},
+  links: [],
+  commentBoxes: [],
+  settings: { dataTransferBatchSize: 400, executionMode: "local" },
+};
+
+function mockRetrieveWorkflow(result: "ok" | "fail" = "ok"): ReturnType<typeof spyOn> {
+  const originalFetch = globalThis.fetch.bind(globalThis);
+  return spyOn(globalThis, "fetch").mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const href = String(input);
+    if (!href.includes("/api/workflow/")) {
+      return originalFetch(input as RequestInfo, init);
+    }
+    if (result === "fail") {
+      return new Response("missing", { status: 404, statusText: "Not Found" });
+    }
+    const wid = Number(href.split("/").pop());
+    return new Response(
+      JSON.stringify({
+        wid,
+        name: `Workflow ${wid}`,
+        content: EMPTY_WORKFLOW_CONTENT,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  });
 }
 
 async function getJson(path: string): Promise<Response> {
@@ -146,6 +184,14 @@ describe(`POST ${API}/agents`, () => {
   test("rejects missing modelType", async () => {
     const res = await createAgent({ modelType: undefined, name: "no-model" });
     expect(res.status).toBe(400);
+  });
+
+  test("accepts a providerApiKey and never echoes it back", async () => {
+    const res = await createAgent({ providerApiKey: "sk-ant-secret" });
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).not.toContain("sk-ant-secret");
+    expect(text).not.toContain("providerApiKey");
   });
 });
 
@@ -358,6 +404,94 @@ describe("non-router routes", () => {
   test("unknown routes fall through to the catch-all error handler", async () => {
     const res = await getJson("/no-such-route");
     expect(res.status).toBe(500);
+  });
+});
+
+describe(`PATCH ${API}/agents/:id/delegate`, () => {
+  let fetchSpy: ReturnType<typeof spyOn>;
+
+  afterEach(() => {
+    fetchSpy?.mockRestore();
+  });
+
+  test("binds an existing agent to a workflow", async () => {
+    fetchSpy = mockRetrieveWorkflow("ok");
+    const created = await readJson<{ id: string }>(await createAgent());
+
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, {
+      workflowId: 7,
+      computingUnitId: 3,
+    });
+    expect(res.status).toBe(200);
+    const body = await readJson<{
+      id: string;
+      delegate?: { workflowId: number; workflowName: string; computingUnitId?: number; userToken: string };
+    }>(res);
+    expect(body.id).toBe(created.id);
+    expect(body.delegate?.workflowId).toBe(7);
+    expect(body.delegate?.workflowName).toBe("Workflow 7");
+    expect(body.delegate?.computingUnitId).toBe(3);
+    expect(body.delegate?.userToken).toBe("***");
+
+    const live = _getAgentForTests(created.id)!;
+    expect(live.getDelegateConfig()?.workflowId).toBe(7);
+    expect(live.getDelegateConfig()?.computingUnitId).toBe(3);
+  });
+
+  test("rebinds an agent from one workflow to another", async () => {
+    fetchSpy = mockRetrieveWorkflow("ok");
+    const created = await readJson<{ id: string }>(await createAgent());
+    await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 5 });
+
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 8 });
+    expect(res.status).toBe(200);
+    const body = await readJson<{ delegate?: { workflowId: number; workflowName: string } }>(res);
+    expect(body.delegate?.workflowId).toBe(8);
+    expect(body.delegate?.workflowName).toBe("Workflow 8");
+  });
+
+  test("rejects a missing Authorization header", async () => {
+    const created = await readJson<{ id: string }>(await createAgent());
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 7 }, null);
+    expect(res.status).toBe(401);
+    expect((await readJson<{ error: string }>(res)).error).toBe(
+      "Authorization header with a Bearer token is required"
+    );
+  });
+
+  test("rejects an invalid token", async () => {
+    const created = await readJson<{ id: string }>(await createAgent());
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 7 }, "not-a-jwt");
+    expect(res.status).toBe(401);
+    expect((await readJson<{ error: string }>(res)).error).toBe("Invalid or expired token");
+  });
+
+  test("returns 404 for an unknown agent", async () => {
+    const res = await patchJsonAuth(`${API}/agents/agent-missing/delegate`, { workflowId: 7 });
+    expect(res.status).toBe(404);
+    expect((await readJson<{ error: string }>(res)).error).toBe("Agent not found");
+  });
+
+  test("rejects a missing workflowId", async () => {
+    const created = await readJson<{ id: string }>(await createAgent());
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, {});
+    expect(res.status).toBe(400);
+  });
+
+  test("rejects workflowId 0", async () => {
+    const created = await readJson<{ id: string }>(await createAgent());
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 0 });
+    expect(res.status).toBe(400);
+    expect((await readJson<{ error: string }>(res)).error).toBe("workflowId is required");
+  });
+
+  test("returns 500 when the workflow cannot be loaded", async () => {
+    fetchSpy = mockRetrieveWorkflow("fail");
+    const created = await readJson<{ id: string }>(await createAgent());
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 7 });
+    expect(res.status).toBe(500);
+    const body = await readJson<{ error: string }>(res);
+    expect(body.error).toContain("Failed to retrieve workflow");
   });
 });
 

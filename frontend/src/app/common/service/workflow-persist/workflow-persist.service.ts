@@ -81,7 +81,9 @@ export class WorkflowPersistService {
         name: workflow.name,
         description: workflow.description,
         content: JSON.stringify(workflow.content),
-        isPublic: workflow.isPublished,
+        // Canvas metadata stores isPublished as 0/1; Jackson cannot map those numbers onto
+        // Boolean isPublic and would persist null, which violates the NOT NULL column.
+        isPublic: Boolean(workflow.isPublished),
       })
       .pipe(
         filter((updatedWorkflow: Workflow) => updatedWorkflow != null),

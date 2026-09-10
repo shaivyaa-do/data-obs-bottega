@@ -34,7 +34,7 @@ import { StubUserService } from "../../../common/service/user/stub-user.service"
 import { WorkflowPersistService } from "../../../common/service/workflow-persist/workflow-persist.service";
 import { DatasetService } from "../../../dashboard/service/user/dataset/dataset.service";
 import { ModelService } from "../../../dashboard/service/user/model/model.service";
-import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT } from "../../../app-routing.constant";
+import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT, USER_AGENT, USER_WORKFLOW } from "../../../app-routing.constant";
 import { commonTestProviders } from "../../../common/testing/test-utils";
 
 describe("LandingPageComponent", () => {
@@ -124,13 +124,14 @@ describe("LandingPageComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("updates isLogin and currentUid when userChanged() emits", () => {
+  it("updates isLogin, currentUid and displayName when userChanged() emits", () => {
     build();
     // Emit a logged-out state.
     userService.user = undefined;
     userService.userChangeSubject.next(undefined);
     expect(component.isLogin).toBe(false);
     expect(component.currentUid).toBeUndefined();
+    expect(component.displayName).toBe("there");
 
     // Emit a logged-in state.
     const newUser = { uid: 99, name: "x", email: "x@x", role: "REGULAR" } as any;
@@ -138,6 +139,7 @@ describe("LandingPageComponent", () => {
     userService.userChangeSubject.next(newUser);
     expect(component.isLogin).toBe(true);
     expect(component.currentUid).toBe(99);
+    expect(component.displayName).toBe("x");
   });
 
   it("ngOnInit invokes loadCounts and loadTops", () => {
@@ -305,17 +307,59 @@ describe("LandingPageComponent", () => {
       expect(routerNavigateSpy).toHaveBeenLastCalledWith([HUB_MODEL_RESULT]);
     });
 
+    it("welcomes the signed-in user to DO Bottega by name", () => {
+      build();
+      fixture.detectChanges();
+
+      const hero = fixture.debugElement.query(By.css(".welcome-hero"));
+      expect(hero).toBeTruthy();
+      expect(hero.nativeElement.textContent).toContain("Welcome to DO Bottega");
+      expect(hero.nativeElement.textContent).toContain("testUser");
+    });
+
+    it("sends the welcome buttons to workflows and the agent page", () => {
+      build();
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css(".welcome-btn"));
+      expect(buttons.map(b => (b.nativeElement.textContent ?? "").trim())).toEqual([
+        "Open workflows",
+        "Create with an agent",
+      ]);
+
+      buttons[0].triggerEventHandler("click", {});
+      expect(routerNavigateSpy).toHaveBeenLastCalledWith([USER_WORKFLOW]);
+
+      buttons[1].triggerEventHandler("click", {});
+      expect(routerNavigateSpy).toHaveBeenLastCalledWith([USER_AGENT]);
+    });
+
+    it("shows the hub intro when there is no signed-in user", () => {
+      userService.user = undefined;
+      build();
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css(".welcome-hero"))).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("DO Bottega Hub");
+      expect(fixture.nativeElement.textContent).not.toContain("Welcome to DO Bottega");
+    });
+
     it("shows signed-in shortcuts to the user's own work", () => {
       build();
       fixture.detectChanges();
 
       const shortcuts = fixture.debugElement.queryAll(By.css(".shortcut-card"));
-      expect(shortcuts.map(s => (s.nativeElement.textContent ?? "").trim())).toEqual([
-        "My Workflows",
-        "My Datasets",
-        "Compute",
-        "Quota",
-      ]);
+      expect(shortcuts.length).toBe(4);
+      const labels = shortcuts.map(s => (s.nativeElement.textContent ?? "").replace(/\s+/g, " "));
+      expect(labels[0]).toContain("My Workflows");
+      expect(labels[1]).toContain("Create with Agent");
+      expect(labels[2]).toContain("My Datasets");
+      expect(labels[3]).toContain("Compute");
+
+      shortcuts[0].triggerEventHandler("click", {});
+      expect(routerNavigateSpy).toHaveBeenLastCalledWith([USER_WORKFLOW]);
+      shortcuts[1].triggerEventHandler("click", {});
+      expect(routerNavigateSpy).toHaveBeenLastCalledWith([USER_AGENT]);
     });
 
     it("hides signed-in shortcuts when there is no user", () => {
@@ -324,6 +368,7 @@ describe("LandingPageComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.debugElement.queryAll(By.css(".shortcut-card")).length).toBe(0);
+      expect(fixture.debugElement.query(By.css(".welcome-btn"))).toBeNull();
     });
 
     it("hands each browse section its own entity list, title and viewer id", () => {

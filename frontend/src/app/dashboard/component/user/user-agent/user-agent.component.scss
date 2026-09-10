@@ -1,0 +1,432 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+@use "../../section-style" as *;
+@use "../../button-style" as *;
+
+.subsection-grid-container {
+  min-width: 100%;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+}
+
+.agent-page-card {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  max-width: 820px;
+}
+
+.agent-lede {
+  margin: 0 0 14px;
+  color: var(--app-text-muted, #52525b);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.agent-hint {
+  margin: 0 0 8px;
+  color: var(--app-text-muted, #71717a);
+  font-size: 12.5px;
+  line-height: 1.4;
+
+  code {
+    background: #f4f4f5;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    color: #18181b;
+  }
+}
+
+.section-heading {
+  margin: 14px 0 8px;
+  font-family: var(--app-font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--app-text-primary, #18181b);
+}
+
+.model-placeholder {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--app-text-muted, #8c8c8c);
+
+  i {
+    font-size: 32px;
+    color: #faad14;
+  }
+}
+
+.model-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.model-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 12px;
+  min-height: 38px;
+  border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  background: var(--app-bg-canvas, #f4f4f5) !important;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--app-bg-hover, #e4e4e7) !important;
+    border-color: #d4d4d8 !important;
+  }
+
+  &.selected {
+    background: #18181b !important;
+    border-color: #18181b !important;
+
+    i[nzType="robot"],
+    > i:first-child {
+      color: #ffffff !important;
+    }
+
+    .model-info strong {
+      color: #ffffff !important;
+    }
+
+    .model-info span {
+      color: rgba(255, 255, 255, 0.75) !important;
+    }
+
+    .selected-check {
+      color: #ffffff !important;
+    }
+  }
+
+  i[nzType="robot"],
+  > i:first-child {
+    font-size: 17px;
+    color: #18181b;
+    flex-shrink: 0;
+  }
+
+  .selected-check {
+    font-size: 16px;
+    color: #ffffff;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+}
+
+.model-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1px;
+  min-width: 0;
+
+  strong {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--app-text-primary, #18181b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  span {
+    color: var(--app-text-muted, #71717a);
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.agent-config-form {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  .section-heading {
+    margin-top: 0;
+  }
+}
+
+.agent-name-input,
+.provider-api-key {
+  height: 38px;
+  border-radius: 8px !important;
+  border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+  background: #ffffff !important;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  color: var(--app-text-primary, #18181b);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #d4d4d8 !important;
+  }
+
+  &:focus {
+    border-color: #18181b !important;
+    box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.08) !important;
+  }
+
+  &::placeholder {
+    color: #a1a1aa;
+    font-size: 13px;
+  }
+}
+
+.password-line {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 100%;
+    padding-right: 36px;
+  }
+
+  .ant-input-password-icon {
+    position: absolute;
+    right: 12px;
+    cursor: pointer;
+    color: var(--app-text-muted, #8c8c8c);
+    font-size: 15px;
+
+    &:hover {
+      color: var(--app-text-primary, #18181b);
+    }
+  }
+}
+
+.agent-actions {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .submit-btn {
+    height: 38px;
+    padding: 0 22px;
+    border-radius: 8px !important;
+    border: 1px solid #18181b !important;
+    background: #18181b !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: #27272a !important;
+      border-color: #27272a !important;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: #71717a !important;
+      border-color: #71717a !important;
+    }
+  }
+
+  .action-hint {
+    font-size: 12.5px;
+    color: var(--app-text-muted, #71717a);
+  }
+}
+
+.computing-unit-alert a {
+  margin-left: 8px;
+}
+
+.configured-agents {
+  margin-top: 28px;
+
+  .section-heading {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+}
+
+.configured-agents-card {
+  background: var(--app-bg-canvas, #f4f4f5);
+  border-radius: var(--app-radius-sm, 12px);
+  padding: 8px;
+}
+
+.configured-agents-empty {
+  margin: 0;
+  padding: 18px 12px;
+  color: var(--app-text-muted, #71717a);
+  font-size: 13px;
+}
+
+.configured-agent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.configured-agent-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--app-bg-panel, #ffffff);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--app-bg-active, #e4e4e7);
+
+    .configured-agent-actions {
+      display: flex;
+    }
+
+    .configured-agent-info {
+      opacity: 0.35;
+    }
+  }
+}
+
+.configured-agent-open {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.configured-agent-icon {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: var(--app-text-secondary, #52525b);
+  flex-shrink: 0;
+}
+
+.configured-agent-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.configured-agent-name {
+  font-size: 13.5px;
+  font-weight: 550;
+  color: var(--app-text-primary, #18181b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.configured-agent-description {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--app-text-tertiary, #71717a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.configured-agent-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+
+  .info-label {
+    color: var(--app-text-tertiary, #71717a);
+    font-size: 11px;
+  }
+
+  .info-value {
+    color: var(--app-text-secondary, #52525b);
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+}
+
+.configured-agent-actions {
+  display: none;
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  padding: 0 8px;
+  z-index: 1;
+
+  .configured-agent-delete {
+    height: 28px;
+    width: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--app-text-secondary, #52525b);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--app-text-primary, #18181b);
+    }
+  }
+}

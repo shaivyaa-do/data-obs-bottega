@@ -20,15 +20,20 @@
 #result {
   position: absolute;
   bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 6;
+  pointer-events: none;
 }
 
 texera-menu {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 5;
   width: 100%;
-  background-color: white;
+  pointer-events: none;
 }
 
 texera-jupyter-notebook-panel {
@@ -62,4 +67,9 @@ texera-workflow-editor {
 
 :host {
   user-select: none;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }

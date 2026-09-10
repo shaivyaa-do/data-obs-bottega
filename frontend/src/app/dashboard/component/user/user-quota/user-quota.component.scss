@@ -17,12 +17,66 @@
  * under the License.
  */
 
+:host ::ng-deep .quota-pill-tabs {
+  > .ant-tabs-nav {
+    padding-top: 28px !important;
+    margin-bottom: 24px !important;
+
+    &::before {
+      display: none !important;
+    }
+
+    .ant-tabs-nav-wrap {
+      justify-content: center;
+    }
+
+    .ant-tabs-nav-list {
+      background: var(--app-bg-canvas);
+      padding: 4px;
+      border-radius: 9999px;
+      border: none !important;
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .ant-tabs-ink-bar {
+      display: none !important;
+    }
+
+    .ant-tabs-tab {
+      margin: 0 !important;
+      padding: 6px 22px !important;
+      border-radius: 9999px !important;
+      border: none !important;
+      font-family: var(--app-font-sans);
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: var(--app-text-secondary) !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &:hover {
+        color: var(--app-text-primary) !important;
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      &.ant-tabs-tab-active {
+        background: #e4e4e7 !important;
+
+        .ant-tabs-tab-btn {
+          color: #18181b !important;
+          font-weight: 600 !important;
+        }
+      }
+    }
+  }
+}
+
 .info-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(88px, auto));
-  gap: 10px;
-  padding: 4px 4px 16px;
+  grid-template-rows: repeat(3, minmax(64px, auto));
+  gap: 8px;
+  padding: 4px 4px 12px;
 }
 
 .info-box {
@@ -30,10 +84,11 @@
   flex-direction: column;
   justify-content: space-between;
   background: var(--app-bg-canvas);
-  padding: 14px 16px;
-  min-height: 88px;
-  border-radius: 12px;
-  box-shadow: 0 0 0 1px var(--app-border-subtle);
+  padding: 8px 12px;
+  min-height: 64px;
+  border-radius: 8px;
+  border: none !important;
+  box-shadow: none !important;
   font-family: var(--app-font-sans);
   text-align: left;
   box-sizing: border-box;
@@ -54,18 +109,260 @@
   color: var(--app-text-primary);
 }
 
+nz-collapse {
+  border-radius: 12px !important;
+  overflow: hidden;
+  border: none !important;
+  background: transparent !important;
+}
+
+:host ::ng-deep {
+  .ant-collapse {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .ant-collapse-item {
+    border-radius: 12px !important;
+    overflow: hidden;
+    border: none !important;
+    background: var(--app-bg-panel);
+    margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .ant-collapse-header {
+    border-radius: 12px !important;
+    border: none !important;
+    font-family: var(--app-font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 12px 16px !important;
+    background: var(--app-bg-canvas) !important;
+  }
+
+  .ant-collapse-content {
+    border: none !important;
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    background: var(--app-bg-panel);
+  }
+
+  .ant-collapse-content-box {
+    padding: 14px !important;
+
+    .ant-table-thead > tr > th {
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 6px 12px !important;
+      font-size: 12.5px !important;
+      line-height: 1.2 !important;
+    }
+  }
+}
+
+.cache-show-more-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px 4px;
+  margin-top: 6px;
+}
+
+.cache-count-label {
+  font-size: 12px;
+  color: var(--app-text-tertiary);
+  font-family: var(--app-font-sans);
+}
+
+.cache-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .cache-action-btn {
+    border-radius: 6px !important;
+    font-size: 12px;
+    height: 28px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--app-text-primary);
+    border: 1px solid var(--app-border-light);
+    background: var(--app-bg-panel);
+
+    &:hover {
+      background: var(--app-bg-hover);
+      border-color: #d4d4d8;
+    }
+  }
+}
+
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  padding: 4px 4px 16px;
+  gap: 16px;
+  padding: 4px 4px 24px;
 
-  > div {
-    min-height: 220px;
-    border-radius: 12px;
-    background: var(--app-bg-panel);
-    box-shadow: 0 0 0 1px var(--app-border-subtle);
-    padding: 4px;
+  .chart-card {
+    min-height: 310px;
+    border-radius: 14px;
+    background: var(--app-bg-canvas);
+    border: none !important;
+    box-shadow: none !important;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+
+    .chart-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .chart-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .chart-card-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--app-text-primary);
+      margin: 0;
+      font-family: var(--app-font-sans);
+    }
+
+    .chart-card-subtitle {
+      font-size: 11.5px;
+      color: var(--app-text-tertiary);
+      font-family: var(--app-font-sans);
+    }
+
+    .chart-expand-btn {
+      color: var(--app-text-tertiary);
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+
+      &:hover {
+        color: var(--app-text-primary);
+        background: var(--app-bg-hover);
+      }
+    }
+
+    .chart-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 220px;
+      text-align: center;
+      padding: 24px;
+      background: var(--app-bg-panel);
+      border-radius: 10px;
+      margin-top: 8px;
+
+      .empty-chart-icon {
+        font-size: 32px;
+        color: var(--app-text-quaternary);
+        margin-bottom: 8px;
+      }
+
+      .empty-chart-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--app-text-secondary);
+        margin: 0 0 4px;
+      }
+
+      .empty-chart-desc {
+        font-size: 11.5px;
+        color: var(--app-text-tertiary);
+        margin: 0;
+        max-width: 240px;
+      }
+    }
+
+    .js-plotly-plot,
+    .plot-container {
+      width: 100% !important;
+      display: flex;
+      justify-content: center;
+    }
   }
+}
+
+.popup-modal-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .popup-modal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--app-text-primary);
+    margin: 0;
+    font-family: var(--app-font-sans);
+  }
+
+  .popup-modal-subtitle {
+    font-size: 12px;
+    color: var(--app-text-tertiary);
+    margin: 0;
+    font-family: var(--app-font-sans);
+  }
+}
+
+.popup-chart-modal-body {
+  padding: 4px 8px 12px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  .popup-chart-container {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    display: block;
+    box-sizing: border-box;
+
+    .js-plotly-plot,
+    .plot-container,
+    .svg-container {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+    }
+
+    .main-svg {
+      max-width: 100% !important;
+      border-radius: 8px;
+      overflow: hidden !important;
+    }
+  }
+}
+
+::ng-deep .ant-modal-content {
+  overflow: hidden !important;
+  border-radius: 16px !important;
 }

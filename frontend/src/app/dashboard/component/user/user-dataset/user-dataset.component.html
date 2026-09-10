@@ -21,17 +21,6 @@
   <nz-card class="section-title">
     <h2 class="page-title">Datasets</h2>
     <div class="button-group">
-      <button
-        nz-button
-        class="create-btn"
-        (click)="onClickOpenDatasetAddComponent()"
-        title="Create Dataset">
-        <i
-          nz-icon
-          nzType="file-add"
-          nzTheme="outline"></i>
-        <span>Create Dataset</span>
-      </button>
       <nz-space-compact class="utility-button-group">
         <texera-sort-button
           [showEditTime]="false"
@@ -61,6 +50,17 @@
       <texera-filters
         [entityType]="entityType"
         #filters></texera-filters>
+      <button
+        nz-button
+        class="create-btn right-aligned-btn"
+        (click)="onClickOpenDatasetAddComponent()"
+        title="Create Dataset">
+        <i
+          nz-icon
+          nzType="plus"
+          nzTheme="outline"></i>
+        <span>Create Dataset</span>
+      </button>
     </div>
   </nz-card>
 

@@ -146,16 +146,30 @@
 .computing-units-dropdown-button {
   display: inline-flex;
   align-items: center;
-  min-width: 220px;
-  max-width: 280px;
-  padding: 0 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px !important;
+  border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+  background: var(--app-bg-surface, #ffffff) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-text-primary, #18181b);
+  cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: #a1a1aa !important;
+    background: #fafafa !important;
+  }
 }
 
 .button-content {
   display: flex;
   align-items: center;
+  gap: 8px;
   width: 100%;
   min-width: 0;
 
@@ -163,6 +177,11 @@
   nz-badge,
   i {
     flex-shrink: 0;
+  }
+
+  i[nz-icon] {
+    font-size: 11px;
+    color: var(--app-text-muted, #71717a);
   }
 }
 
@@ -172,7 +191,7 @@
   flex: 1 1 auto;
   min-width: 0;
   max-width: 220px;
-  margin: 0 4px;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

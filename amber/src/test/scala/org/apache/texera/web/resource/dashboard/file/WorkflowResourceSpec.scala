@@ -1124,6 +1124,40 @@ class WorkflowResourceSpec
     assert(workflowNamesOf(sessionUser2).isEmpty)
   }
 
+  // The canvas persist body omits isPublic, or Jackson leaves it null when the client
+  // sends the numeric isPublished (0/1). Writing that null into a NOT NULL column is a 500,
+  // and overwriting a public workflow with null would also un-publish it.
+  it should "keep the stored visibility when the persist body omits isPublic" in {
+    val workflow = seedWorkflow(sessionUser1, "persist-omit-public").workflow
+    workflowResource.makePublic(workflow.getWid, sessionUser1)
+    assert(isPublicOf(workflow.getWid))
+
+    val edit = new Workflow()
+    edit.setWid(workflow.getWid)
+    edit.setName("persist-omit-public")
+    edit.setContent("{\"operators\":[]}")
+    workflowResource.persistWorkflow(edit, sessionUser1)
+
+    assert(
+      isPublicOf(workflow.getWid),
+      "omitting isPublic must not null out or un-publish the workflow"
+    )
+    assert(contentOf(workflow.getWid) == "{\"operators\":[]}")
+  }
+
+  it should "keep a private workflow private when the persist body omits isPublic" in {
+    val workflow = seedWorkflow(sessionUser1, "persist-omit-private").workflow
+    assert(!isPublicOf(workflow.getWid))
+
+    val edit = new Workflow()
+    edit.setWid(workflow.getWid)
+    edit.setName("persist-omit-private")
+    edit.setContent("{\"operators\":[]}")
+    workflowResource.persistWorkflow(edit, sessionUser1)
+
+    assert(!isPublicOf(workflow.getWid))
+  }
+
   "WorkflowResource.createWorkflow" should "reject a workflow that already carries an id" in {
     val existing = seedWorkflow(sessionUser1, "already-has-id").workflow
 
@@ -1307,6 +1341,14 @@ class WorkflowResourceSpec
       .fetchOne()
       .value1()
 
+  private def isPublicOf(wid: Integer): java.lang.Boolean =
+    getDSLContext
+      .select(WORKFLOW.IS_PUBLIC)
+      .from(WORKFLOW)
+      .where(WORKFLOW.WID.eq(wid))
+      .fetchOne()
+      .value1()
+
   "/set-default-view API" should "switch the default view to form and back to canvas" in {
     val wid = persistFreshWorkflow("param_toggle")
     assert(defaultView(wid) == DefaultViewEnum.CANVAS, "a new workflow must default to the canvas")
@@ -1340,9 +1382,9 @@ class WorkflowResourceSpec
     assert(defaultView(wid) == DefaultViewEnum.CANVAS)
   }
 
-  // A plain save (persistWorkflow) only writes the fields the client sends -- name,
-  // description, content, is_public -- and never `default_view`, so saving the canvas must
-  // not reset the default view. The edit payload mirrors what the frontend sends.
+  // A plain save (persistWorkflow) writes name/description/content and never
+  // `default_view`, so saving the canvas must not reset the default view. The
+  // edit payload mirrors what the frontend sends (including is_public when present).
   it should "survive a subsequent save of the workflow" in {
     val wid = persistFreshWorkflow("param_survives_save")
     workflowResource.setDefaultView(wid, DefaultViewRequest("FORM"), sessionUser1)

@@ -18,15 +18,11 @@
 -->
 
 <nz-card
-  [nzBodyStyle]="{padding: '3px'}"
+  [nzBodyStyle]="{padding: '0px'}"
   class="computing-unit-list-item-card">
   <div
     nz-row
     nzAlign="middle">
-    <div
-      nz-col
-      nzFlex="20px"></div>
-
     <div
       nz-col
       nzFlex="0"
@@ -45,18 +41,16 @@
 
     <div
       nz-col
-      nzFlex="30px">
-      <div class="edit-button">
-        <button
-          nz-button
-          nzType="text"
-          title="Rename"
-          (click)="startEditingUnitName(entry); $event.stopPropagation()">
-          <i
-            nz-icon
-            nzType="edit"></i>
-        </button>
-      </div>
+      class="edit-button">
+      <button
+        nz-button
+        nzType="text"
+        title="Rename"
+        (click)="startEditingUnitName(entry); $event.stopPropagation()">
+        <i
+          nz-icon
+          nzType="edit"></i>
+      </button>
     </div>
 
     <div
@@ -86,6 +80,58 @@
       /></ng-template>
     </div>
 
+    <div
+      nz-col
+      class="resource-info-group resource-info">
+      <span class="resource-info-item">
+        <span class="info-label">Created:</span>
+        <span class="info-value">{{ formatRelativeTime(unit.creationTime) }}</span>
+      </span>
+      <span class="resource-info-item">
+        <span class="info-label">CPU Limit:</span>
+        <span class="info-value">{{ unit.resource.cpuLimit }}</span>
+      </span>
+      <span class="resource-info-item">
+        <span class="info-label">Memory Limit:</span>
+        <span class="info-value">{{ unit.resource.memoryLimit }}</span>
+      </span>
+    </div>
+
+    <div
+      nz-popover
+      [nzPopoverContent]="metricsTemplate"
+      nzPopoverTrigger="hover"
+      nzPopoverPlacement="bottom"
+      class="metrics-container">
+      <div class="metric-item">
+        <span class="metric-label">CPU</span>
+        <div class="metric-bar-wrapper">
+          <nz-progress
+            class="cpu-progress-bar"
+            [nzPercent]="getCpuPercentage()"
+            [nzStrokeColor]="'#52c41a'"
+            [nzStatus]="getCpuStatus()"
+            nzType="line"
+            [nzStrokeWidth]="5"
+            [nzShowInfo]="false"></nz-progress>
+        </div>
+      </div>
+
+      <div class="metric-item">
+        <span class="metric-label">Memory</span>
+        <div class="metric-bar-wrapper">
+          <nz-progress
+            class="memory-progress-bar"
+            [nzPercent]="getMemoryPercentage()"
+            [nzStrokeColor]="'#1890ff'"
+            [nzStatus]="getMemoryStatus()"
+            nzType="line"
+            [nzStrokeWidth]="5"
+            [nzShowInfo]="false"></nz-progress>
+        </div>
+      </div>
+    </div>
+
     <div class="button-group">
       <button
         nz-button
@@ -108,66 +154,6 @@
           nz-icon
           nzType="delete"></i>
       </button>
-    </div>
-
-    <div
-      nz-button
-      nz-popover
-      [nzPopoverContent]="metricsTemplate"
-      nzPopoverTrigger="hover"
-      nzPopoverPlacement="bottom"
-      class="metrics-container">
-      <div class="metric-item">
-        <span class="metric-label">CPU</span>
-        <div class="metric-bar-wrapper">
-          <nz-progress
-            class="cpu-progress-bar"
-            [nzPercent]="getCpuPercentage()"
-            [nzStrokeColor]="'#52c41a'"
-            [nzStatus]="getCpuStatus()"
-            nzType="line"
-            [nzStrokeWidth]="8"
-            [nzShowInfo]="false"></nz-progress>
-        </div>
-      </div>
-
-      <div class="metric-item">
-        <span class="metric-label">Memory</span>
-        <div class="metric-bar-wrapper">
-          <nz-progress
-            class="memory-progress-bar"
-            [nzPercent]="getMemoryPercentage()"
-            [nzStrokeColor]="'#1890ff'"
-            [nzStatus]="getMemoryStatus()"
-            nzType="line"
-            [nzStrokeWidth]="8"
-            [nzShowInfo]="false"></nz-progress>
-        </div>
-      </div>
-    </div>
-
-    <div
-      nz-col
-      nzFlex="100px"
-      class="resource-info">
-      Created:<br />
-      {{ formatRelativeTime(unit.creationTime) }}
-    </div>
-
-    <div
-      nz-col
-      nzFlex="90px"
-      class="resource-info">
-      CPU Limit:<br />
-      {{ unit.resource.cpuLimit }}
-    </div>
-
-    <div
-      nz-col
-      nzFlex="90px"
-      class="resource-info">
-      Memory Limit:<br />
-      {{ unit.resource.memoryLimit }}
     </div>
   </div>
 </nz-card>

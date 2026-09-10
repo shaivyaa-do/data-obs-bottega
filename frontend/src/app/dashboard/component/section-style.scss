@@ -34,6 +34,7 @@
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
+  margin-bottom: 18px !important;
 
   .page-title {
     font-family: var(--app-font-display);
@@ -99,10 +100,9 @@
   background: var(--app-bg-panel);
 
   .search-input-box {
-    flex: 1;
-    min-width: 0;
+    flex: 0 0 auto;
     width: 100%;
-    max-width: 640px;
+    max-width: 320px;
     height: 32px;
     background: var(--app-bg-canvas);
     border-radius: var(--app-radius-xs);
@@ -131,7 +131,7 @@
 
   .virtual-scroll-container {
     height: 100%;
-    border: 1px solid var(--app-border-light);
+    border: none !important;
     border-radius: var(--app-radius-xs);
   }
 
@@ -260,18 +260,33 @@
     flex-wrap: nowrap !important;
     align-items: center;
     align-self: center;
-    height: 28px !important;
-    gap: 4px;
+    height: 32px !important;
+    gap: 6px;
     background: transparent;
     padding: 0;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
   }
 
-  .section-title .ant-space-compact .ant-btn {
-    height: 28px !important;
-    min-width: 28px !important;
+  .section-title .ant-space-compact .ant-btn,
+  .section-title .ant-space-compact a > .ant-btn,
+  .section-title .ant-space-compact button,
+  .section-title .ant-space-compact .ant-space-compact-item {
+    height: 32px !important;
+    min-width: 32px !important;
     margin-inline-start: 0 !important;
-    border-radius: 6px !important;
-    font-size: 12px !important;
+    border-radius: 8px !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    padding: 0 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
   }
 
   .section-title .ant-space-compact .ant-btn-primary {
@@ -298,21 +313,61 @@
   }
 
   .section-title texera-filters {
-    margin-left: auto;
+    margin-left: 0 !important;
     flex-shrink: 0;
+
+    .ant-space-compact {
+      height: 32px !important;
+      gap: 6px;
+
+      .ant-space-compact-item,
+      .ant-btn,
+      a > .ant-btn,
+      button {
+        border-radius: 8px !important;
+      }
+    }
+
+    .filter-btn,
+    button.filter-btn,
+    .ant-btn {
+      height: 32px !important;
+      min-width: auto !important;
+      padding: 0 12px !important;
+      background: var(--app-bg-canvas, #f4f4f5) !important;
+      border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+      color: #3f3f46 !important;
+      border-radius: 8px !important;
+      font-size: 12.5px !important;
+      font-weight: 500 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      box-shadow: none !important;
+
+      &:hover,
+      &:focus {
+        background: var(--app-bg-active, #e4e4e7) !important;
+        border-color: #d4d4d8 !important;
+        color: #18181b !important;
+      }
+    }
   }
 
   .section-title button.create-btn.ant-btn {
-    height: 28px !important;
-    padding: 0 10px !important;
+    height: 32px !important;
+    padding: 0 12px !important;
     background: #18181b !important;
     border-color: #18181b !important;
     color: #ffffff !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     font-family: var(--app-font-sans);
-    font-size: 12px !important;
-    font-weight: 510;
-    line-height: 26px;
+    font-size: 12.5px !important;
+    font-weight: 500;
+    line-height: 30px;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
 
     &:hover,
     &:focus {

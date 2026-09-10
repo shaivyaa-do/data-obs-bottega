@@ -149,7 +149,14 @@ export interface CreateAgentRequest {
   name?: string;
   workflowId?: number;
   computingUnitId?: number;
+  /** Provider key (Anthropic/OpenAI). Never persisted or returned on GET. */
+  providerApiKey?: string;
   settings?: AgentSettingsApi;
+}
+
+export interface BindAgentRequest {
+  workflowId: number;
+  computingUnitId?: number;
 }
 
 export interface UpdateAgentSettingsRequest {

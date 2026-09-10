@@ -94,6 +94,18 @@ describe("VisualizationFrameContentComponent", () => {
   });
 
   describe("drawChart() rendering", () => {
+    it("draws when operatorId is assigned after the first CD (ngComponentOutlet input timing)", () => {
+      snapshotProvider = () => makeResultSnapshot("<html><body><div>late</div></body></html>");
+      buildComponent(undefined);
+      expect(component.htmlData).toBe("");
+
+      fixture.componentRef.setInput("operatorId", "op-1");
+      fixture.detectChanges();
+
+      const iframe = fixture.nativeElement.querySelector("iframe") as HTMLIFrameElement;
+      expect(iframe.getAttribute("srcdoc")).toContain("late");
+    });
+
     it("renders the last snapshot entry's html-content through the DomSanitizer", () => {
       snapshotProvider = () => [
         { "html-content": "<html><body><div>stale</div></body></html>" },

@@ -200,11 +200,17 @@ describe("TexeraLoginComponent", () => {
       expect(component.errorMessage).toBeTruthy();
     });
 
-    it("sets errorMessage when the password is shorter than 6 characters", () => {
-      component.form.patchValue({ username: "alice", password: "abc" });
+    it("sets errorMessage when the sign-in password is shorter than 5 characters", () => {
+      component.form.patchValue({ username: "alice", password: "abcd" });
       component.submit();
       expect(userServiceMock.login).not.toHaveBeenCalled();
-      expect(component.errorMessage).toBe("Password length should be greater than 5.");
+      expect(component.errorMessage).toBe("Password length should be at least 5 characters.");
+    });
+
+    it("accepts a 5-character password on sign-in", () => {
+      component.form.patchValue({ username: "admin", password: "admin" });
+      component.submit();
+      expect(userServiceMock.login).toHaveBeenCalledWith("admin", "admin");
     });
 
     it("calls UserService.login with a trimmed username and navigates to USER_WORKFLOW", () => {

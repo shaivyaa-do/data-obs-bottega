@@ -21,10 +21,10 @@ import { Component, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { ActionType, EntityType, HubService } from "../../service/hub.service";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { SearchService } from "../../../dashboard/service/user/search.service";
 import { DashboardEntry } from "../../../dashboard/type/dashboard-entry";
-import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT, USER_COMPUTING_UNIT, USER_DATASET, USER_QUOTA, USER_WORKFLOW } from "../../../app-routing.constant";
+import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT, USER_AGENT, USER_COMPUTING_UNIT, USER_DATASET, USER_WORKFLOW } from "../../../app-routing.constant";
 import { UserService } from "../../../common/service/user/user.service";
 import { BrowseSectionComponent } from "../browse-section/browse-section.component";
 import { NgIf } from "@angular/common";
@@ -34,11 +34,17 @@ import { NgIf } from "@angular/common";
   selector: "texera-landing-page",
   templateUrl: "./landing-page.component.html",
   styleUrls: ["./landing-page.component.scss"],
-  imports: [BrowseSectionComponent, NgIf, RouterLink],
+  imports: [BrowseSectionComponent, NgIf],
 })
 export class LandingPageComponent implements OnInit {
   public isLogin = this.userService.isLogin();
   public currentUid = this.userService.getCurrentUser()?.uid;
+  public displayName = this.readDisplayName();
+  public greetingDate = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
   public workflowCount: number = 0;
   public datasetCount: number = 0;
   public modelCount: number = 0;
@@ -46,10 +52,6 @@ export class LandingPageComponent implements OnInit {
   public topClonedWorkflows: DashboardEntry[] = [];
   public topLovedDatasets: DashboardEntry[] = [];
   public topLovedModels: DashboardEntry[] = [];
-  protected readonly USER_WORKFLOW = USER_WORKFLOW;
-  protected readonly USER_DATASET = USER_DATASET;
-  protected readonly USER_COMPUTING_UNIT = USER_COMPUTING_UNIT;
-  protected readonly USER_QUOTA = USER_QUOTA;
 
   constructor(
     private hubService: HubService,
@@ -63,7 +65,13 @@ export class LandingPageComponent implements OnInit {
       .subscribe(() => {
         this.isLogin = this.userService.isLogin();
         this.currentUid = this.userService.getCurrentUser()?.uid;
+        this.displayName = this.readDisplayName();
       });
+  }
+
+  private readDisplayName(): string {
+    const name = this.userService.getCurrentUser()?.name?.trim();
+    return name && name.length > 0 ? name : "there";
   }
 
   ngOnInit(): void {
@@ -143,5 +151,21 @@ export class LandingPageComponent implements OnInit {
     }
 
     this.router.navigate([path]);
+  }
+
+  openWorkflows(): void {
+    this.router.navigate([USER_WORKFLOW]);
+  }
+
+  openAgent(): void {
+    this.router.navigate([USER_AGENT]);
+  }
+
+  openDatasets(): void {
+    this.router.navigate([USER_DATASET]);
+  }
+
+  openCompute(): void {
+    this.router.navigate([USER_COMPUTING_UNIT]);
   }
 }

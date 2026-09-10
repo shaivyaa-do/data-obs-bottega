@@ -1160,7 +1160,7 @@ describe("MenuComponent", () => {
     const q = (selector: string) => fixture.debugElement.query(By.css(selector));
     const utility = (title: string) => q(`#expanded-utilities button[title="${title}"]`);
     const toolbar = (title: string) => q(`button[title="${title}"]`);
-    /** Undo/redo and export carry no title; they are identified by the icon they render. */
+    /** Export result is identified by the icon it renders. */
     const buttonWithIcon = (icon: string) => q(`#expanded-utilities i[nztype="${icon}"]`).parent!;
 
     afterEach(() => {
@@ -1242,7 +1242,7 @@ describe("MenuComponent", () => {
         component.workflowId = 42;
         fixture.detectChanges();
 
-        expect(q("#metadata nz-avatar")).not.toBeNull();
+        expect(q("#metadata .workflow-id-number")).not.toBeNull();
         const nameInput = q("input.workflow-name");
         nameInput.triggerEventHandler("input", { target: nameInput.nativeElement });
         nameInput.triggerEventHandler("change", { target: nameInput.nativeElement });
@@ -1255,7 +1255,7 @@ describe("MenuComponent", () => {
         component.workflowId = undefined;
         fixture.detectChanges();
 
-        expect(q("#metadata nz-avatar")).toBeNull();
+        expect(q("#metadata .workflow-id-number")).toBeNull();
       });
     });
 
@@ -1294,6 +1294,30 @@ describe("MenuComponent", () => {
         toolbar("change description").triggerEventHandler("click", null);
 
         Object.values(spies).forEach(spy => expect(spy).toHaveBeenCalled());
+      });
+
+      it("offers a labeled back control that points at the workflows list", () => {
+        const link = q("#back-to-workflows-link");
+        const button = q("#back-to-workflows");
+        expect(link).not.toBeNull();
+        expect(button).not.toBeNull();
+        expect(button.nativeElement.querySelector("[nzType='arrow-left']")).not.toBeNull();
+        expect(button.nativeElement.getAttribute("title")).toBe("back to workflows");
+        expect(link.nativeElement.getAttribute("href")).toBe(USER_WORKFLOW);
+      });
+
+      it("does not treat the stop-execution control as the way back to the list", () => {
+        const stop = q("button[nzdanger]");
+        expect(stop.nativeElement.getAttribute("title")).toBe("stop execution");
+        expect(q("#back-to-workflows")).not.toBe(stop);
+      });
+
+      it("keeps the workflows back control while viewing an older version", () => {
+        component.displayParticularWorkflowVersion = true;
+        fixture.detectChanges();
+
+        expect(q("#back-to-workflows")).not.toBeNull();
+        expect(q("#user-buttons")).toBeNull();
       });
     });
 

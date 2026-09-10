@@ -239,6 +239,34 @@ describe("WorkflowPersistService", () => {
       req.flush({ wid: 1, name: "broken", content: '{"operators":[]}' });
     });
 
+    it("persistWorkflow sends a boolean isPublic when isPublished is the canvas 0/1 number", () => {
+      const privateWorkflow = {
+        wid: 3,
+        name: "n",
+        description: "",
+        content: validContent,
+        isPublished: 0,
+      } as unknown as Workflow;
+
+      service.persistWorkflow(privateWorkflow).subscribe();
+      const privateReq = httpTestingController.expectOne(`${API}/${WORKFLOW_PERSIST_URL}`);
+      expect(privateReq.request.body.isPublic).toBe(false);
+      privateReq.flush({ wid: 3, name: "n", content: '{"operators":[]}' });
+
+      const publicWorkflow = {
+        wid: 4,
+        name: "n",
+        description: "",
+        content: validContent,
+        isPublished: 1,
+      } as unknown as Workflow;
+
+      service.persistWorkflow(publicWorkflow).subscribe();
+      const publicReq = httpTestingController.expectOne(`${API}/${WORKFLOW_PERSIST_URL}`);
+      expect(publicReq.request.body.isPublic).toBe(true);
+      publicReq.flush({ wid: 4, name: "n", content: '{"operators":[]}' });
+    });
+
     it("persistWorkflow filters out a null response so no value is emitted", () => {
       const workflow = {
         wid: 2,

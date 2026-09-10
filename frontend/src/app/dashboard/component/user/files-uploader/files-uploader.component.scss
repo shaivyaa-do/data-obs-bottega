@@ -18,9 +18,9 @@
  */
 
 .file-uploader {
-  padding: 20px;
+  padding: 8px 0 0;
   transition: border-color 0.3s ease-in-out;
-  margin: auto; /* Center the uploader if width is less than 100% */
+  margin: 0;
 }
 
 .ngx-drop-box {

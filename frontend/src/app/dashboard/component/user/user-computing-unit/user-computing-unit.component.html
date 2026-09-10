@@ -20,7 +20,7 @@
 <div class="section-container subsection-grid-container">
   <nz-card class="section-title">
     <h2 class="page-title">Computing Units</h2>
-    <div class="button-group">
+    <div class="button-group right-aligned">
       <button
         nz-button
         class="create-btn"
@@ -28,7 +28,7 @@
         title="Create Computing Unit">
         <i
           nz-icon
-          nzType="file-add"
+          nzType="plus"
           nzTheme="outline"></i>
         <span>Create Computing Unit</span>
       </button>
@@ -39,7 +39,7 @@
     class="section-list-container"
     [nzBodyStyle]="{ height: '100%'}">
     <cdk-virtual-scroll-viewport
-      itemSize="70"
+      itemSize="48"
       class="virtual-scroll-container">
       <nz-list>
         <ng-container *cdkVirtualFor="let entry of entries">

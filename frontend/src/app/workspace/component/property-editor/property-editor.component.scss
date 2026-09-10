@@ -23,48 +23,106 @@
   width: 100%;
   position: fixed;
   z-index: 3;
+  pointer-events: none;
 }
 
 #right-container {
   position: fixed;
-  top: 10vh;
-  right: 0;
-  background: white;
+  top: 80px;
+  left: 0;
+  right: auto;
+  bottom: 0;
+  background: var(--app-bg-panel, #ffffff);
+  border-right: 1px solid var(--app-border-subtle, #e4e4e7);
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.panel-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 8px 0 16px;
+  background: var(--app-bg-panel, #ffffff);
+  border-bottom: 1px solid var(--app-border-subtle, #e4e4e7);
+  flex: 0 0 auto;
 }
 
 #title {
-  padding: 5px 9px;
-  border-bottom: 1px solid #e0e0e0;
-  position: absolute;
-  top: 0;
-  background: white;
-  width: 100%;
-  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: none;
+  position: static;
+  width: auto;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 40px;
+  color: var(--app-text-primary, #18181b);
 }
 
 #content {
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  padding-top: 38px;
+  padding-top: 0;
 }
 
 #property-editor {
-  padding: 0 15px;
+  padding: 12px 16px 24px;
 }
 
 #property-buttons {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 4;
   display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  position: static;
+
+  button,
+  li.ant-menu-item {
+    margin: 0 !important;
+    height: 26px !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    line-height: 26px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    border: 1px solid transparent !important;
+    color: var(--app-text-muted, #71717a) !important;
+    background: transparent !important;
+
+    &:hover {
+      background: var(--app-bg-hover, #f4f4f5) !important;
+      color: var(--app-text-primary, #18181b) !important;
+    }
+
+    span[nz-icon] {
+      font-size: 12px;
+    }
+  }
 }
 
 #docked-buttons {
   position: fixed;
-  top: 10vh;
-  right: 0;
+  top: 80px;
+  left: 0;
+  right: auto;
   z-index: 4;
+  pointer-events: auto;
 }
 
 #divider {

@@ -40,7 +40,7 @@ import { SortMethod } from "../../../type/sort-method";
 import { map, switchMap, tap } from "rxjs/operators";
 import { DashboardWorkflow } from "../../../type/dashboard-workflow.interface";
 import { DownloadService } from "../../../service/user/download/download.service";
-import { USER_WORKSPACE } from "../../../../app-routing.constant";
+import { USER_AGENT, USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import {
   MappingContent,
@@ -61,9 +61,6 @@ import { SortButtonComponent } from "../sort-button/sort-button.component";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NgIf } from "@angular/common";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
-import { FiltersInstructionsComponent } from "../filters-instructions/filters-instructions.component";
-import { NzSelectComponent } from "ng-zorro-antd/select";
-import { FormsModule } from "@angular/forms";
 
 /**
  * Saved-workflow-section component contains information and functionality
@@ -109,9 +106,6 @@ import { FormsModule } from "@angular/forms";
     NgIf,
     NzPopconfirmDirective,
     FiltersComponent,
-    FiltersInstructionsComponent,
-    NzSelectComponent,
-    FormsModule,
     SearchResultsComponent,
     CardItemComponent,
     NzSpaceCompactComponent,
@@ -274,6 +268,10 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
         },
         error: (err: unknown) => this.notificationService.error("Workflow creation failed"),
       });
+  }
+
+  public onClickCreateWithAgent(): void {
+    this.router.navigate([USER_AGENT]);
   }
 
   public get pythonNotebookMigrationEnabled(): boolean {

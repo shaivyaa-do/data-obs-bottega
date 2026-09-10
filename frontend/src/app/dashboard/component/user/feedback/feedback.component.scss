@@ -24,15 +24,24 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  nz-card {
+    border-radius: var(--app-radius-sm);
+    border: 1px solid var(--app-border-light);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
 }
 
 .feedback-hint {
-  color: rgba(0, 0, 0, 0.55);
-  margin-bottom: 12px;
+  color: var(--app-text-secondary);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 14px;
 }
 
 .feedback-textarea {
   margin-bottom: 16px;
+  border-radius: 8px;
 }
 
 .feedback-submit-button {
@@ -44,4 +53,5 @@
 .feedback-message {
   white-space: pre-wrap;
   word-break: break-word;
+  line-height: 1.5;
 }

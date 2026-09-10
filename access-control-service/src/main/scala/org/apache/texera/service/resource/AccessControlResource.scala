@@ -18,6 +18,7 @@
 package org.apache.texera.service.resource
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.scalalogging.LazyLogging
 import jakarta.annotation.security.{PermitAll, RolesAllowed}
@@ -322,12 +323,17 @@ class LiteLLMProxyResource(
         case (key, values)
             if !key.equalsIgnoreCase("Authorization") &&
               !key.equalsIgnoreCase("Host") &&
-              !key.equalsIgnoreCase("Content-Length") =>
+              !key.equalsIgnoreCase("Content-Length") &&
+              !key.equalsIgnoreCase(LiteLLMProxyResource.ProviderApiKeyHeader) =>
           values.asScala.foreach(value => requestBuilder.header(key, value))
-        case _ => // Skip Authorization, Host, and Content-Length headers
+        case _ => // Skip Authorization, Host, Content-Length, and the provider key
       }
 
-      val response = requestBuilder.post(Entity.json(body))
+      val forwardedBody = LiteLLMProxyResource.injectProviderApiKey(
+        body,
+        Option(headers.getHeaderString(LiteLLMProxyResource.ProviderApiKeyHeader))
+      )
+      val response = requestBuilder.post(Entity.json(forwardedBody))
 
       // Build response with same status and body from LiteLLM
       val responseBody = response.readEntity(classOf[String])
@@ -355,6 +361,35 @@ class LiteLLMProxyResource(
 
 object LiteLLMProxyResource {
   val CopilotDisabledBody: String = """{"error": "Copilot feature is disabled"}"""
+
+  /** Provider key from the UI. Never used as the LiteLLM Authorization header. */
+  val ProviderApiKeyHeader: String = "X-LLM-Provider-Api-Key"
+
+  private val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
+
+  /**
+    * Copies a user-supplied provider key into LiteLLM's request body as `api_key`.
+    * Blank / missing keys and non-object payloads are left unchanged so the
+    * server-configured LiteLLM env key remains in effect.
+    */
+  def injectProviderApiKey(body: String, providerApiKey: Option[String]): String = {
+    val key = providerApiKey.map(_.trim).filter(_.nonEmpty)
+    if (key.isEmpty || body == null || body.isBlank) {
+      Option(body).getOrElse("")
+    } else {
+      try {
+        val node = mapper.readTree(body)
+        if (!node.isObject) {
+          body
+        } else {
+          node.asInstanceOf[ObjectNode].put("api_key", key.get)
+          mapper.writeValueAsString(node)
+        }
+      } catch {
+        case _: Exception => body
+      }
+    }
+  }
 }
 
 @Path("/models")

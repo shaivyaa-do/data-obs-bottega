@@ -18,39 +18,100 @@
 -->
 
 <div class="agent-registration-container">
-  <div class="registration-header">
-    <h3>Welcome to DO Bottega Agent!</h3>
-    <p>Select a model type and create an AI agent to assist with your data science tasks</p>
-  </div>
+  <!-- Conversation Body (Scrollable) -->
+  <div class="chat-conversation-body">
+    <!-- Assistant Intro Message Bubble -->
+    <div class="chat-bubble ai-bubble">
+      <div class="bubble-header">
+        <span class="bot-avatar">
+          <i nz-icon nzType="robot" nzTheme="outline"></i>
+        </span>
+        <span class="bot-name">AI Assistant</span>
+      </div>
+      <div class="bubble-content">
+        <p>Hi! I'm your AI workflow co-pilot. Select a model below to get started, or pick a prompt to begin configuring your workflow agent.</p>
+      </div>
+    </div>
 
-  <div class="model-type-selection">
-    <h4>Select Model Type</h4>
+    <!-- Quick Prompt Suggestions -->
+    <div class="suggestion-chips" *ngIf="!customAgentName">
+      <button
+        type="button"
+        class="suggestion-chip"
+        (click)="selectSuggestion('Explain this workflow')">
+        <i nz-icon nzType="bulb" nzTheme="outline"></i>
+        <span>Explain this workflow</span>
+      </button>
+      <button
+        type="button"
+        class="suggestion-chip"
+        (click)="selectSuggestion('Help fix operator errors')">
+        <i nz-icon nzType="tool" nzTheme="outline"></i>
+        <span>Help fix operator errors</span>
+      </button>
+      <button
+        type="button"
+        class="suggestion-chip"
+        (click)="selectSuggestion('Optimize workflow execution')">
+        <i nz-icon nzType="thunderbolt" nzTheme="outline"></i>
+        <span>Optimize workflow</span>
+      </button>
+    </div>
+
+    <!-- Computing Unit Warning -->
+    <nz-alert
+      *ngIf="!computingUnitConnected"
+      nzType="warning"
+      nzMessage="Please connect to a computing unit before creating an agent."
+      nzShowIcon
+      class="cu-warning-alert">
+    </nz-alert>
+
+    <!-- Loading Models State -->
     <div
       *ngIf="isLoadingModels"
-      style="text-align: center; padding: 40px">
+      class="loading-models-state">
       <nz-spin
         nzSimple
         nzSize="large"></nz-spin>
-      <p style="margin-top: 16px; color: #8c8c8c">Loading available models...</p>
+      <p style="margin-top: 12px; color: #8c8c8c; font-size: 13px">Loading available models...</p>
     </div>
+
+    <!-- No Models Available State -->
     <div
       *ngIf="!isLoadingModels && modelTypes.length === 0"
-      style="text-align: center; padding: 40px">
+      class="no-models-state">
       <i
         nz-icon
         nzType="warning"
         nzTheme="outline"
-        style="font-size: 48px; color: #faad14"></i>
-      <p style="margin-top: 16px; color: #8c8c8c">No models available</p>
+        style="font-size: 32px; color: #faad14"></i>
+      <p style="margin-top: 8px; color: #8c8c8c; font-size: 13px">No models available</p>
     </div>
+  </div>
+
+  <!-- Chat Ask Bar & Model Selector (Bottom Section) -->
+  <div class="chat-bottom-section">
+    <!-- Model Selection Header / Alert when unconfigured -->
+    <div class="model-selection-header">
+      <span class="model-selection-label">
+        <i nz-icon nzType="appstore" nzTheme="outline" style="margin-right: 4px; color: #1890ff"></i>
+        <span *ngIf="selectedModelType">Selected Model:</span>
+        <span *ngIf="!selectedModelType" class="model-unconfigured-text">Select Model from list below:</span>
+      </span>
+    </div>
+
+    <!-- Compact Model Cards / Pills -->
     <div
       *ngIf="!isLoadingModels && modelTypes.length > 0"
-      class="model-cards">
+      class="model-cards compact-cards">
       <div
         *ngFor="let modelType of modelTypes"
         class="model-card"
         [class.selected]="selectedModelType === modelType.id"
-        (click)="selectModelType(modelType.id)">
+        (click)="selectModelType(modelType.id)"
+        nz-tooltip
+        [nzTooltipTitle]="modelType.description">
         <div class="model-icon">
           <i
             nz-icon
@@ -59,7 +120,6 @@
         </div>
         <div class="model-info">
           <h5>{{ modelType.name }}</h5>
-          <p>{{ modelType.description }}</p>
         </div>
         <div
           *ngIf="selectedModelType === modelType.id"
@@ -71,40 +131,56 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="agent-name-input">
-    <h4>Agent Name (Optional)</h4>
-    <input
-      nz-input
-      [(ngModel)]="customAgentName"
-      placeholder="Enter a custom name for your agent"
-      [disabled]="!selectedModelType" />
-  </div>
+    <!-- Compact Provider API Key -->
+    <div class="compact-key-container">
+      <div class="password-line">
+        <input
+          nz-input
+          nzSize="small"
+          class="provider-api-key"
+          [type]="apiKeyVisible ? 'text' : 'password'"
+          [(ngModel)]="providerApiKey"
+          placeholder="Provider API Key (optional)"
+          autocomplete="off" />
+        <i
+          nz-icon
+          class="ant-input-password-icon"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="apiKeyVisible ? 'Hide API key' : 'Show API key'"
+          [nzType]="apiKeyVisible ? 'eye' : 'eye-invisible'"
+          nzTheme="outline"
+          (click)="apiKeyVisible = !apiKeyVisible"></i>
+      </div>
+    </div>
 
-  <div class="action-buttons">
-    <nz-alert
-      *ngIf="!computingUnitConnected"
-      nzType="warning"
-      nzMessage="Please connect to a computing unit before creating an agent."
-      nzShowIcon
-      style="margin-bottom: 12px">
-    </nz-alert>
-    <button
-      nz-button
-      nzType="primary"
-      nzSize="large"
-      [nzLoading]="isCreating"
-      [disabled]="!canCreate()"
-      nz-tooltip
-      [nzTooltipTitle]="!computingUnitConnected ? 'Connect to a computing unit first' : ''"
-      (click)="createAgent()">
-      <i
-        *ngIf="!isCreating"
-        nz-icon
-        nzType="plus-circle"
-        nzTheme="outline"></i>
-      {{ isCreating ? 'Creating...' : 'Create Agent' }}
-    </button>
+    <!-- Chat Ask Bar Input Row -->
+    <div class="chat-ask-row">
+      <input
+        nz-input
+        [(ngModel)]="customAgentName"
+        placeholder="Give this agent a name"
+        [disabled]="!selectedModelType"
+        (keydown.enter)="canCreate() && createAgent()"
+        class="chat-ask-input" />
+      <button
+        nz-button
+        nzType="primary"
+        [nzLoading]="isCreating"
+        [disabled]="!canCreate()"
+        nz-tooltip
+        [nzTooltipTitle]="!computingUnitConnected ? 'Connect to a computing unit first' : ''"
+        (click)="createAgent()"
+        class="chat-send-btn">
+        <i
+          *ngIf="!isCreating"
+          nz-icon
+          nzType="send"
+          nzTheme="outline"
+          style="margin-right: 4px"></i>
+        {{ isCreating ? 'Creating...' : 'Create Agent' }}
+      </button>
+    </div>
   </div>
 </div>

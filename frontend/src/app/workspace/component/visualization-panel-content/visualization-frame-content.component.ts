@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { AfterContentInit, Component, Input } from "@angular/core";
+import { AfterContentInit, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { WorkflowResultService } from "../../service/workflow-result/workflow-result.service";
 import { auditTime, filter } from "rxjs/operators";
@@ -29,7 +29,7 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
   templateUrl: "./visualization-frame-content.component.html",
   styleUrls: ["./visualization-frame-content.component.scss"],
 })
-export class VisualizationFrameContentComponent implements AfterContentInit {
+export class VisualizationFrameContentComponent implements AfterContentInit, OnChanges {
   // operatorId: string = inject(NZ_MODAL_DATA).operatorId;
   @Input() operatorId?: string;
   // progressive visualization update and redraw interval in milliseconds
@@ -40,6 +40,15 @@ export class VisualizationFrameContentComponent implements AfterContentInit {
     private workflowResultService: WorkflowResultService,
     private sanitizer: DomSanitizer
   ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // ngComponentOutlet can deliver `operatorId` after the first CD. Redraw
+    // when it arrives; otherwise the snapshot is already complete and the
+    // result-update stream never fires again, leaving the iframe blank.
+    if (changes["operatorId"]) {
+      this.drawChart();
+    }
+  }
 
   ngAfterContentInit() {
     // attempt to draw chart immediately

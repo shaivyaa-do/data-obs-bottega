@@ -18,7 +18,7 @@
 -->
 
 <div *ngIf="!isMaximized">
-  <nz-card>
+  <nz-card class="dataset-header-card">
     <div class="dataset-header">
       <div class="dataset-header-meta">
         <h2>Dataset: {{datasetName}}</h2>
@@ -88,20 +88,142 @@
   <nz-tab nzTitle="Data Card">
     <div class="data-card-tab-content">
       <div class="data-card-columns">
-        <nz-card class="data-card data-card-main">
-          <h3 class="data-card-heading">Description</h3>
-          <div class="data-card-description">
-            <texera-markdown-description
-              *ngIf="datasetDescription; else noDescription"
-              [description]="datasetDescription"
-              [editable]="false"
-              [enableViewMore]="true">
-            </texera-markdown-description>
-            <ng-template #noDescription>
-              <span class="empty-description">No description provided</span>
-            </ng-template>
-          </div>
-        </nz-card>
+        <div class="data-card-left-column">
+          <nz-card class="data-card data-card-main">
+            <h3 class="data-card-heading">Description</h3>
+            <div class="data-card-description">
+              <texera-markdown-description
+                *ngIf="datasetDescription; else noDescription"
+                [description]="datasetDescription"
+                [editable]="false"
+                [enableViewMore]="true">
+              </texera-markdown-description>
+              <ng-template #noDescription>
+                <span class="empty-description">No description provided</span>
+              </ng-template>
+            </div>
+          </nz-card>
+
+          <nz-card class="data-card data-card-metadata">
+            <h3 class="data-card-heading">Metadata</h3>
+            <nz-divider class="metadata-divider"></nz-divider>
+            <nz-collapse
+              nzGhost
+              nzExpandIconPosition="end"
+              class="contributors-collapse">
+              <nz-collapse-panel nzHeader="Contributors">
+                <div class="contributor-list">
+                  <div
+                    *ngFor="let contributor of datasetContributors"
+                    class="contributor-card">
+                    <button
+                      *ngIf="userHasWriteAccess()"
+                      nz-button
+                      nzType="text"
+                      nzSize="small"
+                      class="contributor-actions"
+                      nz-dropdown
+                      nzTrigger="click"
+                      nzPlacement="bottomRight"
+                      [nzDropdownMenu]="contributorActionsMenu">
+                      <i
+                        nz-icon
+                        nzType="more"></i>
+                    </button>
+                    <nz-dropdown-menu #contributorActionsMenu="nzDropdownMenu">
+                      <ul
+                        nz-menu
+                        class="contributor-actions-menu">
+                        <li
+                          nz-menu-item
+                          (click)="onEditContributor(contributor)">
+                          <i
+                            nz-icon
+                            nzType="edit"></i>
+                          Edit
+                        </li>
+                        <li
+                          nz-menu-item
+                          nzDanger
+                          nz-popconfirm
+                          [nzPopconfirmTitle]="'Delete contributor &quot;' + contributor.name + '&quot;?'"
+                          nzOkText="Delete"
+                          nzOkDanger
+                          (nzOnConfirm)="onDeleteContributor(contributor)">
+                          <i
+                            nz-icon
+                            nzType="delete"></i>
+                          Delete
+                        </li>
+                      </ul>
+                    </nz-dropdown-menu>
+                    <div class="contributor-name">
+                      <span
+                        nz-tooltip
+                        [nzTooltipTitle]="contributor.name"
+                        >{{ contributor.name }}</span
+                      >
+                      <i
+                        *ngIf="contributor.creator"
+                        nz-icon
+                        nzType="star"
+                        nzTheme="fill"
+                        class="creator-star"
+                        nz-tooltip
+                        nzTooltipTitle="Original creator"></i>
+                    </div>
+                    <div
+                      class="contributor-row"
+                      nz-tooltip
+                      [nzTooltipTitle]="contributor.email">
+                      <span class="contributor-label">Email</span>
+                      <span
+                        class="contributor-value"
+                        [class.empty]="!contributor.email"
+                        >{{ contributor.email || "—" }}</span
+                      >
+                    </div>
+                    <div
+                      class="contributor-row"
+                      nz-tooltip
+                      [nzTooltipTitle]="contributor.affiliation">
+                      <span class="contributor-label">Affiliation</span>
+                      <span
+                        class="contributor-value"
+                        [class.empty]="!contributor.affiliation"
+                        >{{ contributor.affiliation || "—" }}</span
+                      >
+                    </div>
+                    <div
+                      class="contributor-row"
+                      nz-tooltip
+                      [nzTooltipTitle]="contributor.comments">
+                      <span class="contributor-label">Comments</span>
+                      <span
+                        class="contributor-value"
+                        [class.empty]="!contributor.comments"
+                        >{{ contributor.comments || "—" }}</span
+                      >
+                    </div>
+                  </div>
+                  <div
+                    *ngIf="userHasWriteAccess()"
+                    class="contributor-card-add"
+                    role="button"
+                    tabindex="0"
+                    (click)="onAddContributor()"
+                    (keydown.enter)="onAddContributor()"
+                    (keydown.space)="$event.preventDefault(); onAddContributor()">
+                    <i
+                      nz-icon
+                      nzType="plus"
+                      class="add-icon"></i>
+                  </div>
+                </div>
+              </nz-collapse-panel>
+            </nz-collapse>
+          </nz-card>
+        </div>
 
         <nz-card class="data-card data-card-details">
           <div class="data-card-stats">
@@ -128,136 +250,47 @@
           </div>
         </nz-card>
       </div>
-
-      <nz-card class="data-card data-card-metadata">
-        <h3 class="data-card-heading">Metadata</h3>
-        <nz-divider class="metadata-divider"></nz-divider>
-        <nz-collapse
-          nzGhost
-          nzExpandIconPosition="end"
-          class="contributors-collapse">
-          <nz-collapse-panel nzHeader="Contributors">
-            <div class="contributor-list">
-              <div
-                *ngFor="let contributor of datasetContributors"
-                class="contributor-card">
-                <button
-                  *ngIf="userHasWriteAccess()"
-                  nz-button
-                  nzType="text"
-                  nzSize="small"
-                  class="contributor-actions"
-                  nz-dropdown
-                  nzTrigger="click"
-                  nzPlacement="bottomRight"
-                  [nzDropdownMenu]="contributorActionsMenu">
-                  <i
-                    nz-icon
-                    nzType="more"></i>
-                </button>
-                <nz-dropdown-menu #contributorActionsMenu="nzDropdownMenu">
-                  <ul
-                    nz-menu
-                    class="contributor-actions-menu">
-                    <li
-                      nz-menu-item
-                      (click)="onEditContributor(contributor)">
-                      <i
-                        nz-icon
-                        nzType="edit"></i>
-                      Edit
-                    </li>
-                    <li
-                      nz-menu-item
-                      nzDanger
-                      nz-popconfirm
-                      [nzPopconfirmTitle]="'Delete contributor &quot;' + contributor.name + '&quot;?'"
-                      nzOkText="Delete"
-                      nzOkDanger
-                      (nzOnConfirm)="onDeleteContributor(contributor)">
-                      <i
-                        nz-icon
-                        nzType="delete"></i>
-                      Delete
-                    </li>
-                  </ul>
-                </nz-dropdown-menu>
-                <div class="contributor-name">
-                  <span
-                    nz-tooltip
-                    [nzTooltipTitle]="contributor.name"
-                    >{{ contributor.name }}</span
-                  >
-                  <i
-                    *ngIf="contributor.creator"
-                    nz-icon
-                    nzType="star"
-                    nzTheme="fill"
-                    class="creator-star"
-                    nz-tooltip
-                    nzTooltipTitle="Original creator"></i>
-                </div>
-                <div
-                  class="contributor-row"
-                  nz-tooltip
-                  [nzTooltipTitle]="contributor.email">
-                  <span class="contributor-label">Email</span>
-                  <span
-                    class="contributor-value"
-                    [class.empty]="!contributor.email"
-                    >{{ contributor.email || "—" }}</span
-                  >
-                </div>
-                <div
-                  class="contributor-row"
-                  nz-tooltip
-                  [nzTooltipTitle]="contributor.affiliation">
-                  <span class="contributor-label">Affiliation</span>
-                  <span
-                    class="contributor-value"
-                    [class.empty]="!contributor.affiliation"
-                    >{{ contributor.affiliation || "—" }}</span
-                  >
-                </div>
-                <div
-                  class="contributor-row"
-                  nz-tooltip
-                  [nzTooltipTitle]="contributor.comments">
-                  <span class="contributor-label">Comments</span>
-                  <span
-                    class="contributor-value"
-                    [class.empty]="!contributor.comments"
-                    >{{ contributor.comments || "—" }}</span
-                  >
-                </div>
-              </div>
-              <div
-                *ngIf="userHasWriteAccess()"
-                class="contributor-card-add"
-                role="button"
-                tabindex="0"
-                (click)="onAddContributor()"
-                (keydown.enter)="onAddContributor()"
-                (keydown.space)="$event.preventDefault(); onAddContributor()">
-                <i
-                  nz-icon
-                  nzType="plus"
-                  class="add-icon"></i>
-              </div>
-            </div>
-          </nz-collapse-panel>
-        </nz-collapse>
-      </nz-card>
     </div>
   </nz-tab>
   <nz-tab nzTitle="Versions & Files">
-    <div class="versions-tab-content">
-      <nz-layout>
-        <nz-content
-          [ngClass]="{'grayed-out': false, 'disabled-click': false}"
-          style="background-color: white">
-          <nz-card>
-            <div style="display: flex; justify-content: space-between; align-items: center">
+    <div
+      class="versions-tab-content"
+      [class.is-maximized]="isMaximized">
+      <div class="versions-actions-bar">
+        <nz-select
+          class="version-switcher"
+          nzShowSearch
+          nzPlaceHolder="Current version"
+          (ngModelChange)="onVersionSelected($event)"
+          [(ngModel)]="selectedVersion">
+          <nz-option
+            *ngFor="let version of versions"
+            [nzValue]="version"
+            [nzLabel]="version.name"></nz-option>
+        </nz-select>
+        <button
+          nz-button
+          nz-tooltip="Download Dataset"
+          (click)="onClickDownloadVersionAsZip()"
+          *ngIf="selectedVersion"
+          [disabled]="!isLogin || !isDownloadAllowed()"
+          class="version-download-btn">
+          <i
+            nz-icon
+            nzType="download"
+            nzTheme="outline"></i>
+        </button>
+        <button
+          *ngIf="userHasWriteAccess()"
+          nz-button
+          class="create-btn"
+          (click)="openCreateVersionModal()">
+          Create New Version
+        </button>
+      </div>
+      <div class="versions-content-pane">
+        <div class="versions-main-card">
+            <div class="file-header-toolbar">
               <div class="file-info">
                 <h3 class="file-title">
                   <span class="file-title-main">
@@ -292,7 +325,7 @@
                   </span>
                 </h3>
               </div>
-              <div style="display: flex">
+              <div class="file-actions">
                 <button
                   nz-button
                   *ngIf="selectedVersion"
@@ -327,141 +360,62 @@
                     nzType="compress">
                   </i>
                 </button>
-                <button
-                  *ngIf="!isRightBarCollapsed"
-                  nz-button
-                  nz-tooltip="Hide the right bar"
-                  (click)="onClickHideRightBar()">
-                  <i
-                    nz-icon
-                    nzTheme="outline"
-                    nzType="right">
-                  </i>
-                </button>
-                <button
-                  *ngIf="isRightBarCollapsed"
-                  nz-button
-                  nz-tooltip="Show Tree"
-                  (click)="onClickHideRightBar()">
-                  <i
-                    nz-icon
-                    nzTheme="outline"
-                    nzType="left">
-                  </i>
-                </button>
               </div>
             </div>
-          </nz-card>
-          <nz-empty
-            class="empty-version-indicator"
-            *ngIf="!selectedVersion"
-            nzNotFoundContent="No version is selected"></nz-empty>
 
-          <texera-user-dataset-file-renderer
-            *ngIf="selectedVersion"
-            [isMaximized]="isMaximized"
-            [resourceId]="did"
-            [versionId]="selectedVersion.dvid"
-            [filePath]="currentDisplayedFileName"
-            [fileSize]="currentFileSize"
-            [isLogin]="isLogin"
-            class="file-renderer">
-          </texera-user-dataset-file-renderer>
-        </nz-content>
-        <nz-sider
-          *ngIf="!isRightBarCollapsed"
-          nzTheme="light"
-          [nzWidth]="siderWidth"
-          nz-resizable
-          [nzMinWidth]="MIN_SIDER_WIDTH"
-          [nzMaxWidth]="MAX_SIDER_WIDTH"
-          (nzResize)="onSideResize($event)">
-          <nz-resize-handle nzDirection="left">
-            <div class="sider-resize-line">
-              <i
-                class="sider-resize-handle"
-                nz-icon
-                nzType="more"
-                nzTheme="outline"></i>
+            <nz-empty
+              class="empty-version-indicator"
+              *ngIf="!selectedVersion"
+              nzNotFoundContent="No version is selected"></nz-empty>
+
+            <div
+              class="file-renderer-wrapper"
+              *ngIf="selectedVersion">
+              <texera-user-dataset-file-renderer
+                [isMaximized]="isMaximized"
+                [resourceId]="did"
+                [versionId]="selectedVersion.dvid"
+                [filePath]="currentDisplayedFileName"
+                [fileSize]="currentFileSize"
+                [isLogin]="isLogin"
+                class="file-renderer">
+              </texera-user-dataset-file-renderer>
             </div>
-          </nz-resize-handle>
-          <div class="right-sider">
-            <nz-collapse nzGhost>
-              <nz-collapse-panel
-                nzHeader="Current Versions"
-                nzActive="true">
-                <div class="version-storage">
-                  <h6 style="font-weight: lighter; font-size: 0.9em">Choose a Version:</h6>
-                  <div class="select-and-button-container">
-                    <nz-select
-                      nzShowSearch
-                      nzPlaceHolder="Select a version"
-                      (ngModelChange)="onVersionSelected($event)"
-                      [(ngModel)]="selectedVersion">
-                      <nz-option
-                        *ngFor="let version of versions"
-                        [nzValue]="version"
-                        [nzLabel]="version.name"></nz-option>
-                    </nz-select>
-                    <button
-                      nz-button
-                      nz-tooltip="Download Dataset"
-                      (click)="onClickDownloadVersionAsZip()"
-                      *ngIf="selectedVersion"
-                      [disabled]="!isLogin || !isDownloadAllowed()"
-                      class="spaced-button">
-                      <i
-                        nz-icon
-                        nzType="download"
-                        nzTheme="outline"></i>
-                    </button>
-                  </div>
-                  <ng-container *ngIf="selectedVersion">
-                    <div class="version-size">
-                      <i
-                        nz-icon
-                        nzType="database"
-                        nzTheme="outline"
-                        class="icon-database"></i>
-                      Version Size: {{ formatSize(currentDatasetVersionSize) }}
-                    </div>
-                    <div
-                      *ngIf="selectedVersionCreationTime"
-                      class="version-date">
-                      <i
-                        nz-icon
-                        nzType="calendar"
-                        nzTheme="outline"
-                        class="icon-database"></i>
-                      Created at: {{ selectedVersionCreationTime }}
-                    </div>
-                  </ng-container>
-                </div>
-                <texera-user-dataset-version-filetree
-                  [fileTreeNodes]="fileTreeNodeList"
-                  [isTreeNodeDeletable]="userHasWriteAccess()"
-                  [isCoverSettable]="userHasWriteAccess()"
-                  (selectedTreeNode)="onVersionFileTreeNodeSelected($event)"
-                  (deletedTreeNode)="onPreviouslyUploadedFileDeleted($event)"
-                  (setCoverImage)="onSetCoverImage($event)">
-                </texera-user-dataset-version-filetree>
-              </nz-collapse-panel>
-            </nz-collapse>
-
-            <nz-divider *ngIf="userDatasetAccessLevel === 'WRITE'"></nz-divider>
-            <texera-version-uploader
-              *ngIf="userDatasetAccessLevel === 'WRITE'"
-              [resourceId]="did"
-              [ownerEmail]="ownerEmail"
-              [resourceName]="datasetName"
-              [endpoint]="datasetEndpoint"
-              [createVersion]="createDatasetVersion"
-              (versionCreated)="onVersionCreated()"
-              (uploadsInFlightChange)="uploadsInFlight = $event">
-            </texera-version-uploader>
           </div>
-        </nz-sider>
-      </nz-layout>
+        </div>
+      <div
+        class="create-version-overlay"
+        *ngIf="isCreateVersionModalVisible"
+        (click)="closeCreateVersionModal()">
+        <div
+          class="create-version-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="create-version-title"
+          (click)="$event.stopPropagation()">
+          <div class="create-version-dialog-header">
+            <h3 id="create-version-title">Create New Version</h3>
+            <button
+              nz-button
+              nzType="text"
+              class="create-version-close"
+              (click)="closeCreateVersionModal()">
+              <i
+                nz-icon
+                nzType="close"></i>
+            </button>
+          </div>
+          <texera-version-uploader
+            [resourceId]="did"
+            [ownerEmail]="ownerEmail"
+            [resourceName]="datasetName"
+            [endpoint]="datasetEndpoint"
+            [createVersion]="createDatasetVersion"
+            (versionCreated)="onVersionCreated()"
+            (uploadsInFlightChange)="uploadsInFlight = $event">
+          </texera-version-uploader>
+        </div>
+      </div>
     </div>
   </nz-tab>
   <nz-tab

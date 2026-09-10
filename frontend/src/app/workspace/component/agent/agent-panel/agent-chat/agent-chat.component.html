@@ -17,12 +17,11 @@
  under the License.
 -->
 
-<!-- Agent Chat Container (used within tabs) -->
+<!-- Agent Chat Container -->
 <div class="agent-chat-container">
-  <!-- Toolbar -->
+  <!-- Icon toolbar (status, prompt, export, clear) -->
   <div class="chat-toolbar">
     <div class="chat-toolbar-controls">
-      <!-- Agent model info with state icon -->
       <div class="toolbar-item">
         <i
           nz-icon
@@ -31,16 +30,14 @@
           nz-tooltip
           [nzTooltipTitle]="getStateTooltip()"
           [style.color]="getStateIconColor()"
-          style="font-size: 16px; margin-right: 6px; vertical-align: middle"></i>
-        <small style="color: #888"> Model: <strong>{{ agentInfo.modelType }}</strong> </small>
+          class="state-icon"></i>
         <button
           nz-button
           nzType="text"
           nzSize="small"
           (click)="showSystemInfo()"
           nz-tooltip
-          nzTooltipTitle="View system prompt"
-          style="margin-left: 8px; padding: 0 4px">
+          nzTooltipTitle="View system prompt">
           <i
             nz-icon
             nzType="info-circle"
@@ -48,7 +45,6 @@
         </button>
       </div>
 
-      <!-- Export ReAct steps button -->
       <div class="toolbar-item">
         <button
           nz-button
@@ -62,10 +58,6 @@
             nzType="file-done"
             nzTheme="outline"></i>
         </button>
-      </div>
-
-      <!-- Clear button (when available) -->
-      <div class="toolbar-item">
         <button
           *ngIf="isAvailable()"
           nz-button
@@ -92,6 +84,11 @@
         #messageContainer
         class="messages-container">
         <div
+          *ngIf="visibleSteps.length === 0 && !isGenerating() && !isStopping()"
+          class="chat-empty">
+          Send a message to start chatting.
+        </div>
+        <div
           *ngFor="let response of visibleSteps; let i = index"
           class="message"
           [class.user-message]="response.role === 'user'"
@@ -111,16 +108,15 @@
           <div
             class="message-content"
             (mouseenter)="setHoveredMessage(i)"
-            (mouseleave)="setHoveredMessage(null)"
-            style="position: relative">
+            (mouseleave)="setHoveredMessage(null)">
             <div
               *ngIf="response.content"
-              class="message-content">
+              class="message-body">
               <markdown [data]="response.content"></markdown>
             </div>
             <div
               *ngIf="response.toolCalls && response.toolCalls.length > 0"
-              style="color: #8c8c8c; font-style: italic">
+              class="tool-call-hint">
               Execute {{ response.toolCalls.length }} tool{{ response.toolCalls.length > 1 ? 's' : '' }}
             </div>
 
@@ -131,7 +127,7 @@
               nzType="text"
               nzSize="small"
               (click)="showResponseDetails(response)"
-              style="position: absolute; top: 0; right: 0; opacity: 0.7"
+              class="message-details-btn"
               nz-tooltip
               nzTooltipTitle="View details">
               <i
@@ -157,7 +153,7 @@
             <nz-spin
               nzSimple
               nzSize="small"></nz-spin>
-            <span style="margin-left: 8px">Thinking...</span>
+            <span class="status-text">Thinking...</span>
           </div>
         </div>
 
@@ -176,9 +172,20 @@
             <nz-spin
               nzSimple
               nzSize="small"></nz-spin>
-            <span style="margin-left: 8px">Stopping...</span>
+            <span class="status-text">Stopping...</span>
           </div>
         </div>
+      </div>
+
+      <!-- Connection Status -->
+      <div
+        *ngIf="!isConnected()"
+        class="connection-warning">
+        <i
+          nz-icon
+          nzType="warning"
+          nzTheme="fill"></i>
+        <span>Agent is disconnected. Please check your connection.</span>
       </div>
 
       <!-- Input Area -->
@@ -188,7 +195,7 @@
           nz-input
           [(ngModel)]="currentMessage"
           placeholder="Ask me anything about your data science tasks..."
-          [nzAutosize]="{ minRows: 1, maxRows: 4 }"
+          [nzAutosize]="{ minRows: 2, maxRows: 6 }"
           (keydown.enter)="onEnterPress($any($event))"
           [disabled]="!canSendMessage()"></textarea>
         <button
@@ -214,17 +221,6 @@
         </button>
       </div>
     </div>
-  </div>
-
-  <!-- Connection Status -->
-  <div
-    *ngIf="!isConnected()"
-    class="connection-warning">
-    <i
-      nz-icon
-      nzType="warning"
-      nzTheme="fill"></i>
-    <span>Agent is disconnected. Please check your connection.</span>
   </div>
 </div>
 

@@ -26,6 +26,7 @@ import { Injectable } from "@angular/core";
 export class PanelService {
   private closePanelSubject = new Subject<void>();
   private resetPanelSubject = new Subject<void>();
+  private togglePanelSubject = new Subject<number>();
 
   get resetPanelStream() {
     return this.resetPanelSubject.asObservable();
@@ -41,5 +42,13 @@ export class PanelService {
 
   closePanels() {
     this.closePanelSubject.next();
+  }
+
+  get togglePanelStream() {
+    return this.togglePanelSubject.asObservable();
+  }
+
+  togglePanel(index: number) {
+    this.togglePanelSubject.next(index);
   }
 }

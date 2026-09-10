@@ -18,3 +18,46 @@
  */
 
 @use "../user-workflow/user-workflow.component.scss" as *;
+
+.filter-btn {
+  border-radius: 8px !important;
+}
+
+::ng-deep .filter-menu-list.ant-dropdown-menu {
+  background: #ffffff !important;
+  border: 1px solid #e4e4e7 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  padding: 6px !important;
+  min-width: 160px;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .ant-dropdown-menu-item,
+  .ant-dropdown-menu-submenu-title {
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #27272a;
+
+    &:hover {
+      background: #f4f4f5 !important;
+    }
+  }
+
+  label.ant-checkbox-wrapper {
+    font-size: 13px;
+    color: #27272a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    cursor: pointer;
+  }
+}
