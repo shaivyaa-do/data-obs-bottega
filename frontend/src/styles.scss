@@ -113,6 +113,7 @@
 
   --app-elevated-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.05);
   --antd-wave-shadow-color: var(--app-primary);
+  --app-control-height: 32px;
 }
 
 html,
@@ -271,12 +272,8 @@ img {
   font-size: var(--type-label-regular-size);
   font-weight: var(--type-weight-regular);
   line-height: var(--type-line-height);
-  color: var(--text-secondary);
-}
-
-.ant-input {
-  padding-top: 0;
-  padding-bottom: 0;
+  /* 50% secondary fails WCAG AA on white at 11.5px; escalate, do not invent a grey. */
+  color: var(--text-primary);
 }
 
 .ant-form-item-label {
@@ -499,18 +496,21 @@ hr {
   }
 
   .operator-select {
-    height: 24px;
+    height: var(--app-control-height);
   }
 
   .operator-select nz-select,
   .operator-select .ant-select,
   .operator-select .ant-select-selector {
-    height: 24px !important;
+    height: var(--app-control-height) !important;
+    min-height: var(--app-control-height) !important;
   }
 
   .operator-select .ant-select-selection-item,
   .operator-select .ant-select-selection-placeholder {
-    line-height: 22px !important;
+    line-height: var(--type-line-height) !important;
+    display: flex;
+    align-items: center;
   }
 
   .ve-form {
@@ -715,6 +715,20 @@ body {
   border-radius: var(--app-radius-xs);
 }
 
+.ant-btn:not(.ant-btn-sm):not(.ant-btn-lg) {
+  min-height: var(--app-control-height);
+  height: var(--app-control-height);
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-btn-icon-only:not(.ant-btn-sm):not(.ant-btn-lg) {
+  width: var(--app-control-height);
+  padding: 0;
+}
+
 .ant-tag,
 .ant-badge {
   font-size: var(--type-label-medium-size);
@@ -738,6 +752,22 @@ body {
   line-height: var(--type-line-height);
 }
 
+.ant-menu-item,
+.ant-menu-submenu-title,
+.ant-dropdown-menu-item {
+  min-height: var(--app-control-height) !important;
+  height: var(--app-control-height) !important;
+  display: flex !important;
+  align-items: center;
+}
+
+.ant-menu-item-group-title {
+  font-size: var(--type-label-medium-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
+  color: var(--text-primary);
+}
+
 .ant-tooltip,
 .ant-tooltip-inner {
   font-size: var(--type-label-regular-size);
@@ -756,7 +786,7 @@ body {
   font-size: var(--type-label-regular-size);
   font-weight: var(--type-weight-regular);
   line-height: var(--type-line-height);
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .ant-tabs-tab {
@@ -780,6 +810,10 @@ body {
   font-weight: var(--type-weight-regular);
   line-height: var(--type-line-height);
   color: var(--text-black);
+  min-height: var(--app-control-height);
+  padding-top: 6px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
   border-radius: var(--app-radius-sm) !important;
   border-color: var(--app-border-light) !important;
 }

@@ -85,3 +85,16 @@ font-size/color. Phase 1 points those internals at the token scale via
 `styles.scss` overrides. Removing the aliases before every SCSS file is
 migrated would unstyle the app. They come out after the lint sweep (Phase 4)
 and inline-override strip (Phase 5).
+
+## Phase 2 — control height and contrast
+
+Body type is 13.5px at 70% opacity. Controls that assumed a 12px / 16px
+rhythm are recentered on a **32px** row (`--app-control-height`): default
+buttons, inputs, menu items, and dropdown rows. Small (`-sm`) and large
+(`-lg`) Ant sizes are left alone.
+
+Where 50% or 70% text fails WCAG AA on the background, escalate
+`tertiary → secondary → primary → black`. Do not invent a grey. Helper
+copy and list descriptions on white therefore use `--text-primary`.
+Branded fills (`#0078d4`, `#e84917`) need `--text-black` or inverted white;
+primary buttons already invert to white.
