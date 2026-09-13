@@ -41,11 +41,11 @@
 input[nz-input] {
   border: none;
   outline: none;
-  font-size: 12.5px;
+  font-size: var(--type-label-regular-size);
   font-family: var(--app-font-sans);
   padding: 0 5px;
 }
 
 .nz-prefix-icon {
-  color: var(--app-text-tertiary);
+  color: var(--text-secondary);
 }

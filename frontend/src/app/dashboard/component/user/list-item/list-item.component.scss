@@ -93,28 +93,28 @@
 }
 
 .resource-name {
-  font-size: 13.5px;
-  font-weight: 550;
-  color: var(--app-text-primary);
+  font-size: var(--type-body-regular-size);
+  font-weight: 500;
+  color: var(--text-black);
   flex-shrink: 0;
 }
 
 .resource-description {
-  font-size: 11.5px;
+  font-size: var(--type-label-regular-size);
   font-weight: 400;
-  color: var(--app-text-tertiary);
+  color: var(--text-secondary);
   cursor: pointer;
   max-width: 320px;
   transition: color 0.15s ease;
 
   &:hover {
-    color: var(--app-text-primary);
+    color: var(--text-black);
     text-decoration: underline;
   }
 }
 
 .list-item-card:hover .resource-description {
-  color: var(--app-text-secondary);
+  color: var(--text-primary);
 }
 
 .resource-info-group {
@@ -129,17 +129,17 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11.5px;
+    font-size: var(--type-label-regular-size);
     white-space: nowrap;
-    color: var(--app-text-primary);
+    color: var(--text-black);
 
     .info-label {
-      color: var(--app-text-tertiary);
-      font-size: 11px;
+      color: var(--text-secondary);
+      font-size: var(--type-label-regular-size);
     }
 
     .info-value {
-      color: var(--app-text-secondary);
+      color: var(--text-primary);
       font-weight: 500;
     }
   }
@@ -181,11 +181,11 @@
     border-radius: 6px;
     border: none;
     background: transparent;
-    color: var(--app-text-secondary);
+    color: var(--text-primary);
 
     &:hover {
       background: rgba(0, 0, 0, 0.06);
-      color: var(--app-text-primary);
+      color: var(--text-black);
     }
   }
 }
@@ -196,8 +196,8 @@
 }
 
 .resource-name-edit-input {
-  font-size: 13.5px;
-  font-weight: 550;
+  font-size: var(--type-body-regular-size);
+  font-weight: 500;
   padding: 1px 6px;
   margin: 0;
   outline: none;
@@ -208,8 +208,8 @@
 }
 
 .resource-description-edit-textarea {
-  font-size: 12px;
-  font-weight: 300;
+  font-size: var(--type-label-regular-size);
+  font-weight: 400;
   padding: 2px 6px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
@@ -251,16 +251,16 @@
 }
 
 .type-icon {
-  font-size: 16px;
+  font-size: var(--type-body-large-size);
   display: flex;
   align-items: center;
-  color: var(--app-text-secondary);
+  color: var(--text-primary);
 }
 
 .workflow-id {
   padding: 0 6px;
-  font-size: 12px;
-  color: var(--app-text-tertiary);
+  font-size: var(--type-label-regular-size);
+  color: var(--text-secondary);
   font-family: var(--app-font-mono, monospace);
   font-style: normal;
 }
@@ -272,7 +272,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
 }
 
 .liked {

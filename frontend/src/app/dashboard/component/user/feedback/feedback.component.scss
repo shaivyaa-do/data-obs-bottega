@@ -33,9 +33,9 @@
 }
 
 .feedback-hint {
-  color: var(--app-text-secondary);
-  font-size: 13.5px;
-  line-height: 1.5;
+  color: var(--text-primary);
+  font-size: var(--type-body-regular-size);
+  line-height: 1.4;
   margin-bottom: 14px;
 }
 
@@ -53,5 +53,5 @@
 .feedback-message {
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.5;
+  line-height: 1.4;
 }

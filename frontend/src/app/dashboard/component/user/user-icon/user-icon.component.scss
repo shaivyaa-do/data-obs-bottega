@@ -36,15 +36,15 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   box-sizing: border-box;
   background: var(--app-bg-panel);
   border: 1px solid var(--app-border-light);
-  color: var(--app-text-primary);
+  color: var(--text-black);
   font-family: var(--app-font-sans);
-  font-size: 10px;
+  font-size: var(--type-label-regular-size);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -69,12 +69,19 @@
     width: 100%;
     min-width: 0;
     padding: 4px 6px;
+    gap: 10px;
     border-radius: 10px;
     box-sizing: border-box;
     align-items: center;
+    background: transparent;
+    transition: background-color 120ms ease;
 
     &:hover {
-      background: var(--app-bg-panel);
+      background: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    &:active {
+      background: rgba(0, 0, 0, 0.08) !important;
     }
   }
 
@@ -90,11 +97,11 @@
 
   .account-name {
     display: block;
-    font-family: var(--app-font-sans);
-    font-size: var(--app-font-size-label);
+    font-family: var(--app-font-sans), Inter, sans-serif;
+    font-size: var(--type-label-regular-size);
     font-weight: 600;
-    line-height: 1.2;
-    color: var(--app-text-primary);
+    line-height: 1;
+    color: var(--text-black);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -93,3 +93,35 @@ export const HTML_VARIANT_MAPPING: Record<TypographyVariant, string> = {
   labelMedium: "span",
   labelRegular: "span",
 };
+
+export function typeTokenForFontSize(px: number): TypographyVariant {
+  if (!Number.isFinite(px)) {
+    throw new Error("Font size must be a finite number of pixels.");
+  }
+  if (px < 0) {
+    throw new Error("Font size cannot be negative.");
+  }
+  if (px < 13.5) {
+    return "labelRegular";
+  }
+  if (px < 15.5) {
+    return "bodyRegular";
+  }
+  if (px < 19.5) {
+    return "bodyLarge";
+  }
+  return "displayLarge";
+}
+
+export function typeWeight(weight: number): 400 | 500 | 600 {
+  if (!Number.isFinite(weight) || weight <= 0) {
+    throw new Error(`Invalid font weight: ${weight}`);
+  }
+  if (weight < 500) {
+    return 400;
+  }
+  if (weight < 600) {
+    return 500;
+  }
+  return 600;
+}

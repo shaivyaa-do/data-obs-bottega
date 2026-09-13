@@ -53,9 +53,9 @@
     line-height: 28px !important;
     padding: 0 10px !important;
     border-radius: 6px !important;
-    font-size: 12.5px !important;
+    font-size: var(--type-label-regular-size) !important;
     font-weight: 500 !important;
-    color: var(--app-text-primary, #18181b) !important;
+    color: var(--app-text-primary, var(--text-black)) !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
@@ -73,8 +73,8 @@
     }
 
     .collapsed-tab-arrow {
-      font-size: 10px;
-      color: var(--app-text-muted, #71717a);
+      font-size: var(--type-label-regular-size);
+      color: var(--app-text-muted, var(--text-primary));
     }
   }
 
@@ -123,9 +123,9 @@
   #title {
     margin: 0;
     padding: 0;
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
     font-weight: 600;
-    color: var(--app-text-primary, #18181b);
+    color: var(--app-text-primary, var(--text-black));
     line-height: 40px;
     display: inline-flex;
     align-items: center;
@@ -150,25 +150,25 @@
       height: 26px !important;
       width: 26px !important;
       min-width: 26px !important;
-      line-height: 26px !important;
+      line-height: 1.4 !important;
       padding: 0 !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       border-radius: 6px !important;
       border: 1px solid transparent !important;
-      color: var(--app-text-muted, #71717a) !important;
+      color: var(--app-text-muted, var(--text-primary)) !important;
       background: transparent !important;
       cursor: pointer;
       transition: all 0.15s ease;
 
       &:hover {
         background: var(--app-bg-hover, #e4e4e7) !important;
-        color: var(--app-text-primary, #18181b) !important;
+        color: var(--app-text-primary, var(--text-black)) !important;
       }
 
       span[nz-icon] {
-        font-size: 12px;
+        font-size: var(--type-label-regular-size);
       }
     }
   }
@@ -204,7 +204,7 @@
 
   ::ng-deep .ant-tabs-tab {
     padding: 8px 16px !important;
-    font-size: 13px !important;
+    font-size: var(--type-label-regular-size) !important;
     font-weight: 500 !important;
   }
 
@@ -236,21 +236,21 @@
   text-align: center;
 
   .empty-icon {
-    font-size: 36px;
+    font-size: var(--type-display-large-size);
     color: var(--app-text-muted, #a1a1aa);
     margin-bottom: 12px;
   }
 
   h4 {
-    font-size: 14px;
+    font-size: var(--type-body-regular-size);
     font-weight: 600;
-    color: var(--app-text-primary, #18181b);
+    color: var(--app-text-primary, var(--text-black));
     margin-bottom: 4px;
   }
 
   p {
-    font-size: 12.5px;
-    color: var(--app-text-muted, #71717a);
+    font-size: var(--type-label-regular-size);
+    color: var(--app-text-muted, var(--text-primary));
     margin: 0;
   }
 }

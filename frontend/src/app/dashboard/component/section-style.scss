@@ -38,11 +38,11 @@
 
   .page-title {
     font-family: var(--app-font-display);
-    font-size: var(--app-font-size-body-lg);
+    font-size: var(--type-body-large-size);
     font-weight: 600;
     line-height: 32px;
     margin: 0;
-    color: var(--app-text-primary);
+    color: var(--text-black);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -167,7 +167,7 @@
     align-items: center;
 
     .workflow-name {
-      font-size: 20px;
+      font-size: var(--type-display-large-size);
       font-family: var(--app-font-display);
       text-align: center;
       margin-bottom: 0;
@@ -181,7 +181,7 @@
 
     i {
       position: relative;
-      font-size: 17px;
+      font-size: var(--type-body-large-size);
     }
 
     i.workflow-is-owner-icon {
@@ -196,7 +196,7 @@
     margin-bottom: 5px;
 
     .workflow-description {
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
       font-family: var(--app-font-display);
       display: inline-block;
       min-width: 17ch;
@@ -240,8 +240,8 @@
     padding: 0 8px;
     border-radius: 6px !important;
     font-family: var(--app-font-sans);
-    font-size: 12px;
-    line-height: 26px;
+    font-size: var(--type-label-regular-size);
+    line-height: 1.4;
   }
 
   .section-title .ant-btn-icon-only {
@@ -280,7 +280,7 @@
     min-width: 32px !important;
     margin-inline-start: 0 !important;
     border-radius: 8px !important;
-    font-size: 12.5px !important;
+    font-size: var(--type-label-regular-size) !important;
     font-weight: 500 !important;
     padding: 0 10px !important;
     display: inline-flex !important;
@@ -292,13 +292,13 @@
   .section-title .ant-space-compact .ant-btn-primary {
     background: #18181b !important;
     border-color: #18181b !important;
-    color: #ffffff !important;
+    color: rgb(255 255 255 / 0.9) !important;
 
     &:hover,
     &:focus {
       background: #27272a !important;
       border-color: #27272a !important;
-      color: #ffffff !important;
+      color: rgb(255 255 255 / 0.9) !important;
     }
   }
 
@@ -309,7 +309,7 @@
     border: none !important;
     box-shadow: none !important;
     font-family: var(--app-font-sans);
-    font-size: var(--app-font-size-body);
+    font-size: var(--type-body-regular-size);
   }
 
   .section-title texera-filters {
@@ -336,9 +336,9 @@
       padding: 0 12px !important;
       background: var(--app-bg-canvas, #f4f4f5) !important;
       border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
-      color: #3f3f46 !important;
+      color: var(--text-primary) !important;
       border-radius: 8px !important;
-      font-size: 12.5px !important;
+      font-size: var(--type-label-regular-size) !important;
       font-weight: 500 !important;
       display: inline-flex !important;
       align-items: center !important;
@@ -349,7 +349,7 @@
       &:focus {
         background: var(--app-bg-active, #e4e4e7) !important;
         border-color: #d4d4d8 !important;
-        color: #18181b !important;
+        color: var(--text-black) !important;
       }
     }
   }
@@ -359,10 +359,10 @@
     padding: 0 12px !important;
     background: #18181b !important;
     border-color: #18181b !important;
-    color: #ffffff !important;
+    color: rgb(255 255 255 / 0.9) !important;
     border-radius: 8px !important;
     font-family: var(--app-font-sans);
-    font-size: 12.5px !important;
+    font-size: var(--type-label-regular-size) !important;
     font-weight: 500;
     line-height: 30px;
     display: inline-flex !important;
@@ -373,7 +373,7 @@
     &:focus {
       background: #27272a !important;
       border-color: #27272a !important;
-      color: #ffffff !important;
+      color: rgb(255 255 255 / 0.9) !important;
     }
   }
 }

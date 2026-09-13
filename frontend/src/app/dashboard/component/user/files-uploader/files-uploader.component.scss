@@ -48,12 +48,12 @@
 }
 
 .file-drop-description p {
-  font-size: 15px;
+  font-size: var(--type-body-regular-size);
   margin: 10px 0;
 }
 
 .uploaded-files-list {
-  font-size: 15px;
+  font-size: var(--type-body-regular-size);
   margin-top: 5px;
   height: 25%;
   width: 90%;
@@ -72,7 +72,7 @@
 
 .upload-file-button {
   padding: 5px 10px; /* Smaller padding to make the button thinner */
-  font-size: 0.7em; /* Optionally reduce font size */
+  font-size: var(--type-label-regular-size); /* Optionally reduce font size */
   height: auto; /* Grow instead of clipping once the label wraps */
   min-height: 30px;
   max-width: 100%;

@@ -27,7 +27,7 @@
 
 .goto-operator-icon {
   color: blueviolet; /* change color */
-  font-size: 15px; /* change size */
+  font-size: var(--type-body-regular-size); /* change size */
   border-width: 2px;
   border-style: solid;
   border-color: blueviolet;
@@ -35,11 +35,11 @@
 
 .error-message {
   font-family: monaco, serif;
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
   font-style: normal;
   font-variant: normal;
-  font-weight: 200;
-  line-height: 14px;
+  font-weight: 400;
+  line-height: 1.4;
   color: red;
   overflow-x: auto;
   white-space: pre-line;
@@ -48,5 +48,5 @@
 }
 
 .error-category {
-  font-weight: bold;
+  font-weight: 600;
 }

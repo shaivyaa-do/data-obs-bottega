@@ -106,3 +106,20 @@ Where 50% or 70% text fails WCAG AA on the background, escalate
 copy and list descriptions on white therefore use `--text-primary`.
 Branded fills (`#0078d4`, `#e84917`) need `--text-black` or inverted white;
 primary buttons already invert to white.
+
+## Phase 5 — leftover values
+
+Hardcoded `font-size` / `font-weight` / type `line-height` in SCSS and inline
+HTML now use the token variables. Sizes between tokens round down; anything
+below 11.5px or above 19.5px is clamped.
+
+**Kept on purpose (not greyscale body text):**
+
+| Kind | Examples | Why |
+| --- | --- | --- |
+| Status / brand | `#e0506e`, `#ff4d4f`, `#16a34a`, `#1890ff`, `#faad14`, `#007acc` | Meaning is hue, not emphasis |
+| Inverse on fills | `rgb(255 255 255 / 0.9)` on `#18181b` buttons | Dark-base opacities; not `#2B2B2B` |
+| Row `line-height` ≥ 28px | `32px` menu rows, `48px` login clock box | Box centering, not type leading |
+| Icon `font-size: 32px` | empty-state `<i>` tags | Phase 6 Fluent sizes |
+| `line-height: 1` | avatar initials, icon buttons | Glyph boxing, not paragraph leading |
+

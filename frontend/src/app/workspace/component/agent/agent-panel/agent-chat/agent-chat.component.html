@@ -93,15 +93,14 @@
           class="message"
           [class.user-message]="response.role === 'user'"
           [class.ai-message]="response.role === 'agent'">
-          <!-- Show header for user messages or when isBegin is true for agent messages -->
           <div
             class="message-header"
-            *ngIf="response.role === 'user' || response.isBegin">
+            *ngIf="response.role === 'agent' && response.isBegin">
             <i
               nz-icon
-              [nzType]="response.role === 'user' ? 'user' : 'robot'"
+              nzType="robot"
               nzTheme="outline"></i>
-            <span class="message-role">{{ response.role === 'user' ? 'You' : agentInfo.name }}</span>
+            <span class="message-role">{{ agentInfo.name }}</span>
           </div>
 
           <!-- Message content with hover button -->
@@ -434,7 +433,7 @@
                 style="margin-right: 8px"></nz-switch>
               <span style="font-weight: 500; min-width: 180px">{{ op.type }}</span>
               <span
-                style="color: #888; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+                style="color: var(--text-primary); font-size: var(--type-label-regular-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
                 nz-tooltip
                 [nzTooltipTitle]="op.description"
                 >{{ op.description }}</span

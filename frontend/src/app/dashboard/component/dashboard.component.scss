@@ -28,7 +28,7 @@
   max-height: 100vh;
   padding: 8px;
   gap: 8px;
-  background: var(--app-bg-canvas);
+  background: var(--app-bg-canvas) !important;
   overflow: hidden;
 }
 
@@ -70,10 +70,10 @@
   flex: 1;
   min-width: 0;
   font-family: var(--app-font-display);
-  font-size: var(--app-font-size-body);
-  font-weight: 510;
-  line-height: var(--app-line-height-base);
-  color: var(--app-text-tertiary);
+  font-size: var(--type-body-regular-size);
+  font-weight: 500;
+  line-height: var(--type-line-height);
+  color: var(--text-secondary);
 }
 
 texera-search-bar {
@@ -87,8 +87,8 @@ texera-search-bar {
   padding: 0 16px;
   height: 32px;
   border-radius: var(--app-radius-xs);
-  font-size: 12px;
-  font-weight: 510;
+  font-size: var(--type-label-regular-size);
+  font-weight: 500;
 }
 
 .context-card-box {
@@ -160,9 +160,15 @@ button {
 }
 
 :host ::ng-deep .nav-sider.ant-layout-sider {
+  flex: 0 0 var(--app-left-nav-width) !important;
+  max-width: var(--app-left-nav-width) !important;
+  min-width: var(--app-left-nav-width) !important;
+  width: var(--app-left-nav-width) !important;
   background: var(--app-left-nav-bg) !important;
-  border-radius: var(--app-radius-layout);
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: none;
+  transition: width 150ms ease;
 
   &.ant-layout-sider-light {
     background: var(--app-left-nav-bg) !important;
@@ -172,7 +178,10 @@ button {
     display: flex;
     flex-direction: column;
     height: 100%;
+    max-height: 100%;
     min-height: 0;
+    padding: 4px 0 0;
+    box-sizing: border-box;
   }
 
   .ant-layout-sider-trigger {
@@ -183,10 +192,13 @@ button {
   .ant-menu-inline-collapsed {
     border: none;
     background: transparent;
-    padding: 8px 0 0 !important;
+    padding: 0 !important;
   }
 
   .ant-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     overflow-x: hidden;
     overflow-y: auto;
     flex: 1 1 auto;
@@ -203,7 +215,9 @@ button {
   }
 
   .ant-menu-submenu {
-    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 
   .ant-menu-inline:not(.ant-menu-inline-collapsed) .ant-menu-submenu-title .anticon:first-child {
@@ -212,13 +226,17 @@ button {
 
   .ant-menu-submenu-title {
     font-family: var(--app-font-sans);
-    font-size: 11.5px !important;
-    font-weight: 500;
-    line-height: var(--app-line-height-base);
-    color: var(--app-text-tertiary) !important;
-    height: 24px !important;
-    padding: 0 10px !important;
-    margin: 12px 8px 4px 8px !important;
+    font-size: var(--type-label-regular-size) !important;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--text-secondary) !important;
+    height: auto !important;
+    min-height: 0;
+    padding: 2px 6px 0 !important;
+    margin: 14px 0 6px !important;
     pointer-events: none;
     cursor: default;
     display: flex !important;
@@ -230,11 +248,20 @@ button {
     }
   }
 
-  .ant-menu-submenu:first-of-type .ant-menu-submenu-title,
-  .ant-menu-submenu:first-child .ant-menu-submenu-title {
-    height: 40px !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+  .ant-menu > .ant-menu-submenu:first-child {
+    position: relative;
+    padding-top: 38px;
+
+    > .ant-menu-submenu-title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 38px !important;
+      margin: 0 !important;
+      padding: 0 6px 6px !important;
+      align-items: flex-end !important;
+    }
   }
 
   .ant-menu-submenu-title .anticon,
@@ -243,61 +270,131 @@ button {
   }
 
   .ant-menu-sub.ant-menu-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     padding: 0 !important;
     background: transparent !important;
   }
 
   .ant-menu-item {
     height: 32px !important;
-    width: calc(100% - 16px) !important;
-    margin: 0 8px 4px 8px !important;
-    padding: 0 10px !important;
-    border-radius: var(--app-radius-xs) !important;
-    line-height: 32px !important;
+    width: calc(100% - 12px) !important;
+    margin: 0 6px 1px !important;
+    padding: 0 6px !important;
+    border: none !important;
+    border-radius: 10px !important;
+    box-shadow: none;
+    line-height: 1.4 !important;
     font-family: var(--app-font-sans);
-    font-size: 11.5px;
-    font-weight: 400;
-    color: var(--app-text-secondary) !important;
+    font-size: var(--type-label-regular-size);
+    font-weight: 500;
+    color: var(--text-primary) !important;
     gap: 8px;
     display: flex !important;
     align-items: center !important;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    cursor: pointer;
+    outline: none;
+    transition: background 120ms ease, color 120ms ease;
   }
 
   .ant-menu-item .anticon {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: var(--type-body-regular-size) !important;
+    width: 15px !important;
+    height: 15px !important;
     min-width: 15px;
     margin: 0 !important;
+    color: inherit !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 15px !important;
+      height: 15px !important;
+      fill: currentColor !important;
+    }
   }
 
   .ant-menu-item .ant-menu-title-content {
     margin: 0 !important;
+    min-width: 0;
+    flex: 1;
+    font-size: var(--type-label-regular-size);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ant-menu-item:hover,
-  .ant-menu-item-selected {
-    background: var(--app-bg-panel) !important;
-    color: var(--app-text-primary) !important;
+  .ant-menu-item-selected,
+  .ant-menu-item-selected:hover {
+    background: var(--app-bg-hover) !important;
+    color: var(--text-black) !important;
   }
 
-  .ant-menu-item-selected {
-    font-weight: 400;
+  .ant-menu-item:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 0;
   }
 
   .ant-menu-item::after,
-  .ant-menu-item-selected::after,
   .ant-menu-vertical .ant-menu-item::after,
   .ant-menu-inline .ant-menu-item::after {
     display: none !important;
     border: none !important;
   }
 
+  .ant-menu-item-selected::after,
+  .ant-menu-inline .ant-menu-item-selected::after {
+    content: "" !important;
+    display: block !important;
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    border: none !important;
+    transform: none !important;
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px;
+    margin-left: auto;
+    flex-shrink: 0;
+    background-color: currentColor !important;
+    -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' d='M6.2 3.2a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06L10.19 8 6.2 4.26a.75.75 0 0 1 0-1.06z'/></svg>")
+      center / 14px 14px no-repeat;
+    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' d='M6.2 3.2a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06L10.19 8 6.2 4.26a.75.75 0 0 1 0-1.06z'/></svg>")
+      center / 14px 14px no-repeat;
+  }
+
+  &.ant-layout-sider-collapsed {
+    flex: 0 0 var(--app-left-nav-collapsed-width) !important;
+    max-width: var(--app-left-nav-collapsed-width) !important;
+    min-width: var(--app-left-nav-collapsed-width) !important;
+    width: var(--app-left-nav-collapsed-width) !important;
+    border-radius: 16px;
+
+    .ant-layout-sider-children {
+      padding: 4px;
+    }
+  }
+
   .ant-menu-inline-collapsed .ant-menu-item,
   .ant-menu-inline-collapsed .ant-menu-submenu-title {
     width: 32px !important;
-    margin: 0 4px 6px !important;
+    margin: 0 0 1px !important;
     padding: 0 !important;
+    justify-content: center;
+  }
+
+  .ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content,
+  .ant-menu-inline-collapsed .ant-menu-item-selected::after {
+    display: none !important;
   }
 
   .ant-menu-inline-collapsed .ant-menu-submenu-title {
@@ -315,7 +412,7 @@ button {
   .shell-header .ant-input-affix-wrapper-lg {
     height: 32px !important;
     border-radius: var(--app-radius-xs) !important;
-    background: var(--app-bg-panel) !important;
+    background: var(--app-bg-hover) !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 10px !important;
@@ -323,20 +420,24 @@ button {
 }
 
 .logo-section {
-  height: 34px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: 4px 8px;
-  margin: 0 0 4px 0;
+  flex-shrink: 0;
+  height: 24px;
+  padding: 4px 6px;
+  margin: 0;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .logo-img {
-  height: 15px;
-  max-height: 15px;
+  height: 16px;
+  max-height: 16px;
   width: auto;
   max-width: 125px;
   flex: 0 0 auto;
+  display: block;
   object-fit: contain;
   object-position: left center;
 }
@@ -355,7 +456,7 @@ button {
   padding: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--app-text-tertiary);
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -363,17 +464,18 @@ button {
 
   &:hover {
     background: var(--app-bg-panel);
-    color: var(--app-text-primary);
+    color: var(--text-black);
   }
 }
 
 .nav-footer {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   margin-top: auto;
-  padding: 8px 6px 8px;
+  padding: 8px 6px 4px;
   box-sizing: border-box;
 }
 

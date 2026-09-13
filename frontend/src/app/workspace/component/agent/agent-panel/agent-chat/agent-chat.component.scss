@@ -59,7 +59,7 @@
 }
 
 .state-icon {
-  font-size: 16px;
+  font-size: var(--type-body-large-size);
   margin-right: 4px;
   vertical-align: middle;
 }
@@ -95,7 +95,7 @@
 .chat-empty {
   margin: auto;
   color: #9ca3af;
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   text-align: center;
 }
 
@@ -109,7 +109,7 @@
     align-self: flex-end;
     .message-content {
       background: #1890ff;
-      color: white;
+      color: rgb(255 255 255 / 0.9);
       border-radius: 16px 16px 4px 16px;
     }
   }
@@ -118,7 +118,7 @@
     align-self: flex-start;
     .message-content {
       background: #f3f4f6;
-      color: #262626;
+      color: var(--text-black);
       border-radius: 16px 16px 16px 4px;
     }
   }
@@ -132,29 +132,46 @@
 .message-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   padding: 0 8px;
-  font-size: 12px;
-  color: #8c8c8c;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-primary);
 
   i {
-    font-size: 14px;
+    font-size: var(--type-label-regular-size);
   }
 }
 
 .message-content {
   position: relative;
-  padding: 8px 12px;
-  line-height: 1.5;
+  padding: 6px 10px;
+  line-height: 1.4;
   word-wrap: break-word;
-  font-size: 14px;
+  font-size: var(--type-label-regular-size);
   user-select: text;
 
   ::ng-deep markdown {
     display: block;
+    font-size: var(--type-label-regular-size);
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-size: var(--type-label-regular-size);
+      font-weight: 600;
+      line-height: 1.4;
+      margin: 8px 0 4px;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
 
     p {
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
       &:last-child {
         margin-bottom: 0;
       }
@@ -162,17 +179,18 @@
 
     code {
       background: rgba(0, 0, 0, 0.06);
-      padding: 2px 6px;
+      padding: 1px 4px;
       border-radius: 3px;
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
     }
 
     pre {
       background: rgba(0, 0, 0, 0.06);
-      padding: 12px;
+      padding: 8px;
       border-radius: 4px;
       overflow-x: auto;
-      margin: 8px 0;
+      margin: 6px 0;
+      font-size: var(--type-label-regular-size);
       code {
         background: transparent;
         padding: 0;
@@ -181,19 +199,19 @@
 
     ul,
     ol {
-      margin: 8px 0;
-      padding-left: 24px;
+      margin: 4px 0;
+      padding-left: 18px;
     }
 
     li {
-      margin: 4px 0;
+      margin: 2px 0;
     }
 
     blockquote {
       border-left: 3px solid rgba(0, 0, 0, 0.1);
-      padding-left: 12px;
-      margin: 8px 0;
-      color: rgba(0, 0, 0, 0.65);
+      padding-left: 10px;
+      margin: 6px 0;
+      color: var(--text-primary);
     }
 
     a {
@@ -214,36 +232,38 @@
 }
 
 .tool-call-hint {
-  color: #8c8c8c;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
   font-style: italic;
 }
 
 .status-text {
   margin-left: 8px;
+  font-size: var(--type-label-regular-size);
 }
 
 .user-message .message-content ::ng-deep markdown {
   code {
     background: rgba(255, 255, 255, 0.2);
-    color: white;
+    color: rgb(255 255 255 / 0.9);
   }
 
   pre {
     background: rgba(255, 255, 255, 0.15);
     code {
-      color: white;
+      color: rgb(255 255 255 / 0.9);
     }
   }
 
   blockquote {
     border-left-color: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(255 255 255 / 0.9);
   }
 
   a {
     color: #e6f7ff;
     &:hover {
-      color: white;
+      color: rgb(255 255 255 / 0.9);
     }
   }
 }
@@ -260,8 +280,9 @@
   textarea {
     flex: 1;
     min-height: 24px;
-    padding: 10px 12px;
-    line-height: 1.45;
+    padding: 8px 10px;
+    line-height: 1.4;
+    font-size: var(--type-label-regular-size);
     resize: none;
   }
 
@@ -285,7 +306,7 @@
   background: #fff7e6;
   border-top: 1px solid #ffd666;
   color: #d46b08;
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
   flex-shrink: 0;
 
   i {
@@ -330,15 +351,15 @@
     .settings-tool-name {
       display: block;
       font-weight: 500;
-      color: #262626;
-      font-size: 13px;
+      color: var(--text-black);
+      font-size: var(--type-label-regular-size);
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     }
 
     .settings-tool-description {
       display: block;
-      color: #8c8c8c;
-      font-size: 12px;
+      color: var(--text-primary);
+      font-size: var(--type-label-regular-size);
       line-height: 1.4;
       margin-top: 2px;
       overflow: hidden;
@@ -356,7 +377,7 @@
   .settings-param-label {
     display: block;
     font-weight: 500;
-    color: #262626;
+    color: var(--text-black);
     margin-bottom: 8px;
   }
 
@@ -366,8 +387,8 @@
     gap: 12px;
 
     .settings-param-hint {
-      color: #8c8c8c;
-      font-size: 12px;
+      color: var(--text-primary);
+      font-size: var(--type-label-regular-size);
     }
   }
 }

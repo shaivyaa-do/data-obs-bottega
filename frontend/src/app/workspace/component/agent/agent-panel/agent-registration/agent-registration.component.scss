@@ -48,9 +48,9 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
     font-weight: 500;
-    color: #64748b;
+    color: var(--text-primary);
 
     .bot-avatar {
       display: inline-flex;
@@ -61,12 +61,12 @@
       background: #e6f7ff;
       color: #1890ff;
       border-radius: 50%;
-      font-size: 12px;
+      font-size: var(--type-label-regular-size);
     }
 
     .bot-name {
       font-weight: 600;
-      color: #334155;
+      color: var(--text-black);
     }
   }
 
@@ -75,9 +75,9 @@
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     padding: 10px 14px;
-    color: #1e293b;
-    font-size: 13px;
-    line-height: 1.5;
+    color: var(--text-black);
+    font-size: var(--type-label-regular-size);
+    line-height: 1.4;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 
     p {
@@ -100,8 +100,8 @@
     border: 1px solid #cbd5e1;
     border-radius: 16px;
     padding: 5px 12px;
-    font-size: 12px;
-    color: #475569;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
 
@@ -139,9 +139,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
   font-weight: 500;
-  color: #64748b;
+  color: var(--text-primary);
 
   .model-unconfigured-text {
     color: #d97706;
@@ -166,7 +166,7 @@
   border-radius: 6px;
   background: #f8fafc;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
   transition: all 0.2s ease;
   user-select: none;
 
@@ -186,14 +186,14 @@
   .model-icon {
     display: flex;
     align-items: center;
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
     color: #1890ff;
   }
 
   .model-info {
     h5 {
       margin: 0;
-      font-size: 12px;
+      font-size: var(--type-label-regular-size);
       font-weight: inherit;
       color: inherit;
       white-space: nowrap;
@@ -203,7 +203,7 @@
   .selected-indicator {
     display: flex;
     align-items: center;
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
     color: #1890ff;
     margin-left: 2px;
   }
@@ -218,7 +218,7 @@
     input {
       width: 100%;
       padding-right: 32px;
-      font-size: 12px;
+      font-size: var(--type-label-regular-size);
       border-radius: 6px;
     }
 
@@ -227,7 +227,7 @@
       right: 10px;
       cursor: pointer;
       color: #94a3b8;
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
     }
   }
 }
@@ -240,7 +240,7 @@
   .chat-ask-input {
     flex: 1;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
   }
 
   .chat-send-btn {

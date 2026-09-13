@@ -34,7 +34,7 @@
   text-align: center;
   &:hover {
     background-color: darken(#007bff, 10%);
-    color: #ffffff;
+    color: rgb(255 255 255 / 0.9);
   }
 }
 
@@ -51,7 +51,7 @@
   text-align: center;
   &:hover {
     background-color: darken(#ff0000, 10%);
-    color: #ffffff;
+    color: rgb(255 255 255 / 0.9);
   }
 }
 
@@ -79,8 +79,8 @@
 
   .help-text {
     margin-left: 8px;
-    font-size: 12px;
-    color: #999;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-secondary);
     font-style: italic;
   }
 }

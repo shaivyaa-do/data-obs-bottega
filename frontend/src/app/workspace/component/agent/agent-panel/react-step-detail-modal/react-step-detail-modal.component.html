@@ -31,7 +31,7 @@
       style="max-height: 600px; overflow-y: auto">
       <!-- Step Identification Section -->
       <div style="margin-bottom: 24px">
-        <h4 style="margin-bottom: 12px; color: #595959">
+        <h4 style="margin-bottom: 12px; color: var(--text-primary)">
           <i
             nz-icon
             nzType="number"
@@ -44,7 +44,7 @@
           nzSize="small"
           [nzColumn]="2">
           <nz-descriptions-item nzTitle="Message ID">
-            <code style="font-family: monospace; font-size: 12px">{{ step.messageId }}</code>
+            <code style="font-family: monospace; font-size: var(--type-label-regular-size)">{{ step.messageId }}</code>
           </nz-descriptions-item>
           <nz-descriptions-item nzTitle="Step ID">
             <nz-tag [nzColor]="'blue'">{{ step.stepId }}</nz-tag>
@@ -61,7 +61,7 @@
       <div
         *ngIf="step.content && step.content.trim().length > 0"
         style="margin-bottom: 24px">
-        <h4 style="margin-bottom: 12px; color: #595959">
+        <h4 style="margin-bottom: 12px; color: var(--text-primary)">
           <i
             nz-icon
             nzType="file-text"
@@ -78,9 +78,9 @@
             white-space: pre-wrap;
             word-break: break-word;
             font-family: var(--app-font-sans);
-            font-size: 14px;
-            line-height: 1.6;
-            color: #262626;
+            font-size: var(--type-body-regular-size);
+            line-height: 1.4;
+            color: var(--text-black);
           ">
           {{ step.content }}
         </div>
@@ -90,7 +90,7 @@
       <div
         *ngIf="step.usage"
         style="margin-bottom: 24px">
-        <h4 style="margin-bottom: 12px; color: #595959">
+        <h4 style="margin-bottom: 12px; color: var(--text-primary)">
           <i
             nz-icon
             nzType="bar-chart"
@@ -113,7 +113,7 @@
       <div
         *ngIf="step.inputMessages && step.inputMessages.length > 0"
         style="margin-bottom: 24px">
-        <h4 style="margin-bottom: 12px; color: #595959">
+        <h4 style="margin-bottom: 12px; color: var(--text-primary)">
           <i
             nz-icon
             nzType="mail"
@@ -139,7 +139,7 @@
                   style="margin: 0"
                   >user</nz-tag
                 >
-                <span style="color: #262626; font-size: 13px">
+                <span style="color: #262626; font-size: var(--type-label-regular-size)">
                   {{ getTextFromMessage(msg).length > 120 ? (getTextFromMessage(msg) | slice: 0:120) + '...' :
                   getTextFromMessage(msg) }}
                 </span>
@@ -155,17 +155,17 @@
                 >
                 <span
                   *ngIf="getTextFromMessage(msg)"
-                  style="color: #595959; font-size: 13px">
+                  style="color: #595959; font-size: var(--type-label-regular-size)">
                   {{ getTextFromMessage(msg).length > 80 ? (getTextFromMessage(msg) | slice: 0:80) + '...' :
                   getTextFromMessage(msg) }}
                 </span>
                 <span
                   *ngFor="let call of getToolCallSummaries(msg)"
                   style="display: inline-flex; align-items: center; gap: 4px">
-                  <code style="font-size: 12px; color: #531dab">{{ call.toolName }}</code>
+                  <code style="font-size: var(--type-label-regular-size); color: #531dab">{{ call.toolName }}</code>
                   <span
                     *ngIf="call.operatorId"
-                    style="font-size: 12px; color: #8c8c8c"
+                    style="font-size: var(--type-label-regular-size); color: var(--text-primary)"
                     >({{ call.operatorId }})</span
                   >
                 </span>
@@ -182,16 +182,16 @@
                 <span
                   *ngFor="let item of getToolResultItems(msg)"
                   style="display: inline-flex; align-items: center; gap: 4px; margin-right: 8px">
-                  <code style="font-size: 12px">{{ item.toolName }}</code>
+                  <code style="font-size: var(--type-label-regular-size)">{{ item.toolName }}</code>
                   <nz-tag
                     nzColor="default"
-                    style="margin: 0; font-size: 11px"
+                    style="margin: 0; font-size: var(--type-label-regular-size)"
                     >~{{ item.tokenCount }} tokens</nz-tag
                   >
                   <nz-tag
                     *ngIf="item.isTrimmed"
                     nzColor="volcano"
-                    style="margin: 0; font-size: 11px; font-weight: 600"
+                    style="margin: 0; font-size: var(--type-label-regular-size); font-weight: 600"
                     >TRIMMED</nz-tag
                   >
                 </span>
@@ -209,7 +209,7 @@
                   white-space: pre-wrap;
                   word-break: break-word;
                   margin: 0;
-                  font-size: 13px;
+                  font-size: var(--type-label-regular-size);
                   max-height: 300px;
                   overflow-y: auto;
                 ">
@@ -222,7 +222,7 @@
               <div
                 *ngIf="getTextFromMessage(msg)"
                 style="margin-bottom: 12px">
-                <div style="margin-bottom: 4px; font-weight: 500; color: #595959">Text:</div>
+                <div style="margin-bottom: 4px; font-weight: 500; color: var(--text-primary)">Text:</div>
                 <pre
                   style="
                     background: #fafafa;
@@ -232,7 +232,7 @@
                     white-space: pre-wrap;
                     word-break: break-word;
                     margin: 0;
-                    font-size: 13px;
+                    font-size: var(--type-label-regular-size);
                     max-height: 200px;
                     overflow-y: auto;
                   ">
@@ -242,7 +242,7 @@
               <div
                 *ngFor="let call of getToolCallSummaries(msg)"
                 style="margin-bottom: 8px">
-                <div style="margin-bottom: 4px; font-weight: 500; color: #595959">
+                <div style="margin-bottom: 4px; font-weight: 500; color: var(--text-primary)">
                   <code style="color: #531dab">{{ call.toolName }}</code> arguments:
                 </div>
                 <pre
@@ -254,7 +254,7 @@
                     white-space: pre-wrap;
                     word-break: break-word;
                     margin: 0;
-                    font-size: 12px;
+                    font-size: var(--type-label-regular-size);
                     max-height: 300px;
                     overflow-y: auto;
                   "><code>{{ formatJson(call.fullArgs) }}</code></pre>
@@ -267,16 +267,16 @@
                 *ngFor="let item of getToolResultFullItems(msg)"
                 style="margin-bottom: 8px">
                 <div style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px">
-                  <span style="font-weight: 500; color: #595959"> <code>{{ item.toolName }}</code> result: </span>
+                  <span style="font-weight: 500; color: var(--text-primary)"> <code>{{ item.toolName }}</code> result: </span>
                   <nz-tag
                     nzColor="default"
-                    style="margin: 0; font-size: 11px"
+                    style="margin: 0; font-size: var(--type-label-regular-size)"
                     >~{{ item.tokenCount }} tokens</nz-tag
                   >
                   <nz-tag
                     *ngIf="item.isTrimmed"
                     nzColor="volcano"
-                    style="margin: 0; font-size: 11px; font-weight: 600"
+                    style="margin: 0; font-size: var(--type-label-regular-size); font-weight: 600"
                     >TRIMMED</nz-tag
                   >
                 </div>
@@ -289,7 +289,7 @@
                     white-space: pre-wrap;
                     word-break: break-word;
                     margin: 0;
-                    font-size: 12px;
+                    font-size: var(--type-label-regular-size);
                     max-height: 300px;
                     overflow-y: auto;
                   ">
@@ -303,7 +303,7 @@
 
       <!-- Tool Calls Section -->
       <div *ngIf="step.toolCalls && step.toolCalls.length > 0">
-        <h4 style="margin-bottom: 12px; color: #595959">
+        <h4 style="margin-bottom: 12px; color: var(--text-primary)">
           <i
             nz-icon
             nzType="tool"
@@ -371,7 +371,7 @@
                   <nz-tag
                     *ngFor="let opId of getToolOperatorAccess(step, idx)!.viewedOperatorIds"
                     [nzColor]="'blue'"
-                    style="margin: 2px; font-family: monospace; font-size: 12px">
+                    style="margin: 2px; font-family: monospace; font-size: var(--type-label-regular-size)">
                     {{ opId }}
                   </nz-tag>
                 </div>
@@ -389,7 +389,7 @@
                   <nz-tag
                     *ngFor="let opId of getToolOperatorAccess(step, idx)!.addedOperatorIds"
                     [nzColor]="'purple'"
-                    style="margin: 2px; font-family: monospace; font-size: 12px">
+                    style="margin: 2px; font-family: monospace; font-size: var(--type-label-regular-size)">
                     {{ opId }}
                   </nz-tag>
                 </div>
@@ -405,7 +405,7 @@
                   <nz-tag
                     *ngFor="let opId of getToolOperatorAccess(step, idx)!.modifiedOperatorIds"
                     [nzColor]="'green'"
-                    style="margin: 2px; font-family: monospace; font-size: 12px">
+                    style="margin: 2px; font-family: monospace; font-size: var(--type-label-regular-size)">
                     {{ opId }}
                   </nz-tag>
                 </div>
@@ -424,7 +424,7 @@
           (!step.toolCalls || step.toolCalls.length === 0) &&
           !hasOperatorAccess(step)
         "
-        style="text-align: center; padding: 40px; color: #8c8c8c">
+        style="text-align: center; padding: 40px; color: var(--text-primary)">
         <i
           nz-icon
           nzType="info-circle"

@@ -25,7 +25,7 @@
 
 .memory-warning {
   margin-top: 10px;
-  font-size: 0.9em;
+  font-size: var(--type-label-regular-size);
 }
 
 .create-compute-unit-container {
@@ -76,7 +76,7 @@
 
   .shm-warning {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
     color: #faad14;
     white-space: nowrap;
   }
@@ -106,7 +106,7 @@ $advanced-panel-padding: 16px;
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: #595959;
+  color: var(--text-primary);
   font-family: inherit;
   cursor: pointer;
   transition:
@@ -125,7 +125,7 @@ $advanced-panel-padding: 16px;
 }
 
 .advanced-settings-chevron {
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
   color: inherit;
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -135,7 +135,7 @@ $advanced-panel-padding: 16px;
 }
 
 .advanced-settings-label {
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   font-weight: 600;
   letter-spacing: 0.01em;
   color: inherit;
@@ -145,7 +145,7 @@ $advanced-panel-padding: 16px;
   display: inline-flex;
   align-items: center;
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
   font-weight: 400;
   color: #bfbfbf;
   white-space: nowrap;

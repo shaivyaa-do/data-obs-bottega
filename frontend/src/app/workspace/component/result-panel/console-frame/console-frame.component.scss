@@ -29,11 +29,11 @@
 
 .error-message {
   font-family: monaco, serif;
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
   font-style: normal;
   font-variant: normal;
-  font-weight: 200;
-  line-height: 14px;
+  font-weight: 400;
+  line-height: 1.4;
   color: red;
 }
 
@@ -58,11 +58,11 @@
     .collapse-message-header {
       width: 100%;
       font-family: monaco, serif;
-      font-size: 11px;
+      font-size: var(--type-label-regular-size);
       font-style: normal;
       font-variant: normal;
-      font-weight: bold;
-      line-height: 14px;
+      font-weight: 600;
+      line-height: 1.4;
       white-space: pre-line;
       color: red;
       -webkit-user-select: text;
@@ -73,11 +73,11 @@
     .console-message {
       width: 100%;
       font-family: monaco, serif;
-      font-size: 11px;
+      font-size: var(--type-label-regular-size);
       font-style: normal;
       font-variant: normal;
-      font-weight: 200;
-      line-height: 14px;
+      font-weight: 400;
+      line-height: 1.4;
       white-space: pre-line;
       -webkit-user-select: text;
       user-select: text;
@@ -88,7 +88,7 @@
     .worker-tag {
       //width: 100%;
       font-family: monaco, serif;
-      font-size: 8px;
+      font-size: var(--type-label-regular-size);
       font-style: normal;
       font-variant: normal;
       //border: solid red;
@@ -98,7 +98,7 @@
     .timestamp-tag {
       //width: 100%;
       font-family: monaco, serif;
-      font-size: 8px;
+      font-size: var(--type-label-regular-size);
       font-style: normal;
       font-variant: normal;
       //border: solid green;
@@ -108,7 +108,7 @@
     .source-tag {
       //width: 100%;
       font-family: monaco, serif;
-      font-size: 8px;
+      font-size: var(--type-label-regular-size);
       font-style: normal;
       font-variant: normal;
       //border: solid #0e5df0;

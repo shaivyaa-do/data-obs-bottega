@@ -19,7 +19,7 @@
 
 #versions-list ::ng-deep {
   .ant-table-content {
-    font-size: 11px;
+    font-size: var(--type-label-regular-size);
   }
   .ant-table-cell {
     padding-right: 0;
@@ -34,6 +34,6 @@
 
 .version-link {
   color: black;
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
   padding: 0;
 }

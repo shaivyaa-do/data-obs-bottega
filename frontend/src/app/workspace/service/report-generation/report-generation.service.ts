@@ -343,7 +343,7 @@ export class ReportGenerationService {
             color: #333;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: var(--type-body-regular-size);
           }
           .button:hover {
             background-color: #e8e8e8;

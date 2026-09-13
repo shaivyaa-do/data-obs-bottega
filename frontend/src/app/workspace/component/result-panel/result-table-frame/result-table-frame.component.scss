@@ -27,11 +27,11 @@
 }
 
 td.data-size {
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
 }
 
 th.header-size {
-  font-size: 14px;
+  font-size: var(--type-body-regular-size);
   padding: 2px;
 }
 
@@ -63,8 +63,8 @@ th.header-size {
 
 .statsLine h5 {
   margin: 0;
-  line-height: 1.2;
-  font-size: 12px;
+  line-height: 1.4;
+  font-size: var(--type-label-regular-size);
 }
 
 .leftAlign {
@@ -112,7 +112,7 @@ th.header-size {
   cursor: pointer;
 
   i {
-    font-size: 16px; // Slightly larger to match the cloud icon
+    font-size: var(--type-body-large-size); // Slightly larger to match the cloud icon
     color: #1890ff; // Ant Design's primary blue color
   }
 }

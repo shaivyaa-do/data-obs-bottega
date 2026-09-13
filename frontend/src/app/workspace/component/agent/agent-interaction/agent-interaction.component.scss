@@ -73,7 +73,7 @@
 .sample-records-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
 
   th,
   td {
@@ -86,7 +86,7 @@
   th {
     background: #fafafa;
     font-weight: 600;
-    color: #555;
+    color: var(--text-primary);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -94,7 +94,7 @@
   }
 
   td {
-    color: #333;
+    color: var(--text-black);
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -106,7 +106,7 @@
 
   .ellipsis-row td {
     text-align: center;
-    color: #999;
+    color: var(--text-secondary);
     font-weight: 500;
     padding: 2px 8px;
     background: #fafafa;
@@ -128,12 +128,12 @@
   padding: 6px 10px;
   background: #fafafa;
   border-bottom: 1px solid #f0f0f0;
-  font-size: 11px;
+  font-size: var(--type-label-regular-size);
   font-weight: 600;
-  color: #555;
+  color: var(--text-primary);
 
   i {
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
     color: #1890ff;
   }
 }
@@ -172,15 +172,15 @@
   margin-bottom: 2px;
 
   .col-name {
-    font-size: 11px;
+    font-size: var(--type-label-regular-size);
     font-weight: 600;
-    color: #333;
+    color: var(--text-black);
     font-family: "SFMono-Regular", Consolas, monospace;
   }
 
   .col-type {
-    font-size: 10px;
-    color: #8c8c8c;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-primary);
     background: #f0f0f0;
     padding: 0 4px;
     border-radius: 2px;
@@ -193,12 +193,12 @@
   gap: 4px 10px;
 
   .stat-entry {
-    font-size: 10px;
-    color: #595959;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-primary);
   }
 
   .stat-key {
-    color: #8c8c8c;
+    color: var(--text-primary);
   }
 }
 
@@ -238,7 +238,7 @@
 
 .feedback-input {
   width: 100%;
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   resize: none;
 }
 
@@ -250,8 +250,8 @@
 }
 
 .hint-text {
-  font-size: 11px;
-  color: #999;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-secondary);
   margin-right: auto;
 }
 
@@ -261,7 +261,7 @@
   gap: 4px;
 
   i {
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
   }
 }
 
@@ -271,13 +271,13 @@
   justify-content: center;
   gap: 8px;
   padding: 20px;
-  color: #999;
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-size: var(--type-label-regular-size);
   background: #f5f5f5;
   border-radius: 6px;
   margin-top: 8px;
 
   i {
-    font-size: 18px;
+    font-size: var(--type-body-large-size);
   }
 }

@@ -31,14 +31,14 @@
 
 .dataset-id-container {
   background-color: grey;
-  color: white;
+  color: rgb(255 255 255 / 0.9);
   width: 35px;
   height: 35px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center; /* Center vertically */
-  font-size: 14px;
+  font-size: var(--type-body-regular-size);
   margin-left: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;

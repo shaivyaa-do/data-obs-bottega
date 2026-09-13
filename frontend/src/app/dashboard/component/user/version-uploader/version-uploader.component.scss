@@ -42,7 +42,7 @@
 }
 
 .upload-stats {
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   margin-bottom: 20px;
 
   nz-progress {
@@ -82,7 +82,7 @@
   gap: 10px;
 
   label {
-    font-size: 15px;
+    font-size: var(--type-body-regular-size);
   }
 }
 
@@ -94,7 +94,7 @@
   display: flex; /* Use flexbox for centering */
   align-items: center; /* Center vertically */
   justify-content: center; /* Center horizontally */
-  color: white;
+  color: rgb(255 255 255 / 0.9);
   border: none;
   padding: 12px 40px; /* Increase padding for a wider button */
   border-radius: 25px;
@@ -102,6 +102,6 @@
   transition: background-color 0.3s;
   margin: 18px auto 0 auto; /* Auto margins for horizontal centering */
   width: 200px; /* Adjust width as needed */
-  font-size: 18px; /* Make text slightly bigger */
-  font-weight: bold; /* Optional: Make text bold */
+  font-size: var(--type-body-large-size); /* Make text slightly bigger */
+  font-weight: 600; /* Optional: Make text bold */
 }

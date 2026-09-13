@@ -73,7 +73,7 @@ $shell: #fafafa;
   .wf-name {
     min-width: 100px;
     max-width: 800px;
-    font-size: 18px;
+    font-size: var(--type-body-large-size);
     font-weight: 400;
     padding: 2px 8px;
     border: none;
@@ -128,8 +128,8 @@ $shell: #fafafa;
     background: none;
     cursor: pointer;
     font: inherit;
-    font-size: 13px;
-    color: rgba(0, 0, 0, 0.45);
+    font-size: var(--type-label-regular-size);
+    color: var(--text-secondary);
     padding: 0;
     position: relative;
     display: inline-flex;
@@ -151,12 +151,12 @@ $shell: #fafafa;
     }
 
     &:hover:not(.on) {
-      color: rgba(0, 0, 0, 0.85);
+      color: var(--text-black);
     }
   }
 
   button.on {
-    color: rgba(0, 0, 0, 0.85);
+    color: var(--text-black);
     font-weight: 500;
     cursor: default;
 
@@ -212,7 +212,7 @@ $shell: #fafafa;
 
     h2 {
       margin: 0;
-      font-size: 15px;
+      font-size: var(--type-body-regular-size);
       font-weight: 600;
       flex: 1;
     }
@@ -262,7 +262,7 @@ $shell: #fafafa;
     background: $divider;
     padding: 1px 6px;
     border-radius: 4px;
-    font-size: 12.5px;
+    font-size: var(--type-label-regular-size);
   }
 }
 
@@ -276,7 +276,7 @@ $shell: #fafafa;
 }
 
 .label {
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -312,7 +312,7 @@ $shell: #fafafa;
   .param-help-text {
     margin: 8px 0 0;
     color: $text-2;
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
   }
 
   /* The operator's property editor lays its fields out for a narrow docked panel: a fixed label
@@ -349,11 +349,11 @@ $shell: #fafafa;
     flex: none !important;
     text-align: left !important;
     padding: 0 0 2px !important;
-    line-height: 1.5;
+    line-height: 1.4;
 
     > label {
       height: auto;
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
       color: $text;
 
       &::after {
@@ -408,7 +408,7 @@ $shell: #fafafa;
     align-self: center;
     margin-left: 4px;
     color: #5c6672;
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
@@ -439,12 +439,12 @@ $shell: #fafafa;
   // this stays compact.
   min-width: 160px;
   padding: 0 26px;
-  font-size: 15px;
+  font-size: var(--type-body-regular-size);
   font-weight: 600;
   border-radius: 8px;
   border: 1px solid $blue;
   background: $blue;
-  color: #fff;
+  color: rgb(255 255 255 / 0.9);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -469,13 +469,13 @@ $shell: #fafafa;
   &:disabled {
     background: $shell;
     border-color: $border;
-    color: rgba(0, 0, 0, 0.25);
+    color: var(--text-tertiary);
     cursor: not-allowed;
   }
 }
 
 .run-note {
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   color: $text-2;
   margin: 9px 0 0;
 
@@ -508,14 +508,14 @@ $shell: #fafafa;
 
     .wf-title {
       display: block;
-      font-size: 15px;
+      font-size: var(--type-body-regular-size);
       font-weight: 600;
     }
 
     .wf-sub {
       display: block;
       margin-top: 2px;
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
       color: $text-2;
     }
 

@@ -82,16 +82,16 @@
 }
 
 .type-icon {
-  font-size: 16px;
+  font-size: var(--type-body-large-size);
   display: flex;
   align-items: center;
-  color: var(--app-text-secondary);
+  color: var(--text-primary);
 }
 
 .unit-id {
   padding: 0 6px;
-  font-size: 12.5px;
-  color: var(--app-text-tertiary);
+  font-size: var(--type-label-regular-size);
+  color: var(--text-secondary);
   font-family: var(--app-font-mono, monospace);
   font-style: normal;
 }
@@ -102,11 +102,11 @@
 }
 
 .resource-name {
-  font-size: 13.5px;
-  font-weight: 550;
+  font-size: var(--type-body-regular-size);
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  color: var(--app-text-primary);
+  color: var(--text-black);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -128,17 +128,17 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11.5px;
+    font-size: var(--type-label-regular-size);
     white-space: nowrap;
-    color: var(--app-text-primary);
+    color: var(--text-black);
 
     .info-label {
-      color: var(--app-text-tertiary);
-      font-size: 11px;
+      color: var(--text-secondary);
+      font-size: var(--type-label-regular-size);
     }
 
     .info-value {
-      color: var(--app-text-secondary);
+      color: var(--text-primary);
       font-weight: 500;
     }
   }
@@ -193,20 +193,20 @@
 }
 
 .metric-unit {
-  color: #888;
-  font-size: 0.9em;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
   margin-left: 4px;
 }
 
 .metric-percentage {
-  color: #555;
-  font-size: 0.9em;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
   margin-left: 6px;
   font-weight: 500;
 }
 
 .metric-name {
-  font-size: 10px;
+  font-size: var(--type-label-regular-size);
   margin: 0;
 }
 
@@ -228,12 +228,12 @@
 }
 
 .metric-label {
-  font-size: 10px;
+  font-size: var(--type-label-regular-size);
   width: 40px;
   flex-shrink: 0;
   line-height: 1;
   text-align: right;
-  color: var(--app-text-secondary);
+  color: var(--text-primary);
 }
 
 .metric-bar-wrapper {
@@ -282,11 +282,11 @@
     border-radius: 6px;
     border: none;
     background: transparent;
-    color: var(--app-text-secondary);
+    color: var(--text-primary);
 
     &:hover {
       background: rgba(0, 0, 0, 0.06);
-      color: var(--app-text-primary);
+      color: var(--text-black);
     }
   }
 }

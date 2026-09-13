@@ -36,7 +36,7 @@
 
   &-text {
     margin: 0;
-    font-size: 15px;
+    font-size: var(--type-body-regular-size);
     line-height: 1.4;
     font-weight: 500;
     user-select: text;
@@ -45,15 +45,15 @@
   &-list {
     margin: 4px 0 0;
     padding-left: 20px;
-    font-size: 15px;
+    font-size: var(--type-body-regular-size);
     line-height: 1.4;
     font-weight: 500;
     user-select: text;
   }
 
   &-label {
-    font-size: 14px;
-    font-weight: 700;
+    font-size: var(--type-body-regular-size);
+    font-weight: 600;
   }
 
   &-upload-row {
@@ -101,13 +101,13 @@
 
   &-loading-title {
     margin: 8px 0 0;
-    font-size: 20px;
-    font-weight: 700;
+    font-size: var(--type-display-large-size);
+    font-weight: 600;
   }
 
   &-loading-elapsed {
     margin: 0;
-    font-size: 18px;
+    font-size: var(--type-body-large-size);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
@@ -115,9 +115,9 @@
   &-loading-text {
     margin: 0;
     max-width: 480px;
-    font-size: 16px;
-    line-height: 1.5;
-    color: rgba(0, 0, 0, 0.65);
+    font-size: var(--type-body-large-size);
+    line-height: 1.4;
+    color: var(--text-primary);
   }
 
   &-footer {

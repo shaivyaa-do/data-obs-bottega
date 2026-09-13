@@ -24,8 +24,8 @@
 }
 
 .hf-audio-guidance {
-  color: #595959;
-  font-size: 12px;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
   line-height: 1.4;
 }
 
@@ -59,8 +59,8 @@
 }
 
 .hf-audio-status {
-  color: #595959;
-  font-size: 12px;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
 }
 
 .hf-audio-error {

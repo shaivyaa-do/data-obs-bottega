@@ -20,7 +20,7 @@
 .condition-input-popup {
   position: absolute;
   background: #333;
-  color: #fff;
+  color: rgb(255 255 255 / 0.9);
   padding: 5px; /* Larger padding for better UX */
   border-radius: 3px; /* Smoother rounded corners */
   z-index: 1000;
@@ -35,7 +35,7 @@
 }
 
 .condition-input-popup .tooltip-header {
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 5px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -46,7 +46,7 @@
   height: 50px;
   resize: vertical;
   background-color: transparent;
-  color: white;
+  color: rgb(255 255 255 / 0.9);
   border: 1px solid #ccc;
   padding: 5px;
 }
@@ -63,10 +63,10 @@
   background-color: #d47d78;
   margin: 4px 0 0 8px;
   cursor: pointer;
-  color: #000;
+  color: var(--text-black);
   text-align: center;
-  font-size: 8px;
-  font-weight: bold;
+  font-size: var(--type-label-regular-size);
+  font-weight: 600;
 }
 
 ::ng-deep .cgmr.codicon.monaco-conditional-breakpoint::before {

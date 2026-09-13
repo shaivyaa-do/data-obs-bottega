@@ -20,7 +20,7 @@
 li {
   padding-top: 2px;
   padding-bottom: 2px;
-  font-size: 14px;
+  font-size: var(--type-body-regular-size);
   min-width: 120px;
 
   span {

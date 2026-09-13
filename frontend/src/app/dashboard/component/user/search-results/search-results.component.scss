@@ -42,7 +42,7 @@ nz-content {
 }
 
 .resource-type-icon {
-  font-size: 30px;
+  font-size: var(--type-display-large-size);
   margin-top: 10px;
   margin-left: 5px;
 }
@@ -65,7 +65,7 @@ nz-content {
     align-items: center;
 
     .dataset-name {
-      font-size: 20px;
+      font-size: var(--type-display-large-size);
       font-family: var(--app-font-display);
       text-align: center;
       margin-bottom: 0;
@@ -79,7 +79,7 @@ nz-content {
 
     i {
       position: relative;
-      font-size: 17px;
+      font-size: var(--type-body-large-size);
     }
 
     i.dataset-is-owner-icon {
@@ -94,7 +94,7 @@ nz-content {
     margin-bottom: 5px;
 
     .dataset-description {
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
       font-family: var(--app-font-display);
 
       display: inline-block;

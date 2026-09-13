@@ -118,15 +118,15 @@
     z-index: 2;
     background: #fafafa;
     font-weight: 600;
-    font-size: 13px;
-    color: #3f3f46;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-primary);
     padding: 10px 12px;
     border-bottom: 1px solid var(--app-border-subtle, #e4e4e7);
   }
 
   ::ng-deep .ant-table-tbody > tr > td {
-    font-size: 13px;
-    color: #18181b;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-black);
     padding: 10px 12px;
     border-bottom: 1px solid var(--app-border-subtle, #f4f4f5);
   }

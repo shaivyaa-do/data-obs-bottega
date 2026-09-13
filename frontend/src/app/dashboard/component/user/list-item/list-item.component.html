@@ -210,7 +210,7 @@
 <ng-template #editModalTpl>
   <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 8px;">
     <div style="display: flex; flex-direction: column; gap: 6px;">
-      <label style="font-weight: 500; font-size: 13px; color: #27272a;">Name</label>
+      <label style="font-weight: 500; font-size: var(--type-label-regular-size); color: var(--text-black);">Name</label>
       <input
         nz-input
         [(ngModel)]="tempEditName"
@@ -218,7 +218,7 @@
         style="height: 34px; border-radius: 6px;" />
     </div>
     <div style="display: flex; flex-direction: column; gap: 6px;">
-      <label style="font-weight: 500; font-size: 13px; color: #27272a;">Description</label>
+      <label style="font-weight: 500; font-size: var(--type-label-regular-size); color: var(--text-black);">Description</label>
       <textarea
         nz-input
         rows="4"

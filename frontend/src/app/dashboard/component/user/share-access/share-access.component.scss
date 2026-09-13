@@ -32,7 +32,7 @@
   white-space: nowrap;
   padding: 8px 18px;
   height: 25px;
-  font-size: 14px;
+  font-size: var(--type-body-regular-size);
   line-height: 1;
 }
 
@@ -56,12 +56,12 @@
 }
 
 .button-icon {
-  font-size: 40px;
+  font-size: var(--type-display-large-size);
 }
 
 .button-text > p {
-  font-size: 12px;
-  font-weight: lighter;
+  font-size: var(--type-label-regular-size);
+  font-weight: 400;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -69,6 +69,6 @@
 }
 
 .button-text-header {
-  font-size: 25px;
-  font-weight: bold;
+  font-size: var(--type-display-large-size);
+  font-weight: 600;
 }

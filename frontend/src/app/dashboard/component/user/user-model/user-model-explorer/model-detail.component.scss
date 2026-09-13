@@ -53,9 +53,9 @@ nz-layout {
   background: #fff;
   border: 1px solid #ddd;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--type-label-regular-size);
   height: 20px;
-  line-height: 20px;
+  line-height: 1.4;
 }
 
 .file-renderer {
@@ -83,8 +83,8 @@ nz-select {
 .file-size,
 .version-size,
 .version-date {
-  font-size: 12px;
-  color: #8c8c8c;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -100,7 +100,7 @@ nz-select {
 
 .icon-database,
 .icon-file {
-  font-size: 14px;
+  font-size: var(--type-body-regular-size);
 }
 
 .empty-version-indicator {
@@ -132,7 +132,7 @@ nz-select {
 
 .status-tag {
   padding: 3px 10px 3px 3px;
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -262,20 +262,20 @@ nz-tabs {
 }
 
 .data-card-heading {
-  font-size: 18px;
+  font-size: var(--type-body-large-size);
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--text-black);
   margin: 0 0 20px;
 }
 
 .data-card-description {
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: var(--type-body-large-size);
+  line-height: 1.4;
   margin-bottom: 32px;
 }
 
 .empty-description {
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -298,15 +298,15 @@ nz-tabs {
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--text-black);
   flex-shrink: 0;
 }
 
 .stat-value {
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-secondary);
   text-align: right;
   word-break: break-word;
 }
@@ -334,8 +334,8 @@ nz-tabs {
   }
 
   .settings-field-hint {
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 12px;
+    color: var(--text-secondary);
+    font-size: var(--type-label-regular-size);
     margin-bottom: 8px;
   }
 
@@ -350,8 +350,8 @@ nz-tabs {
     }
 
     .settings-hint {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+      color: var(--text-secondary);
+      font-size: var(--type-label-regular-size);
       margin: 4px 0 0;
     }
 

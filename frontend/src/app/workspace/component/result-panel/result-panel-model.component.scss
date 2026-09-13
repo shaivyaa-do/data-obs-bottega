@@ -61,8 +61,8 @@
   white-space: pre-wrap;
   word-break: break-word;
   font-family: monospace;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: var(--type-label-regular-size);
+  line-height: 1.4;
 }
 
 .row-detail-value {

@@ -37,21 +37,21 @@
 }
 
 .content > h1 {
-  font-size: 40px;
-  font-weight: bold;
+  font-size: var(--type-display-large-size);
+  font-weight: 600;
   margin: 0;
 }
 
 .content h2 {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: var(--type-display-large-size);
+  font-weight: 600;
   margin-top: 10px;
 }
 
 .content > p {
-  font-size: 16px;
+  font-size: var(--type-body-large-size);
   font-weight: 400;
-  line-height: 1.8;
+  line-height: 1.4;
   margin-bottom: 10px;
 }
 
@@ -73,8 +73,8 @@
 
 .text-content {
   width: 70%;
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: var(--type-body-large-size);
+  line-height: 1.4;
   font-weight: 400;
 }
 
@@ -83,8 +83,8 @@
   text-align: left;
 
   p {
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: var(--type-body-large-size);
+    line-height: 1.4;
     margin-bottom: 10px;
 
     a {

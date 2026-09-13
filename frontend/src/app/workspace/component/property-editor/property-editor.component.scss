@@ -62,10 +62,10 @@
   position: static;
   width: auto;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   font-weight: 600;
   line-height: 40px;
-  color: var(--app-text-primary, #18181b);
+  color: var(--app-text-primary, var(--text-black));
 }
 
 #content {
@@ -95,23 +95,23 @@
     height: 26px !important;
     width: 26px !important;
     min-width: 26px !important;
-    line-height: 26px !important;
+    line-height: 1.4 !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 6px !important;
     border: 1px solid transparent !important;
-    color: var(--app-text-muted, #71717a) !important;
+    color: var(--app-text-muted, var(--text-primary)) !important;
     background: transparent !important;
 
     &:hover {
       background: var(--app-bg-hover, #f4f4f5) !important;
-      color: var(--app-text-primary, #18181b) !important;
+      color: var(--app-text-primary, var(--text-black)) !important;
     }
 
     span[nz-icon] {
-      font-size: 12px;
+      font-size: var(--type-label-regular-size);
     }
   }
 }

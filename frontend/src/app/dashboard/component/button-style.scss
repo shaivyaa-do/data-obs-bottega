@@ -42,11 +42,11 @@
     padding: 0 14px !important;
     flex-shrink: 0;
     font-family: var(--app-font-sans);
-    font-size: 12.5px !important;
+    font-size: var(--type-label-regular-size) !important;
     font-weight: 500 !important;
     line-height: 1;
     background-color: #18181b !important;
-    color: #ffffff !important;
+    color: rgb(255 255 255 / 0.9) !important;
     border: none !important;
     border-radius: 8px !important;
     box-shadow: none !important;
@@ -55,14 +55,14 @@
 
     i,
     span[nz-icon] {
-      font-size: 13px !important;
+      font-size: var(--type-label-regular-size) !important;
     }
 
     &:hover,
     &:focus {
       background-color: #27272a !important;
       border-color: #27272a !important;
-      color: #ffffff !important;
+      color: rgb(255 255 255 / 0.9) !important;
     }
 
     &:active {

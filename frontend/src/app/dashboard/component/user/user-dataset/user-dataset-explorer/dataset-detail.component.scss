@@ -96,7 +96,7 @@ nz-content.versions-content-pane,
     justify-content: center;
 
     i {
-      font-size: 12px;
+      font-size: var(--type-label-regular-size);
     }
   }
 }
@@ -138,8 +138,8 @@ nz-content.versions-content-pane,
 }
 
 .file-size {
-  font-size: 12px;
-  color: #8c8c8c;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -147,7 +147,7 @@ nz-content.versions-content-pane,
 
 .icon-database,
 .icon-file {
-  font-size: 14px;
+  font-size: var(--type-body-regular-size);
 }
 
 .empty-version-indicator {
@@ -163,7 +163,7 @@ nz-content.versions-content-pane,
 
 .status-tag {
   padding: 4px 10px 4px 6px;
-  font-size: 12.5px;
+  font-size: var(--type-label-regular-size);
   font-weight: 500;
   display: inline-flex;
   align-items: center;
@@ -171,7 +171,7 @@ nz-content.versions-content-pane,
   background: var(--app-bg-canvas, #f4f4f5);
   border: 1px solid var(--app-border-subtle, #e4e4e7);
   border-radius: 6px;
-  color: #3f3f46;
+  color: var(--text-primary);
   margin: 0;
 
   i {
@@ -182,7 +182,7 @@ nz-content.versions-content-pane,
     justify-content: center;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.04);
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
   }
 }
 
@@ -311,9 +311,9 @@ nz-content.versions-content-pane,
 
   h2 {
     font-family: var(--app-font-display);
-    font-size: 20px;
+    font-size: var(--type-display-large-size);
     font-weight: 600;
-    color: var(--app-text-primary);
+    color: var(--text-black);
     margin: 0;
   }
 }
@@ -332,18 +332,18 @@ nz-tabs {
     }
 
     .ant-tabs-tab {
-      font-size: 13.5px;
+      font-size: var(--type-body-regular-size);
       font-weight: 500;
-      color: var(--app-text-secondary);
+      color: var(--text-primary);
       padding: 10px 4px;
       margin-right: 24px;
 
       &:hover {
-        color: var(--app-text-primary);
+        color: var(--text-black);
       }
 
       &.ant-tabs-tab-active .ant-tabs-tab-btn {
-        color: #18181b !important;
+        color: var(--text-black) !important;
         font-weight: 600;
       }
     }
@@ -398,15 +398,15 @@ nz-tabs {
     border-radius: 8px !important;
     background: #18181b !important;
     border-color: #18181b !important;
-    color: #ffffff !important;
-    font-size: 12.5px;
+    color: rgb(255 255 255 / 0.9) !important;
+    font-size: var(--type-label-regular-size);
     font-weight: 500;
 
     &:hover,
     &:focus {
       background: #27272a !important;
       border-color: #27272a !important;
-      color: #ffffff !important;
+      color: rgb(255 255 255 / 0.9) !important;
     }
   }
 }
@@ -441,9 +441,9 @@ nz-tabs {
 
   h3 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 650;
-    color: var(--app-text-primary, #18181b);
+    font-size: var(--type-body-large-size);
+    font-weight: 600;
+    color: var(--app-text-primary, var(--text-black));
   }
 }
 
@@ -531,21 +531,21 @@ nz-tabs {
 }
 
 .data-card-heading {
-  font-size: 15px;
+  font-size: var(--type-body-regular-size);
   font-weight: 600;
-  color: var(--app-text-primary, #18181b);
+  color: var(--app-text-primary, var(--text-black));
   margin: 0 0 16px;
 }
 
 .data-card-description {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--app-text-primary, #27272a);
+  font-size: var(--type-body-regular-size);
+  line-height: 1.4;
+  color: var(--app-text-primary, var(--text-black));
   margin-bottom: 20px;
 }
 
 .empty-description {
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -568,16 +568,16 @@ nz-tabs {
 }
 
 .stat-label {
-  font-size: 12.5px;
-  font-weight: 550;
-  color: var(--app-text-secondary, #71717a);
+  font-size: var(--type-label-regular-size);
+  font-weight: 500;
+  color: var(--app-text-secondary, var(--text-primary));
   flex-shrink: 0;
 }
 
 .stat-value {
-  font-size: 12.5px;
+  font-size: var(--type-label-regular-size);
   font-weight: 500;
-  color: var(--app-text-primary, #18181b);
+  color: var(--app-text-primary, var(--text-black));
   text-align: right;
   word-break: break-word;
 }
@@ -602,8 +602,8 @@ nz-tabs {
   }
 
   .settings-field-hint {
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 12px;
+    color: var(--text-secondary);
+    font-size: var(--type-label-regular-size);
     margin-bottom: 8px;
   }
 
@@ -618,8 +618,8 @@ nz-tabs {
     }
 
     .settings-hint {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+      color: var(--text-secondary);
+      font-size: var(--type-label-regular-size);
       margin: 4px 0 0;
     }
 
@@ -645,7 +645,7 @@ nz-tabs {
   button.ant-btn-primary {
     background: #18181b !important;
     border-color: #18181b !important;
-    color: #ffffff !important;
+    color: rgb(255 255 255 / 0.9) !important;
     border-radius: 8px !important;
 
     &:hover,
@@ -680,7 +680,7 @@ nz-tabs {
 .contributors-collapse ::ng-deep {
   .ant-collapse-header {
     padding: 0 0 8px !important;
-    font-size: 14px;
+    font-size: var(--type-body-regular-size);
     font-weight: 600;
   }
 
@@ -721,24 +721,24 @@ nz-tabs {
 
   .creator-star {
     color: #faad14;
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
     margin-left: 4px;
   }
 
   .contributor-row {
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
 
     .contributor-label {
       display: block;
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+      color: var(--text-secondary);
+      font-size: var(--type-label-regular-size);
     }
 
     .contributor-value {
       @include line-clamp-2;
 
       &.empty {
-        color: rgba(0, 0, 0, 0.25);
+        color: var(--text-tertiary);
       }
     }
   }
@@ -755,7 +755,7 @@ nz-tabs {
   height: 40px;
   align-self: center;
   margin-left: 15px;
-  color: #8c8c8c;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -767,6 +767,6 @@ nz-tabs {
   }
 
   .add-icon {
-    font-size: 18px;
+    font-size: var(--type-body-large-size);
   }
 }

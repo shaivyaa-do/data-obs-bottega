@@ -43,8 +43,8 @@
   .ant-dropdown-menu-submenu-title {
     border-radius: 6px;
     padding: 6px 12px;
-    font-size: 13px;
-    color: #27272a;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-black);
 
     &:hover {
       background: #f4f4f5 !important;
@@ -52,8 +52,8 @@
   }
 
   label.ant-checkbox-wrapper {
-    font-size: 13px;
-    color: #27272a;
+    font-size: var(--type-label-regular-size);
+    color: var(--text-black);
     display: flex;
     align-items: center;
     gap: 8px;

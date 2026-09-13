@@ -43,8 +43,8 @@
     text-align: left;
 
     > label {
-      font-size: 13px;
-      font-weight: 550;
+      font-size: var(--type-label-regular-size);
+      font-weight: 500;
       color: var(--app-text-secondary, #52525b);
       height: auto;
 
@@ -64,8 +64,8 @@
     border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
     background: #ffffff !important;
     padding: 8px 12px;
-    font-size: 13.5px;
-    color: var(--app-text-primary, #18181b);
+    font-size: var(--type-body-regular-size);
+    color: var(--app-text-primary, var(--text-black));
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -81,22 +81,22 @@
 
     &::placeholder {
       color: #a1a1aa;
-      font-size: 13px;
+      font-size: var(--type-label-regular-size);
     }
   }
 
   textarea.ant-input {
     height: auto !important;
     min-height: 84px;
-    line-height: 1.5;
+    line-height: 1.4;
     padding: 8px 12px;
     border-radius: 8px !important;
   }
 
   .ant-checkbox-wrapper {
-    font-size: 13px;
+    font-size: var(--type-label-regular-size);
     font-weight: 500;
-    color: var(--app-text-primary, #27272a);
+    color: var(--app-text-primary, var(--text-black));
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -114,7 +114,7 @@
   }
 
   .ant-form-item-explain-error {
-    font-size: 12px;
+    font-size: var(--type-label-regular-size);
     color: #ef4444;
     margin-top: 4px;
   }
@@ -137,7 +137,7 @@
   border: 1px solid #e4e4e7 !important;
   background: #ffffff !important;
   color: #52525b !important;
-  font-size: 13px !important;
+  font-size: var(--type-label-regular-size) !important;
   font-weight: 500 !important;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -146,7 +146,7 @@
   &:focus {
     background: #f4f4f5 !important;
     border-color: #d4d4d8 !important;
-    color: #18181b !important;
+    color: var(--text-black) !important;
   }
 }
 
@@ -156,8 +156,8 @@
   border-radius: 8px !important;
   border: 1px solid #18181b !important;
   background: #18181b !important;
-  color: #ffffff !important;
-  font-size: 13px !important;
+  color: rgb(255 255 255 / 0.9) !important;
+  font-size: var(--type-label-regular-size) !important;
   font-weight: 500 !important;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -166,6 +166,6 @@
   &:focus {
     background: #27272a !important;
     border-color: #27272a !important;
-    color: #ffffff !important;
+    color: rgb(255 255 255 / 0.9) !important;
   }
 }

@@ -116,7 +116,7 @@
 
 .unit-status-indicator {
   margin-left: 4px;
-  font-size: 0.85em;
+  font-size: var(--type-label-regular-size);
   font-style: italic;
   opacity: 0.8;
 }
@@ -152,9 +152,9 @@
   border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
   background: var(--app-bg-surface, #ffffff) !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-  font-size: 13px;
+  font-size: var(--type-label-regular-size);
   font-weight: 500;
-  color: var(--app-text-primary, #18181b);
+  color: var(--app-text-primary, var(--text-black));
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
@@ -180,8 +180,8 @@
   }
 
   i[nz-icon] {
-    font-size: 11px;
-    color: var(--app-text-muted, #71717a);
+    font-size: var(--type-label-regular-size);
+    color: var(--app-text-muted, var(--text-primary));
   }
 }
 
@@ -226,7 +226,7 @@
 .metric-label {
   width: 45px;
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: var(--type-label-regular-size);
   line-height: 1;
 }
 
@@ -276,19 +276,19 @@
 }
 
 .metric-name {
-  font-size: 10px;
+  font-size: var(--type-label-regular-size);
 }
 
 .metric-unit {
   margin-left: 4px;
-  color: #888;
-  font-size: 0.9em;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
 }
 
 .metric-percentage {
   margin-left: 6px;
-  color: #555;
-  font-size: 0.9em;
+  color: var(--text-primary);
+  font-size: var(--type-label-regular-size);
   font-weight: 500;
 }
 
@@ -310,33 +310,33 @@
 
 ::ng-deep .error {
   color: red;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 ::ng-deep .warning {
   color: #d4a000;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 ::ng-deep .success {
   color: green;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 ::ng-deep .pip-exit.ok {
   color: green;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 ::ng-deep .pip-exit.err {
   color: red;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .env-unsynced-note {
   margin-left: 0.5em;
-  font-size: 0.8em;
+  font-size: var(--type-label-regular-size);
   font-style: italic;
-  font-weight: normal;
-  color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
+  color: var(--text-secondary);
 }

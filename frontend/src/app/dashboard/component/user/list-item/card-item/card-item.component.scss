@@ -101,11 +101,11 @@
   height: 28px;
   padding: 0;
   border-radius: 50%;
-  color: #fff;
+  color: rgb(255 255 255 / 0.9);
   background: rgba(0, 0, 0, 0.35);
 
   &:hover {
-    color: #fff;
+    color: rgb(255 255 255 / 0.9);
     background: rgba(0, 0, 0, 0.55);
   }
 }
@@ -138,8 +138,8 @@
 
 .type-icon {
   flex-shrink: 0;
-  font-size: 16px;
-  color: #8c8c8c;
+  font-size: var(--type-body-large-size);
+  color: var(--text-primary);
 }
 
 .name-container {
@@ -148,15 +148,15 @@
 }
 
 .resource-name {
-  font-size: 15px;
+  font-size: var(--type-body-regular-size);
   font-weight: 600;
-  line-height: 1.35;
-  color: #1f1f1f;
+  line-height: 1.4;
+  color: var(--text-black);
 }
 
 .resource-name-edit-input {
   width: 100%;
-  font-size: 15px;
+  font-size: var(--type-body-regular-size);
   font-weight: 600;
   padding: 2px 4px;
 }
@@ -164,11 +164,11 @@
 .edit-btn {
   flex-shrink: 0;
   opacity: 0;
-  color: #8c8c8c;
+  color: var(--text-primary);
   transition: opacity 0.2s;
 
   &:hover {
-    color: #1f1f1f;
+    color: var(--text-black);
   }
 }
 
@@ -180,8 +180,8 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 12px;
-  color: #8c8c8c;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-primary);
   margin-top: auto;
 }
 
@@ -195,7 +195,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #595959;
+  color: var(--text-primary);
 
   span {
     display: flex;
@@ -204,8 +204,8 @@
     white-space: nowrap;
 
     i {
-      font-size: 12px;
-      color: #8c8c8c;
+      font-size: var(--type-label-regular-size);
+      color: var(--text-primary);
     }
   }
 }
@@ -222,10 +222,10 @@
 .action-btn {
   padding: 4px 8px;
   border-radius: 4px;
-  color: #71717a;
+  color: var(--text-primary);
 
   &:hover {
-    color: #18181b;
+    color: var(--text-black);
     background: rgba(0, 0, 0, 0.05);
   }
 }
