@@ -88,7 +88,81 @@
         "rxjs/no-unsafe-subject-next": "off",
         "rxjs/no-index": "error",
         "rxjs/no-internal": "error",
-        "rxjs/no-compat": "error"
+        "rxjs/no-compat": "error",
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "Property[key.name='variant'] > Literal[value=/^(h[1-6]|subtitle[12]|body[12]|caption|overline|button)$/]",
+            "message": "Legacy typography variant. Use the token scale (labelRegular, labelMedium, bodyRegular, bodyMedium, bodyLarge, displayLarge)."
+          },
+          {
+            "selector": "MemberExpression[object.name='typography'][property.name=/^(h[1-6]|subtitle[12]|body[12]|caption|overline|button)$/]",
+            "message": "Legacy typography variant. Use the token scale."
+          }
+        ],
+        "no-restricted-properties": [
+          "error",
+          {
+            "object": "typography",
+            "property": "h1",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "h2",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "h3",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "h4",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "h5",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "h6",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "subtitle1",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "subtitle2",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "body1",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "body2",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "caption",
+            "message": "Use the token scale."
+          },
+          {
+            "object": "typography",
+            "property": "overline",
+            "message": "Use the token scale."
+          }
+        ]
       },
       "plugins": ["rxjs-angular"]
     },
@@ -140,6 +214,14 @@
           {
             "selector": "CallExpression[callee.property.name='overrideComponent'] Property[key.name='set'] > ObjectExpression > Property[key.name='imports']",
             "message": "Avoid `overrideComponent({ set: { imports: ... } })` — the `set` form for imports has known bugs in Angular standalone components (see angular/angular#48432). Use the additive form `overrideComponent({ remove: { imports: [Real] }, add: { imports: [Stub] } })` instead."
+          },
+          {
+            "selector": "Property[key.name='variant'] > Literal[value=/^(h[1-6]|subtitle[12]|body[12]|caption|overline|button)$/]",
+            "message": "Legacy typography variant. Use the token scale (labelRegular, labelMedium, bodyRegular, bodyMedium, bodyLarge, displayLarge)."
+          },
+          {
+            "selector": "MemberExpression[object.name='typography'][property.name=/^(h[1-6]|subtitle[12]|body[12]|caption|overline|button)$/]",
+            "message": "Legacy typography variant. Use the token scale."
           }
         ]
       }

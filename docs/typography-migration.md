@@ -81,6 +81,11 @@ only place allowed to mention them. The public `typography` object and
 throws on `h1` / `body1` / `caption` / etc. CSS `--app-*` aliases stay until
 Phase 5 so existing SCSS keeps compiling.
 
+ESLint (`frontend/.eslintrc.json`) also bans `variant: "body1"` and
+`typography.h1` (and the rest of the legacy ladder). Bare string literals such
+as `querySelector("h2")` are not banned — this is Angular, not MUI `sx`.
+`frontend/src/theme/typography.ts` is the mapping table, not application usage.
+
 ## Why the aliases stay
 
 ng-zorro tables, buttons, form labels, tooltips, and tags still set their own
