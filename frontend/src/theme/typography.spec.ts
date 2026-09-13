@@ -1,0 +1,45 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import { LEGACY_TYPOGRAPHY_ALIASES, TYPE_SCALE } from "./typography";
+
+describe("TYPE_SCALE", () => {
+  it("exposes six variants, all at line-height 1.4, none outside 11.5–19.5px", () => {
+    const names = Object.keys(TYPE_SCALE);
+    expect(names).toEqual(["labelRegular", "labelMedium", "bodyRegular", "bodyMedium", "bodyLarge", "displayLarge"]);
+    for (const variant of Object.values(TYPE_SCALE)) {
+      expect(variant.lineHeight).toBe(1.4);
+      const px = parseFloat(variant.fontSize);
+      expect(px).toBeGreaterThanOrEqual(11.5);
+      expect(px).toBeLessThanOrEqual(19.5);
+    }
+  });
+
+  it("maps legacy heading/body names onto the token scale", () => {
+    expect(LEGACY_TYPOGRAPHY_ALIASES.h1).toEqual(TYPE_SCALE.displayLarge);
+    expect(LEGACY_TYPOGRAPHY_ALIASES.body1).toEqual(TYPE_SCALE.bodyRegular);
+    expect(LEGACY_TYPOGRAPHY_ALIASES.caption).toEqual(TYPE_SCALE.labelRegular);
+    expect(LEGACY_TYPOGRAPHY_ALIASES.button.fontWeight).toBe(500);
+  });
+
+  it("does not invent a size between tokens", () => {
+    expect(TYPE_SCALE.bodyRegular.fontSize).not.toBe(TYPE_SCALE.labelRegular.fontSize);
+    expect(Object.values(TYPE_SCALE).map(v => v.fontSize)).toEqual(["11.5px", "11.5px", "13.5px", "13.5px", "15.5px", "19.5px"]);
+  });
+});

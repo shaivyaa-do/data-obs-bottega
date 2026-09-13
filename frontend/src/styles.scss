@@ -26,22 +26,43 @@
     Helvetica, Arial, sans-serif;
   --app-font-mono: "Share Tech Mono", monospace;
 
-  --app-font-size-nano: 9.5px;
-  --app-font-size-section-title: 10.5px;
-  --app-font-size-label: 11.5px;
-  --app-font-size-sm: 11.5px;
-  --app-font-size-caption: 12.5px;
-  --app-font-size-body: 12.5px;
-  --app-font-size-body-lg: 15.5px;
-  --app-font-size-display-lg: 19.5px;
-  --app-line-height-base: 1.4;
+  /* Six-token type scale. Source of truth: frontend/src/theme/typography.ts */
+  --type-label-regular-size: 11.5px;
+  --type-label-medium-size: 11.5px;
+  --type-body-regular-size: 13.5px;
+  --type-body-medium-size: 13.5px;
+  --type-body-large-size: 15.5px;
+  --type-display-large-size: 19.5px;
+  --type-line-height: 1.4;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-semibold: 600;
 
-  --app-text-primary: rgba(24, 24, 27, 0.9);
-  --app-text-secondary: rgba(24, 24, 27, 0.7);
-  --app-text-tertiary: rgba(24, 24, 27, 0.5);
-  --app-text-quaternary: rgba(24, 24, 27, 0.3);
-  --app-text-label-tag: rgba(24, 24, 27, 0.3);
-  --app-text-disabled: rgba(24, 24, 27, 0.3);
+  /* One base, four opacities. Source of truth: frontend/src/theme/tokens.ts */
+  --text-base: 43 43 43;
+  --text-black: rgb(var(--text-base) / 0.9);
+  --text-primary: rgb(var(--text-base) / 0.7);
+  --text-secondary: rgb(var(--text-base) / 0.5);
+  --text-tertiary: rgb(var(--text-base) / 0.3);
+  --text-disabled: var(--text-tertiary);
+
+  /* LEGACY ALIASES — do not add new uses. See docs/typography-migration.md. */
+  --app-font-size-nano: var(--type-label-regular-size);
+  --app-font-size-section-title: var(--type-label-regular-size);
+  --app-font-size-label: var(--type-label-regular-size);
+  --app-font-size-sm: var(--type-label-regular-size);
+  --app-font-size-caption: var(--type-label-regular-size);
+  --app-font-size-body: var(--type-body-regular-size);
+  --app-font-size-body-lg: var(--type-body-large-size);
+  --app-font-size-display-lg: var(--type-display-large-size);
+  --app-line-height-base: var(--type-line-height);
+
+  --app-text-primary: var(--text-black);
+  --app-text-secondary: var(--text-primary);
+  --app-text-tertiary: var(--text-secondary);
+  --app-text-quaternary: var(--text-tertiary);
+  --app-text-label-tag: var(--text-tertiary);
+  --app-text-disabled: var(--text-tertiary);
 
   --app-primary: #0078d4;
   --app-color-focus: #1a73e8;
@@ -99,9 +120,10 @@ body {
   margin: 0;
   height: 100%;
   font-family: var(--app-font-sans);
-  font-size: var(--app-font-size-body);
-  line-height: var(--app-line-height-base);
-  color: var(--app-text-primary);
+  font-size: var(--type-body-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+  color: var(--text-primary);
   background: var(--app-bg-canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -111,12 +133,22 @@ body {
 
 h1,
 h2,
-h3,
+h3 {
+  font-family: var(--app-font-display);
+  font-size: var(--type-display-large-size);
+  font-weight: var(--type-weight-semibold);
+  line-height: var(--type-line-height);
+  color: var(--text-black);
+}
+
 h4,
 h5,
 h6 {
   font-family: var(--app-font-display);
-  color: var(--app-text-primary);
+  font-size: var(--type-body-large-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
+  color: var(--text-black);
 }
 
 button,
@@ -167,14 +199,32 @@ label,
 
 .ant-modal-title,
 .ant-drawer-title,
-.ant-page-header-heading-title,
+.ant-page-header-heading-title {
+  font-family: var(--app-font-display);
+  font-size: var(--type-display-large-size);
+  font-weight: var(--type-weight-semibold);
+  line-height: var(--type-line-height);
+  color: var(--text-black);
+}
+
 .ant-typography h1,
 .ant-typography h2,
-.ant-typography h3,
+.ant-typography h3 {
+  font-family: var(--app-font-display);
+  font-size: var(--type-display-large-size);
+  font-weight: var(--type-weight-semibold);
+  line-height: var(--type-line-height);
+  color: var(--text-black);
+}
+
 .ant-typography h4,
 .ant-typography h5,
 .ant-typography h6 {
   font-family: var(--app-font-display);
+  font-size: var(--type-body-large-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
+  color: var(--text-black);
 }
 
 :where(button, [role="button"], a, [tabindex]):focus-visible {
@@ -205,12 +255,23 @@ img {
 }
 
 .ant-form-item {
-  font-size: 12px;
+  font-size: var(--type-body-regular-size);
+  line-height: var(--type-line-height);
 }
 
-.ant-form-item-extra {
-  font-size: 11px;
-  line-height: 11px;
+.ant-form-item-label > label {
+  font-size: var(--type-body-medium-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
+  color: var(--text-primary);
+}
+
+.ant-form-item-extra,
+.ant-form-item-explain {
+  font-size: var(--type-label-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+  color: var(--text-secondary);
 }
 
 .ant-input {
@@ -647,7 +708,61 @@ body {
 
 .ant-btn {
   font-family: var(--app-font-sans);
+  font-size: var(--type-body-medium-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
+  color: var(--text-primary);
   border-radius: var(--app-radius-xs);
+}
+
+.ant-tag,
+.ant-badge {
+  font-size: var(--type-label-medium-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
+  color: var(--text-tertiary);
+}
+
+.ant-input::placeholder,
+.ant-input-number-input::placeholder,
+.ant-select-selection-placeholder,
+.ant-picker-input > input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.ant-dropdown-menu-item,
+.ant-menu-item,
+.ant-select-item {
+  font-size: var(--type-body-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+}
+
+.ant-tooltip,
+.ant-tooltip-inner {
+  font-size: var(--type-label-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+}
+
+.ant-list-item-meta-title {
+  font-size: var(--type-body-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+  color: var(--text-primary);
+}
+
+.ant-list-item-meta-description {
+  font-size: var(--type-label-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+  color: var(--text-secondary);
+}
+
+.ant-tabs-tab {
+  font-size: var(--type-body-medium-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
 }
 
 .ant-btn-link,
@@ -661,7 +776,10 @@ body {
 .ant-select-selector,
 .ant-picker {
   font-family: var(--app-font-sans);
-  font-size: var(--app-font-size-body);
+  font-size: var(--type-body-regular-size);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-line-height);
+  color: var(--text-black);
   border-radius: var(--app-radius-sm) !important;
   border-color: var(--app-border-light) !important;
 }
@@ -741,13 +859,16 @@ texera-login {
 
 .ant-tag {
   border-radius: var(--app-radius-pill);
-  font-size: var(--app-font-size-nano);
+  font-size: var(--type-label-medium-size);
+  font-weight: var(--type-weight-medium);
+  line-height: var(--type-line-height);
 }
 
 .ant-table {
   font-family: var(--app-font-sans);
-  font-size: var(--app-font-size-body);
-  color: var(--app-text-primary);
+  font-size: var(--type-body-regular-size);
+  line-height: var(--type-line-height);
+  color: var(--text-primary);
   border: 1px solid var(--app-border-light);
   border-radius: var(--app-radius-sm);
   overflow: hidden;
@@ -759,10 +880,11 @@ texera-login {
 
   .ant-table-thead > tr > th {
     background: #f4f4f5 !important;
-    color: var(--app-text-primary) !important;
+    color: var(--text-primary) !important;
     font-family: var(--app-font-sans);
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
+    font-size: var(--type-label-medium-size) !important;
+    font-weight: var(--type-weight-medium) !important;
+    line-height: var(--type-line-height) !important;
     border-bottom: 1px solid var(--app-border-light) !important;
     padding: 10px 16px !important;
   }
@@ -770,8 +892,10 @@ texera-login {
   .ant-table-tbody > tr > td {
     border-bottom: 1px solid var(--app-border-light) !important;
     padding: 10px 16px !important;
-    font-size: 13px !important;
-    color: var(--app-text-primary);
+    font-size: var(--type-body-regular-size) !important;
+    font-weight: var(--type-weight-regular);
+    line-height: var(--type-line-height);
+    color: var(--text-primary);
   }
 
   .ant-table-tbody > tr:hover > td {
