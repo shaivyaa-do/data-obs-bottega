@@ -76,7 +76,10 @@ say `body1` / `--app-font-size-body` / `--app-text-primary`.
 | `--app-text-quaternary` / disabled (was 30%) | `--text-tertiary` |
 
 Application code must not add new uses of the old names. The alias file is the
-only place allowed to mention them.
+only place allowed to mention them. The public `typography` object and
+`TypographyVariant` type expose only the six tokens; `resolveTypographyVariant`
+throws on `h1` / `body1` / `caption` / etc. CSS `--app-*` aliases stay until
+Phase 5 so existing SCSS keeps compiling.
 
 ## Why the aliases stay
 

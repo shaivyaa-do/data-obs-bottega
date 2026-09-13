@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { LEGACY_TYPOGRAPHY_ALIASES, TYPE_SCALE } from "./typography";
+import { LEGACY_TYPOGRAPHY_ALIASES, LEGACY_VARIANT_REPLACEMENT, TYPE_SCALE, resolveTypographyVariant, typography } from "./typography";
 
 describe("TYPE_SCALE", () => {
   it("exposes six variants, all at line-height 1.4, none outside 11.5–19.5px", () => {
@@ -41,5 +41,24 @@ describe("TYPE_SCALE", () => {
   it("does not invent a size between tokens", () => {
     expect(TYPE_SCALE.bodyRegular.fontSize).not.toBe(TYPE_SCALE.labelRegular.fontSize);
     expect(Object.values(TYPE_SCALE).map(v => v.fontSize)).toEqual(["11.5px", "11.5px", "13.5px", "13.5px", "15.5px", "19.5px"]);
+  });
+});
+
+describe("resolveTypographyVariant", () => {
+  it("accepts only the six public tokens", () => {
+    expect(Object.keys(typography).filter(key => key !== "fontFamily")).toEqual(Object.keys(TYPE_SCALE));
+    expect(resolveTypographyVariant("bodyRegular")).toBe("bodyRegular");
+    expect("body1" in typography).toBe(false);
+  });
+
+  it("rejects legacy names with the Phase 1 replacement", () => {
+    expect(LEGACY_VARIANT_REPLACEMENT.body1).toBe("bodyRegular");
+    expect(LEGACY_VARIANT_REPLACEMENT.h1).toBe("displayLarge");
+    expect(() => resolveTypographyVariant("body1")).toThrow(/Use "bodyRegular"/);
+    expect(() => resolveTypographyVariant("caption")).toThrow(/Use "labelRegular"/);
+  });
+
+  it("rejects an unknown variant", () => {
+    expect(() => resolveTypographyVariant("hero")).toThrow(/Unknown typography variant/);
   });
 });

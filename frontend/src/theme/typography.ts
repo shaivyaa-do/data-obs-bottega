@@ -53,11 +53,37 @@ export const LEGACY_TYPOGRAPHY_ALIASES = {
   overline: { ...TYPE_SCALE.labelRegular, textTransform: "none" as const },
 } as const;
 
+export const LEGACY_VARIANT_REPLACEMENT: Record<keyof typeof LEGACY_TYPOGRAPHY_ALIASES, TypographyVariant> = {
+  h1: "displayLarge",
+  h2: "displayLarge",
+  h3: "displayLarge",
+  h4: "bodyLarge",
+  h5: "bodyLarge",
+  h6: "bodyLarge",
+  subtitle1: "bodyMedium",
+  subtitle2: "bodyMedium",
+  body1: "bodyRegular",
+  body2: "bodyRegular",
+  button: "bodyMedium",
+  caption: "labelRegular",
+  overline: "labelRegular",
+};
+
 export const typography = {
   fontFamily: FONT_FAMILY,
   ...TYPE_SCALE,
-  ...LEGACY_TYPOGRAPHY_ALIASES,
 };
+
+export function resolveTypographyVariant(name: string): TypographyVariant {
+  if (Object.prototype.hasOwnProperty.call(TYPE_SCALE, name)) {
+    return name as TypographyVariant;
+  }
+  if (Object.prototype.hasOwnProperty.call(LEGACY_VARIANT_REPLACEMENT, name)) {
+    const replacement = LEGACY_VARIANT_REPLACEMENT[name as keyof typeof LEGACY_VARIANT_REPLACEMENT];
+    throw new Error(`Legacy typography variant "${name}". Use "${replacement}" instead.`);
+  }
+  throw new Error(`Unknown typography variant "${name}".`);
+}
 
 export const HTML_VARIANT_MAPPING: Record<TypographyVariant, string> = {
   displayLarge: "h1",
