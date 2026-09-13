@@ -26,6 +26,7 @@ import { GuiConfigService } from "./common/service/gui-config.service";
 import { DeploymentVersionService } from "./common/service/deployment-version/deployment-version.service";
 import { NotificationService } from "./common/service/notification/notification.service";
 import { Version } from "../environments/version";
+import { NzIconService } from "ng-zorro-antd/icon";
 
 // GuiConfigService stub whose env getter either returns a value or throws,
 // mirroring "config loaded" vs "config failed to load by APP_INITIALIZER".
@@ -58,6 +59,7 @@ describe("AppComponent", () => {
         DeploymentVersionService,
         // NotificationService is a transitive dependency of DeploymentVersionService.
         { provide: NotificationService, useValue: { blank: vi.fn() } },
+        { provide: NzIconService, useValue: { addIconLiteral: vi.fn() } },
       ],
     });
     const deploymentVersionService = TestBed.inject(DeploymentVersionService);

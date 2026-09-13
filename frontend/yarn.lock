@@ -3333,6 +3333,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fluentui/svg-icons@npm:^1.1.341":
+  version: 1.1.341
+  resolution: "@fluentui/svg-icons@npm:1.1.341"
+  checksum: 10c0/721878206f0f7da264f9f54bbdfe6d07f050146adabb382420276d257b7b01fcabc745b1588129147c4019a0bda1d291b0d2ce952d3af34f18b4f6750f0f0cd8
+  languageName: node
+  linkType: hard
+
 "@gar/promise-retry@npm:^1.0.0, @gar/promise-retry@npm:^1.0.2":
   version: 1.0.3
   resolution: "@gar/promise-retry@npm:1.0.3"
@@ -10978,6 +10985,7 @@ __metadata:
     "@auth0/angular-jwt": "npm:5.1.0"
     "@codingame/monaco-vscode-java-default-extension": "npm:25.1.2"
     "@codingame/monaco-vscode-python-default-extension": "npm:25.1.2"
+    "@fluentui/svg-icons": "npm:^1.1.341"
     "@lezer/python": "npm:1.1.19"
     "@ngneat/until-destroy": "npm:10.0.0"
     "@ngx-formly/core": "npm:7.1.0"

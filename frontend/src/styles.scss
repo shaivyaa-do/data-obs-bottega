@@ -964,3 +964,15 @@ texera-login {
 .ant-layout {
   background: transparent;
 }
+
+.anticon,
+.texera-icon {
+  color: var(--text-primary);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.anticon svg,
+.texera-icon svg {
+  fill: currentColor;
+}

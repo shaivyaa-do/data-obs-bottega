@@ -24,6 +24,7 @@ import { Version } from "../environments/version";
 import { UntilDestroy } from "@ngneat/until-destroy";
 import { NzIconService } from "ng-zorro-antd/icon";
 import { MODEL_ICON, MODEL_ICON_SVG } from "./common/icon/model-icon";
+import { registerFluentNzIcons } from "./common/icon/icon-registry";
 
 @UntilDestroy()
 @Component({
@@ -51,6 +52,7 @@ export class AppComponent {
   ) {
     // ng-zorro has no icon that reads as an ML model, so this one is registered from Material Symbols.
     iconService.addIconLiteral(MODEL_ICON, MODEL_ICON_SVG);
+    registerFluentNzIcons((name, svg) => iconService.addIconLiteral(name, svg));
 
     // determine whether configuration was successfully loaded by APP_INITIALIZER
     try {

@@ -123,3 +123,36 @@ below 11.5px or above 19.5px is clamped.
 | Icon `font-size: 32px` | empty-state `<i>` tags | Phase 6 Fluent sizes |
 | `line-height: 1` | avatar initials, icon buttons | Glyph boxing, not paragraph leading |
 
+## Phase 6 — Fluent icons (Angular)
+
+This app is Angular + ng-zorro, not React. There is no `Icon.tsx`. Icons go
+through `frontend/src/app/common/icon/icon-registry.ts`. `nz-icon` tags keep
+working: `AppComponent` registers Fluent SVGs under the old Ant `nzType`
+names (`delete`, `delete:outline`, `delete:fill`). New code should use
+`<texera-icon name="search" [size]="20">`.
+
+Sizes: **16** with label text, **20 default** (nav, buttons, lists), **24**
+headers/empty states. Regular by default; Filled via `nzTheme="fill"` or
+`[filled]="true"`. Color uses the four text tokens (`tone="primary"` default).
+
+`texera:model` (`model-icon.ts`) stays — no Fluent hub/model glyph is close
+enough. `@ant-design/icons-angular` remains a transitive ng-zorro dependency.
+
+Feature code must not import `@fluentui/*` (ESLint `no-restricted-imports`).
+The SVG path data is inlined from `@fluentui/svg-icons` (MIT).
+
+| Ant `nzType` | Fluent |
+| --- | --- |
+| delete | Delete |
+| edit | Edit |
+| eye / eye-invisible | Eye / EyeOff |
+| close | Dismiss |
+| robot | Bot |
+| plus / minus | Add / Subtract |
+| search | Search |
+| user | Person |
+| setting | Settings |
+| python | Code (nearest; no Python logo) |
+| loading | Spinner iOS |
+
+

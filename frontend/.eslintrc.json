@@ -67,6 +67,21 @@
         "no-shadow": "off",
         "no-underscore-dangle": "off",
         "no-unused-expressions": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@fluentui/svg-icons",
+                "message": "Import icons through texera-icon / icon-registry. Feature code must not import @fluentui packages."
+              },
+              {
+                "name": "@fluentui/react-icons",
+                "message": "This frontend is Angular. Use texera-icon / icon-registry, not @fluentui/react-icons."
+              }
+            ]
+          }
+        ],
         "quotes": ["error", "double", { "avoidEscape": true }],
         "rxjs-angular/prefer-takeuntil": [
           "error",
@@ -197,6 +212,14 @@
                 "name": "@angular/core",
                 "importNames": ["NO_ERRORS_SCHEMA"],
                 "message": "NO_ERRORS_SCHEMA silences template errors at the cost of hiding real bugs (Angular docs warn against it). For standalone components, the parent's `imports:` array already pulls children transitively, so the schema is usually unnecessary. If a child component's ngOnInit fails because of a missing service method, expand the service stub instead. If a child genuinely cannot be instantiated, stub it via `overrideComponent({ remove: { imports: [Real] }, add: { imports: [Stub] } })`."
+              },
+              {
+                "name": "@fluentui/svg-icons",
+                "message": "Import icons through texera-icon / icon-registry. Feature code must not import @fluentui packages."
+              },
+              {
+                "name": "@fluentui/react-icons",
+                "message": "This frontend is Angular. Use texera-icon / icon-registry, not @fluentui/react-icons."
               }
             ]
           }
