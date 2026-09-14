@@ -24,7 +24,7 @@ import { DatasetService } from "../../../../../service/user/dataset/dataset.serv
 import { Dataset } from "../../../../../../common/type/dataset";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { NotificationService } from "../../../../../../common/service/notification/notification.service";
-import { HttpErrorResponse } from "@angular/common/http";
+import { extractErrorMessage } from "../../../../../../common/util/error";
 import { NZ_MODAL_DATA, NzModalRef } from "ng-zorro-antd/modal";
 import { NzSpinComponent } from "ng-zorro-antd/spin";
 import { NgClass, NgIf } from "@angular/common";
@@ -33,6 +33,7 @@ import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
+import { NzIconDirective } from "ng-zorro-antd/icon";
 import { contributorFieldGroup } from "../user-dataset-contributor-editor/contributor-form-fields";
 
 @UntilDestroy()
@@ -51,6 +52,7 @@ import { contributorFieldGroup } from "../user-dataset-contributor-editor/contri
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
+    NzIconDirective,
   ],
 })
 export class UserDatasetVersionCreatorComponent implements OnInit {
@@ -183,8 +185,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
             this.modalRef.close(res);
           },
           error: (res: unknown) => {
-            const err = res as HttpErrorResponse;
-            this.notificationService.error(`Version creation failed: ${err.error.message}`);
+            this.notificationService.error(`Version creation failed: ${extractErrorMessage(res)}`);
             this.isCreating = false;
             // creation failed, emit null value
             this.modalRef.close(null);
@@ -221,8 +222,7 @@ export class UserDatasetVersionCreatorComponent implements OnInit {
             this.modalRef.close(res);
           },
           error: (res: unknown) => {
-            const err = res as HttpErrorResponse;
-            this.notificationService.error(`Dataset ${ds.name} creation failed: ${err.error.message}`);
+            this.notificationService.error(`Dataset ${ds.name} creation failed: ${extractErrorMessage(res)}`);
             this.isCreating = false;
             // if creation failed, emit null value
             this.modalRef.close(null);

@@ -110,13 +110,25 @@ describe("MarkdownDescriptionComponent", () => {
     expect(component.editingContent).toBe("from modal");
   });
 
-  it("ngOnInit defaults the description to empty when modal data omits it", async () => {
-    const fixture = await createFixture({});
+  it("ngOnInit defaults the description to empty when modal data omits the text", async () => {
+    const fixture = await createFixture({ description: undefined });
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
     expect(component.description).toBe("");
     expect(component.currentMode).toBe("edit");
+  });
+
+  it("stays in preview when it is only nested inside an unrelated modal", async () => {
+    const fixture = await createFixture({ wid: 5 } as { description?: string });
+    const component = fixture.componentInstance;
+    component.description = "keep preview";
+    fixture.detectChanges();
+
+    expect(component.currentMode).toBe("preview");
+    expect(component.editable).toBe(false);
+    expect(fixture.nativeElement.querySelector(".preview-box")).toBeTruthy();
+    expect(fixture.nativeElement.querySelector("textarea")).toBeNull();
   });
 
   it("ngOnChanges refreshes editingContent from a new description while in preview mode", async () => {

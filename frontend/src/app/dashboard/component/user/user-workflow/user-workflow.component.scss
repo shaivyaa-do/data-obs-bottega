@@ -20,6 +20,14 @@
 @use "../../section-style" as *;
 @use "../../button-style" as *;
 
+.subsection-grid-container {
+  min-width: 0;
+  max-width: 820px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 :host ::ng-deep .section-title.ant-card > .ant-card-body {
   flex-direction: column;
   align-items: stretch;
@@ -36,6 +44,101 @@
   flex: 1 1 auto;
 }
 
+.toolbar-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  .view-toggle {
+    order: 1;
+  }
+
+  .toolbar-search-filter {
+    order: 2;
+  }
+
+  .utility-button-group {
+    order: 3;
+  }
+}
+
+.view-toggle {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 2px;
+  gap: 2px;
+  background: var(--app-bg-hover);
+  border-radius: 8px;
+}
+
+.view-toggle-btn {
+  height: 28px;
+  width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  &.selected {
+    background: #ffffff;
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.toolbar-search-filter {
+  display: inline-flex;
+  align-items: stretch;
+  flex: 0 0 240px;
+  width: 240px;
+  min-width: 180px;
+  max-width: 280px;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid var(--app-border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .toolbar-search-filter {
+  .toolbar-search {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: 32px;
+    padding: 0 10px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: var(--type-label-regular-size);
+  }
+
+  .filter-trigger {
+    height: 32px;
+    width: 32px;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--text-secondary);
+  }
+
+  .filter-trigger-wrap {
+    display: inline-flex;
+    text-decoration: none;
+  }
+}
+
 .create-actions {
   display: flex;
   flex-direction: row;
@@ -45,11 +148,42 @@
   margin-left: auto;
 }
 
+.create-menu-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+:host ::ng-deep .create-workflow-menu.ant-dropdown-menu {
+  min-width: 200px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border-subtle);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  .ant-dropdown-menu-item {
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: var(--type-label-regular-size);
+    line-height: 1.2;
+  }
+
+  .ant-dropdown-menu-item-divider {
+    margin: 4px 6px;
+  }
+
+  .ant-upload,
+  .ant-upload-wrapper,
+  .ant-upload.ant-upload-select {
+    display: block;
+    width: 100%;
+  }
+}
+
 :host ::ng-deep .workflow-card-item .ant-card.card-item,
 :host ::ng-deep .workflow-card-item .ant-card.card-item .ant-card-body {
-  background: var(--app-bg-canvas) !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: var(--app-bg-panel) !important;
 }
 
 ::ng-deep .ant-badge-dot {

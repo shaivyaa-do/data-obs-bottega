@@ -144,6 +144,24 @@ describe("DatasetDetailComponent rendered explorer", () => {
 
     const aVersion = { dvid: 1, did: 1, creatorUid: 1, name: "v1" } as any;
 
+    describe("section tabs", () => {
+      it("styles the section tabs as a grey toggle with the selected tab on white", () => {
+        const host = fixture.nativeElement as HTMLElement;
+        expect(host.querySelector("nz-tabs.dataset-section-tabs")).toBeTruthy();
+        expect(host.querySelector(".dataset-section-tabs .ant-tabs-nav-list")).toBeTruthy();
+
+        const active = host.querySelector(".dataset-section-tabs .ant-tabs-tab-active") as HTMLElement;
+        const inactive = Array.from(
+          host.querySelectorAll<HTMLElement>(".dataset-section-tabs .ant-tabs-tab")
+        ).find(tab => !tab.classList.contains("ant-tabs-tab-active"));
+
+        expect(active).toBeTruthy();
+        expect(inactive).toBeTruthy();
+        expect(active.textContent).toContain("Data Card");
+        expect(host.querySelector(".dataset-section-tabs .ant-tabs-ink-bar")).toBeTruthy();
+      });
+    });
+
     describe("download gating", () => {
       it("offers the file download to a logged-in user who is allowed to download", () => {
         render(c => {
@@ -311,7 +329,7 @@ describe("DatasetDetailComponent rendered explorer", () => {
       fixture.detectChanges();
     });
 
-    it("renders one card per contributor with values, a creator star, and dashes for blanks", () => {
+    it("renders one row per contributor with values, a creator star, and dashes for blanks", () => {
       const cards: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll(".contributor-card");
       expect(cards.length).toBe(2);
 
@@ -330,6 +348,7 @@ describe("DatasetDetailComponent rendered explorer", () => {
       expect(fixture.nativeElement.querySelector(".contributor-card-add")).not.toBeNull();
 
       component.userDatasetAccessLevel = "READ";
+      component.isOwner = false;
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector(".contributor-actions")).toBeNull();
@@ -587,6 +606,19 @@ describe("DatasetDetailComponent behavior", () => {
       expect(datasetServiceStub.getDatasetCoverUrl).not.toHaveBeenCalled();
     });
 
+    it("toasts a timeout instead of leaving the load unhandled when getDataset fails", () => {
+      datasetServiceStub.getDataset.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 504, statusText: "Gateway Timeout" }))
+      );
+
+      createComponent();
+      component.did = 5;
+      component.retrieveDatasetInfo();
+
+      expect(notificationServiceStub.error).toHaveBeenCalledWith("Failed to load dataset: The request timed out. Try again.");
+      expect(component.isOwner).toBe(false);
+    });
+
     /**
      * Stands in for the platform time-zone formatter so the assertions do not depend on
      * whichever zone the machine running the suite sits in. `formatted` maps the requested
@@ -678,6 +710,20 @@ describe("DatasetDetailComponent behavior", () => {
       expect(component.versions).toEqual([]);
       expect(component.selectedVersion).toBeUndefined();
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("toasts a timeout instead of leaving the load unhandled when the version list fails", () => {
+      datasetServiceStub.retrieveDatasetVersionList.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 504, statusText: "Gateway Timeout" }))
+      );
+
+      createComponent();
+      component.did = 5;
+      component.retrieveDatasetVersionList();
+
+      expect(notificationServiceStub.error).toHaveBeenCalledWith(
+        "Failed to load dataset versions: The request timed out. Try again."
+      );
     });
   });
 
@@ -887,6 +933,38 @@ describe("DatasetDetailComponent behavior", () => {
 
       expect(datasetServiceStub.retrieveDatasetLatestVersion).not.toHaveBeenCalled();
     });
+
+    it("toasts a timeout instead of leaving the load unhandled when the latest version fails", () => {
+      datasetServiceStub.retrieveDatasetLatestVersion.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 504, statusText: "Gateway Timeout" }))
+      );
+
+      createComponent();
+      component.did = 5;
+      component.retrieveLatestVersionFile();
+
+      expect(notificationServiceStub.error).toHaveBeenCalledWith(
+        "Failed to load latest dataset version: The request timed out. Try again."
+      );
+    });
+
+    it("treats a missing latest version as empty instead of an error", () => {
+      datasetServiceStub.retrieveDatasetLatestVersion.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 404, statusText: "Not Found" }))
+      );
+
+      createComponent();
+      component.did = 5;
+      component.latestVersionFileName = "stale.json";
+      component.latestVersionCreationTime = "old";
+      component.latestVersionSize = 12;
+      component.retrieveLatestVersionFile();
+
+      expect(notificationServiceStub.error).not.toHaveBeenCalled();
+      expect(component.latestVersionFileName).toBe("");
+      expect(component.latestVersionCreationTime).toBe("");
+      expect(component.latestVersionSize).toBeUndefined();
+    });
   });
 
   describe("isDownloadAllowed and userHasWriteAccess", () => {
@@ -921,13 +999,18 @@ describe("DatasetDetailComponent behavior", () => {
       expect(component.isDownloadAllowed()).toBe(false);
     });
 
-    it("reports write access only for the WRITE privilege", () => {
+    it("reports write access for the WRITE privilege or the owner", () => {
+      component.isOwner = false;
       component.userDatasetAccessLevel = "WRITE";
       expect(component.userHasWriteAccess()).toBe(true);
+
       component.userDatasetAccessLevel = "READ";
       expect(component.userHasWriteAccess()).toBe(false);
       component.userDatasetAccessLevel = "NONE";
       expect(component.userHasWriteAccess()).toBe(false);
+
+      component.isOwner = true;
+      expect(component.userHasWriteAccess()).toBe(true);
     });
   });
 
@@ -2190,43 +2273,131 @@ describe("DatasetDetailComponent rendered template", () => {
     });
   });
 
-  describe("data card stats", () => {
-    /** The stat value rendered beside a label. */
-    const stat = (el: HTMLElement, label: string): string => {
-      const row = Array.from(el.querySelectorAll<HTMLElement>(".stat-row")).find(
-        r => text(q<HTMLElement>(r, ".stat-label")) === label
-      );
-      expect(row, `expected a stat row labelled "${label}"`).toBeDefined();
-      return text(q<HTMLElement>(row!, ".stat-value"));
-    };
-
-    it("em-dashes the facts a dataset with no versions has none of", () => {
+  describe("data card layout", () => {
+    it("does not duplicate latest-version facts on the data card", () => {
       const el = render({
-        did: 5,
-        versions: [],
-        latestVersionCreationTime: "",
-        latestVersionFileName: "",
-        latestVersionSize: undefined,
-      });
-
-      expect(stat(el, "Last updated")).toBe("—");
-      expect(stat(el, "Latest version file")).toBe("—");
-      // A size has a meaningful zero, so it keeps reading 0 B rather than an em dash.
-      expect(stat(el, "Latest version size")).toBe("0 B");
-    });
-
-    it("shows the real facts once a version exists", () => {
-      const el = render({
-        did: 5,
         versions: [aVersion({ name: "v1" })],
         latestVersionCreationTime: "09/02/2026 11:10:11",
         latestVersionFileName: "/dataset/o/ds/v1/a.csv",
         latestVersionSize: 2048,
       });
 
-      expect(stat(el, "Last updated")).toBe("09/02/2026 11:10:11");
-      expect(stat(el, "Latest version file")).toBe("/dataset/o/ds/v1/a.csv");
-      expect(stat(el, "Latest version size")).toBe("2.00 KB");
+      expect(el.querySelector(".data-card-grid")).not.toBeNull();
+      expect(el.querySelector(".data-card-overview")).toBeNull();
+      expect(el.querySelector(".data-card-contributors")).not.toBeNull();
+    });
+  });
+
+  describe("dataset header", () => {
+    const infoCell = (table: HTMLElement, label: string): string => {
+      const row = Array.from(table.querySelectorAll("tr")).find(r => text(r.querySelector("th")) === label);
+      expect(row, `expected an info row labelled "${label}"`).toBeDefined();
+      return text(row!.querySelector("td"));
+    };
+
+    it("returns to the dataset list from the back button", () => {
+      const navigate = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const el = render();
+
+      q<HTMLButtonElement>(el, ".go-back-button").click();
+
+      expect(navigate).toHaveBeenCalledWith([USER_DATASET]);
+    });
+
+    it("keeps the dataset info preview beside the dataset name", () => {
+      const el = render({ datasetName: "buildings" });
+      const group = q<HTMLElement>(el, ".dataset-title-group");
+
+      expect(text(group.querySelector("h2"))).toContain("buildings");
+      expect(group.querySelector(".dataset-info-btn")).not.toBeNull();
+      expect(el.querySelector(".dataset-header-actions .dataset-info-btn")).toBeNull();
+    });
+
+    it("opens a dataset info table from the preview icon", () => {
+      const el = render({
+        datasetCreationTime: "09/01/2026 10:00:00",
+        latestVersionCreationTime: "09/02/2026 11:10:11",
+        versions: [aVersion()],
+        latestVersionFileName: "a.csv",
+        latestVersionSize: 2048,
+      });
+      expect(el.querySelector(".dataset-info-dialog")).toBeNull();
+
+      byTooltip("Dataset info")!.click();
+      fixture.detectChanges();
+
+      const table = q<HTMLElement>(el, ".dataset-info-table");
+      expect(infoCell(table, "Created")).toBe("09/01/2026 10:00:00");
+      expect(infoCell(table, "Last updated")).toBe("09/02/2026 11:10:11");
+      expect(infoCell(table, "Versions")).toBe("1");
+      expect(infoCell(table, "Latest version file")).toBe("a.csv");
+      expect(infoCell(table, "Latest version size")).toBe("2.00 KB");
+    });
+
+    it("em-dashes missing latest-version facts in the info table", () => {
+      const el = render({
+        versions: [],
+        latestVersionCreationTime: "",
+        latestVersionFileName: "",
+        latestVersionSize: undefined,
+      });
+
+      byTooltip("Dataset info")!.click();
+      fixture.detectChanges();
+
+      const table = q<HTMLElement>(el, ".dataset-info-table");
+      expect(infoCell(table, "Last updated")).toBe("—");
+      expect(infoCell(table, "Latest version file")).toBe("—");
+      expect(infoCell(table, "Latest version size")).toBe("0 B");
+    });
+
+    it("opens Create New Version from the header without visiting Versions & Files", () => {
+      const el = render({ userDatasetAccessLevel: "WRITE" });
+      expect(el.querySelector(".create-version-dialog")).toBeNull();
+
+      const createBtn = q<HTMLButtonElement>(el, ".dataset-header-create");
+      expect(text(createBtn)).toContain("Create New Version");
+      createBtn.click();
+      fixture.detectChanges();
+
+      expect(component.isCreateVersionModalVisible).toBe(true);
+      expect(el.querySelector(".create-version-dialog texera-version-uploader")).not.toBeNull();
+    });
+
+    it("lets the owner create a version even when the privilege field is not WRITE", () => {
+      const el = render({ userDatasetAccessLevel: "NONE", isOwner: true });
+      expect(el.querySelector(".dataset-header-create")).not.toBeNull();
+      expect(el.querySelector(".dataset-upload-cta")).not.toBeNull();
+    });
+
+    it("lets the signed-in dataset owner upload when privilege flags are missing", () => {
+      const el = render({
+        userDatasetAccessLevel: "NONE",
+        isOwner: false,
+        isLogin: true,
+        ownerEmail: MOCK_USER.email,
+      });
+      expect(el.querySelector(".dataset-header-create")).not.toBeNull();
+      expect(el.querySelector(".dataset-upload-cta")).not.toBeNull();
+    });
+
+    it("hides Create New Version from readers", () => {
+      const el = render({ userDatasetAccessLevel: "READ", isOwner: false });
+      expect(el.querySelector(".dataset-header-create")).toBeNull();
+      expect(el.querySelector(".dataset-upload-cta")).toBeNull();
+    });
+
+    it("offers an Upload files action on the data card for writers", () => {
+      const el = render({ userDatasetAccessLevel: "WRITE" });
+      const upload = q<HTMLButtonElement>(el, ".dataset-upload-cta");
+      expect(text(upload)).toContain("Upload files");
+      expect(el.querySelector(".create-version-dialog")).toBeNull();
+
+      upload.click();
+      fixture.detectChanges();
+
+      expect(component.isCreateVersionModalVisible).toBe(true);
+      expect(el.querySelector(".create-version-dialog texera-version-uploader")).not.toBeNull();
     });
   });
 
@@ -2267,6 +2438,28 @@ describe("DatasetDetailComponent rendered template", () => {
       expect(hintOf(el, "Downloadable")).toBe("Viewers can download this dataset.");
       expect(switchIsOn(el, "Visibility")).toBe(false);
       expect(switchIsOn(el, "Downloadable")).toBe(true);
+    });
+
+    it("renders settings in the same bordered cards as the data card", () => {
+      render({ userDatasetAccessLevel: "WRITE" });
+      const el = openTab("Settings");
+      const cards = el.querySelectorAll(".settings-tab-content .data-card");
+
+      expect(cards.length).toBe(3);
+      expect(text(cards[0].querySelector(".settings-card-title"))).toBe("General");
+      expect(text(cards[1].querySelector(".settings-card-title"))).toBe("Access & visibility");
+      expect(text(cards[2].querySelector(".settings-card-title"))).toBe("Delete");
+    });
+
+    it("restores the dataset header when leaving a maximized versions view", () => {
+      const el = render({ isMaximized: true, userDatasetAccessLevel: "WRITE" });
+      expect(el.querySelector(".dataset-header-card")).toBeNull();
+
+      component.onSectionTabChange(2);
+      fixture.detectChanges();
+
+      expect(component.isMaximized).toBe(false);
+      expect(el.querySelector(".dataset-header-card")).not.toBeNull();
     });
   });
 

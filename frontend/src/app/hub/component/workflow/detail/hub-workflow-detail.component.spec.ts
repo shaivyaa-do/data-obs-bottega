@@ -647,4 +647,15 @@ describe("HubWorkflowDetailComponent rendered with its real children", () => {
 
     expect((fixture.nativeElement as HTMLElement).querySelector(".go-back-button")).toBeNull();
   });
+
+  it("uses a compact modal layout without the hub title or the live editor", () => {
+    render({ isHub: false });
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector(".hub-workflow-detail-container")?.classList.contains("is-modal")).toBe(true);
+    expect(host.querySelector("h1")).toBeNull();
+    expect(host.querySelector("texera-workflow-editor")).toBeNull();
+    expect(host.querySelector("texera-mini-map")).toBeNull();
+    expect(host.querySelector(".workflow-meta")).not.toBeNull();
+  });
 });

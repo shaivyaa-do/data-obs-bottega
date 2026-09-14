@@ -38,17 +38,37 @@
   <nz-card
     class="section-list-container"
     [nzBodyStyle]="{ height: '100%'}">
-    <cdk-virtual-scroll-viewport
-      itemSize="48"
-      class="virtual-scroll-container">
-      <nz-list>
-        <ng-container *cdkVirtualFor="let entry of entries">
-          <texera-user-computing-unit-list-item
-            (deleted)="terminateComputingUnit(entry.computingUnit.computingUnit.cuid)"
-            [entry]="entry.computingUnit"></texera-user-computing-unit-list-item>
-        </ng-container>
-      </nz-list>
-    </cdk-virtual-scroll-viewport>
+    <div class="list-table-scroll">
+      <nz-table
+        #unitTable
+        class="results-table"
+        [nzData]="allComputingUnits"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzTableLayout]="'fixed'"
+        nzSize="small">
+        <thead>
+          <tr>
+            <th class="name-col">Name</th>
+            <th nzWidth="16%">CPU</th>
+            <th nzWidth="16%">Memory</th>
+            <th nzWidth="16%">Created</th>
+            <th
+              nzWidth="140px"
+              class="actions-col">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let unit of unitTable.data"
+            texera-user-computing-unit-list-item
+            (deleted)="terminateComputingUnit(unit.computingUnit.cuid)"
+            [entry]="unit"></tr>
+        </tbody>
+      </nz-table>
+    </div>
   </nz-card>
 </div>
 

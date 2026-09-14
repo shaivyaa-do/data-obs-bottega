@@ -289,6 +289,76 @@ nz-content.versions-content-pane,
 
 .dataset-header-meta {
   flex: 1;
+  min-width: 0;
+}
+
+.dataset-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dataset-title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dataset-title-row h2 {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.go-back-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary, #3f3f46);
+}
+
+.dataset-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.dataset-info-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary, #3f3f46);
+}
+
+.create-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px !important;
+  background: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+  color: #ffffff !important;
+  font-size: var(--type-label-regular-size);
+  font-weight: 500;
+
+  &:hover,
+  &:focus {
+    background: var(--app-primary-hover) !important;
+    border-color: var(--app-primary-hover) !important;
+    color: #ffffff !important;
+  }
 }
 
 .dataset-cover-image {
@@ -322,35 +392,53 @@ nz-tabs {
   margin-top: 4px;
 }
 
-::ng-deep nz-tabs {
-  .ant-tabs-nav {
+:host ::ng-deep .dataset-section-tabs {
+  > .ant-tabs-nav {
     padding-left: 20px;
-    margin-bottom: 0;
+    margin-bottom: 12px;
 
     &::before {
-      border-bottom: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+      display: none !important;
     }
 
-    .ant-tabs-tab {
-      font-size: var(--type-body-regular-size);
-      font-weight: 500;
-      color: var(--text-primary);
-      padding: 10px 4px;
-      margin-right: 24px;
-
-      &:hover {
-        color: var(--text-black);
-      }
-
-      &.ant-tabs-tab-active .ant-tabs-tab-btn {
-        color: var(--text-black) !important;
-        font-weight: 600;
-      }
+    .ant-tabs-nav-list {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+      padding: 2px;
+      gap: 2px;
+      background: var(--app-bg-hover, #f4f4f5);
+      border-radius: 8px;
     }
 
     .ant-tabs-ink-bar {
-      background: #18181b !important;
-      height: 2px !important;
+      display: none !important;
+    }
+
+    .ant-tabs-tab {
+      margin: 0 !important;
+      padding: 4px 12px !important;
+      border: none !important;
+      border-radius: 6px !important;
+      background: transparent !important;
+      font-size: var(--type-label-regular-size) !important;
+      font-weight: 500 !important;
+      color: var(--text-secondary) !important;
+      transition: none;
+
+      &:hover {
+        color: var(--text-primary) !important;
+      }
+
+      &.ant-tabs-tab-active {
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+        .ant-tabs-tab-btn {
+          color: var(--text-primary) !important;
+          font-weight: 600 !important;
+        }
+      }
     }
   }
 }
@@ -393,21 +481,6 @@ nz-tabs {
 
   .create-btn {
     margin-left: auto;
-    height: 32px;
-    padding: 0 14px;
-    border-radius: 8px !important;
-    background: #18181b !important;
-    border-color: #18181b !important;
-    color: rgb(255 255 255 / 0.9) !important;
-    font-size: var(--type-label-regular-size);
-    font-weight: 500;
-
-    &:hover,
-    &:focus {
-      background: #27272a !important;
-      border-color: #27272a !important;
-      color: rgb(255 255 255 / 0.9) !important;
-    }
   }
 }
 
@@ -447,7 +520,8 @@ nz-tabs {
   }
 }
 
-.create-version-close {
+.create-version-close,
+.dataset-info-close {
   width: 28px;
   height: 28px;
   min-width: 28px;
@@ -455,6 +529,69 @@ nz-tabs {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.dataset-info-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(24, 24, 27, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8vh 16px 24px;
+  box-sizing: border-box;
+}
+
+.dataset-info-dialog {
+  width: min(480px, 100%);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(24, 24, 27, 0.18);
+  padding: 16px 20px 20px;
+}
+
+.dataset-info-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: var(--type-heading-regular-size, 16px);
+    font-weight: 600;
+  }
+}
+
+.dataset-info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataset-info-table th,
+.dataset-info-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--app-border-subtle, rgba(0, 0, 0, 0.06));
+  font-size: var(--type-body-regular-size, 14px);
+  line-height: 1.4;
+}
+
+.dataset-info-table th {
+  width: 42%;
+  font-weight: 600;
+  color: var(--text-secondary, #71717a);
+}
+
+.dataset-info-table td {
+  color: var(--text-black, #18181b);
+  word-break: break-word;
+}
+
+.dataset-info-table tr:last-child th,
+.dataset-info-table tr:last-child td {
+  border-bottom: none;
 }
 
 .versions-tab-content > .versions-content-pane {
@@ -467,81 +604,63 @@ nz-tabs {
 .data-card-tab-content {
   height: 100%;
   overflow-y: auto;
-  padding-bottom: 24px;
+  padding: 20px 20px 24px;
 }
 
 // Host scrolls the Settings cards; do not pin this wrapper to height: 100%
 // or they clip against the dashboard shell instead of scrolling.
 .settings-tab-content {
   overflow-y: visible;
-  padding-bottom: 24px;
-}
-
-// Two side-by-side cards filling the full tab width: a wide description card
-// and a narrower stats card. The flex grow ratio is the single source of
-// truth for their proportions (basis 0), so no width/max-width competes.
-.data-card-columns {
-  display: flex;
-  align-items: flex-start;
+  padding: 20px 20px 24px;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
-  margin-top: 20px;
-  width: 100%;
-  padding-left: 20px;
-  padding-right: 20px;
 }
 
 .data-card,
 ::ng-deep .data-card.ant-card {
-  background: var(--app-bg-canvas, #f4f4f5) !important;
-  border: none !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
+  background: var(--app-bg-panel, #ffffff) !important;
+  border: 1px solid var(--app-border-subtle, #e4e4e7) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.06) !important;
   min-width: 0;
 
   > .ant-card-body {
-    padding: 20px 22px !important;
+    padding: 18px 20px !important;
   }
 }
 
-// Left column (Description + Metadata) takes ~3/4 of the row, stats card ~1/4 — grow ratio with basis 0
-// so the split is exact and content-independent. Both Description and Metadata share 100% of the column width.
-.data-card-left-column {
-  flex: 3 1 0;
-  display: flex;
-  flex-direction: column;
+.data-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
-  min-width: 0;
-  width: 100%;
-}
-
-.data-card-main {
-  width: 100%;
-}
-
-.data-card-details {
-  flex: 1 1 0;
-}
-
-// Stack the two cards full-width on narrow viewports.
-@media (max-width: 768px) {
-  .data-card-columns {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  align-items: start;
 }
 
 .data-card-heading {
   font-size: var(--type-body-regular-size);
   font-weight: 600;
   color: var(--app-text-primary, var(--text-black));
-  margin: 0 0 16px;
+  margin: 0 0 12px;
+}
+
+.data-card-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .data-card-heading {
+    margin: 0;
+  }
 }
 
 .data-card-description {
   font-size: var(--type-body-regular-size);
   line-height: 1.4;
   color: var(--app-text-primary, var(--text-black));
-  margin-bottom: 20px;
+  margin: 0;
 }
 
 .empty-description {
@@ -549,51 +668,37 @@ nz-tabs {
   font-style: italic;
 }
 
-.data-card-stats {
+.data-card-upload-row {
   display: flex;
-  flex-direction: column;
-}
-
-.stat-row {
-  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: baseline;
   gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--app-border-subtle, rgba(0, 0, 0, 0.06));
 
-  &:last-child {
-    border-bottom: none;
+  .data-card-heading {
+    margin: 0;
   }
 }
 
-.stat-label {
-  font-size: var(--type-label-regular-size);
-  font-weight: 500;
-  color: var(--app-text-secondary, var(--text-primary));
-  flex-shrink: 0;
+.dataset-upload-hint {
+  margin: 4px 0 0;
+  font-size: var(--type-body-regular-size);
+  color: var(--text-secondary, #71717a);
 }
 
-.stat-value {
-  font-size: var(--type-label-regular-size);
-  font-weight: 500;
-  color: var(--app-text-primary, var(--text-black));
-  text-align: right;
-  word-break: break-word;
+.empty-version-upload {
+  margin-top: 12px;
 }
 
 .settings-general-card,
 ::ng-deep .settings-general-card.ant-card {
-  max-width: 720px;
-  margin: 24px auto 0;
-  background: var(--app-bg-canvas, #f4f4f5) !important;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
+  max-width: none;
+  margin: 0;
 
   .settings-card-title {
+    font-size: var(--type-body-regular-size);
     font-weight: 600;
-    margin-bottom: 20px;
+    color: var(--app-text-primary, var(--text-black));
+    margin: 0 0 16px;
   }
 
   .settings-field-label {
@@ -660,88 +765,50 @@ nz-tabs {
   }
 }
 
-.data-card-metadata {
+.contributor-table {
   width: 100%;
-  margin: 0;
-
-  .metadata-divider {
-    margin: 8px 0 12px;
-    border-top-color: var(--app-border-subtle, rgba(0, 0, 0, 0.06));
-  }
+  border-collapse: collapse;
 }
 
-@mixin line-clamp-2 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
-
-.contributors-collapse ::ng-deep {
-  .ant-collapse-header {
-    padding: 0 0 8px !important;
-    font-size: var(--type-body-regular-size);
-    font-weight: 600;
-  }
-
-  .ant-collapse-content-box {
-    padding: 0 !important;
-  }
-}
-
-.contributor-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 220px);
-  gap: 12px;
-}
-
-.contributor-card {
-  padding: 12px 16px;
-  background: #fff;
-  border: 1px solid #e6e8ec;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
+.contributor-table th,
+.contributor-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--app-border-subtle, #f4f4f5);
+  font-size: var(--type-label-regular-size);
+  line-height: 1.4;
+  vertical-align: top;
   word-break: break-word;
+}
 
-  .contributor-actions {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-  }
+.contributor-table thead th {
+  font-weight: 600;
+  color: var(--text-secondary, #71717a);
+  background: var(--app-bg-canvas, #fafafa);
+}
 
-  .contributor-name {
-    font-weight: 600;
-    padding-right: 24px;
-    @include line-clamp-2;
-  }
+.contributor-table tbody tr:last-child td {
+  border-bottom: none;
+}
 
-  .creator-star {
-    color: #faad14;
-    font-size: var(--type-label-regular-size);
-    margin-left: 4px;
-  }
+.contributor-table .contributor-name {
+  font-weight: 600;
+  color: var(--text-black, #18181b);
+}
 
-  .contributor-row {
-    font-size: var(--type-label-regular-size);
+.contributor-table .creator-star {
+  color: #faad14;
+  font-size: var(--type-label-regular-size);
+  margin-left: 4px;
+}
 
-    .contributor-label {
-      display: block;
-      color: var(--text-secondary);
-      font-size: var(--type-label-regular-size);
-    }
+.contributor-table .contributor-value.empty {
+  color: var(--text-tertiary);
+}
 
-    .contributor-value {
-      @include line-clamp-2;
-
-      &.empty {
-        color: var(--text-tertiary);
-      }
-    }
-  }
+.contributor-actions-col {
+  width: 40px;
+  text-align: right;
 }
 
 .contributor-actions-menu {
@@ -751,22 +818,22 @@ nz-tabs {
 }
 
 .contributor-card-add {
-  width: 40px;
-  height: 40px;
-  align-self: center;
-  margin-left: 15px;
+  width: 28px;
+  height: 28px;
   color: var(--text-primary);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: color 0.2s;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
 
   &:hover {
-    color: #1890ff;
+    color: var(--app-primary, #0078d4);
+    background: var(--app-bg-hover, #f4f4f5);
   }
 
   .add-icon {
-    font-size: var(--type-body-large-size);
+    font-size: var(--type-body-regular-size);
   }
 }

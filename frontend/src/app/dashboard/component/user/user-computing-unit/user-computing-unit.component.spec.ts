@@ -37,7 +37,6 @@ import { ComputingUnitActionsService } from "../../../../common/service/computin
 import { NotificationService } from "../../../../common/service/notification/notification.service";
 import { of } from "rxjs";
 import type { Mocked } from "vitest";
-import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { UserComputingUnitListItemComponent } from "./user-computing-unit-list-item/user-computing-unit-list-item.component";
 describe("UserComputingUnitComponent", () => {
   let component: UserComputingUnitComponent;
@@ -206,8 +205,7 @@ describe("UserComputingUnitComponent", () => {
 
   /**
    * Everything above reaches the component through its methods, so the template's own wiring — the
-   * toolbar button and the row bindings inside the virtual-scroll list — never ran. jsdom performs
-   * no layout, which is why the list looked empty: the viewport measures 0px and renders no rows.
+   * toolbar button and the table row bindings — never ran.
    */
   describe("rendered page", () => {
     function makeUnit(cuid: number): DashboardWorkflowComputingUnit {
@@ -238,15 +236,9 @@ describe("UserComputingUnitComponent", () => {
       } as DashboardWorkflowComputingUnit;
     }
 
-    /** Renders the page with the given units and forces the virtual list to materialize its rows. */
     function renderUnits(units: DashboardWorkflowComputingUnit[]): void {
       const statusService = TestBed.inject(ComputingUnitStatusService);
       vi.spyOn(statusService, "getAllComputingUnits").mockReturnValue(of(units));
-      fixture.detectChanges();
-
-      const viewport = fixture.debugElement.query(By.css("cdk-virtual-scroll-viewport"))
-        .componentInstance as CdkVirtualScrollViewport;
-      viewport.setRenderedRange({ start: 0, end: units.length });
       fixture.detectChanges();
     }
 
@@ -265,6 +257,11 @@ describe("UserComputingUnitComponent", () => {
       fixture.detectChanges();
 
       expect(modal.visible).toBe(true);
+    });
+
+    it("renders a table of computing units", () => {
+      renderUnits([makeUnit(7)]);
+      expect((fixture.nativeElement as HTMLElement).querySelector("nz-table.results-table")).toBeTruthy();
     });
 
     it("renders one row per computing unit, in the order the service reported them", () => {

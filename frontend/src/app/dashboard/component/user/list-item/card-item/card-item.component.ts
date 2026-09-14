@@ -237,10 +237,17 @@ export class CardItemComponent implements OnChanges {
     this.checkboxChanged.emit();
   }
 
-  public async onClickOpenShareAccess(): Promise<void> {
+  public async onClickOpenShareAccess(event?: Event): Promise<void> {
+    event?.stopPropagation();
     const retrieveOwners = this.resourceRegistry.get(this.entry.type).retrieveOwners;
     if (!retrieveOwners) {
       return;
+    }
+    let allOwners: string[] = [];
+    try {
+      allOwners = await firstValueFrom(retrieveOwners());
+    } catch {
+      allOwners = [];
     }
     const modal = this.modalService.create({
       nzContent: ShareAccessComponent,
@@ -248,13 +255,13 @@ export class CardItemComponent implements OnChanges {
         writeAccess: this.entry.accessLevel === "WRITE",
         type: this.entry.type,
         id: this.entry.id,
-        allOwners: await firstValueFrom(retrieveOwners()),
+        allOwners,
         inWorkspace: false,
       },
       nzFooter: null,
       nzTitle: `Share this ${this.entry.type} with others`,
       nzCentered: true,
-      nzWidth: "700px",
+      nzWidth: "480px",
     });
     modal.componentInstance?.refresh.pipe(untilDestroyed(this)).subscribe(() => {
       this.refresh.emit();
@@ -371,7 +378,8 @@ export class CardItemComponent implements OnChanges {
         wid: wid ?? 0,
       },
       nzFooter: null,
-      nzStyle: { width: "60%" },
+      nzWidth: "520px",
+      nzCentered: true,
       nzBodyStyle: { maxHeight: "70vh", overflow: "auto" },
     });
 

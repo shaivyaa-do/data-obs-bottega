@@ -227,4 +227,14 @@ describe("SearchBarComponent", () => {
 
     expect(nav).toHaveBeenCalledWith([SEARCH], { queryParams: { q: "hello world" } });
   });
+
+  it("keeps the search field at 32px and does not use nzSize large", () => {
+    const group = fixture.nativeElement.querySelector("nz-input-group");
+    expect(group.getAttribute("ng-reflect-nz-size")).not.toBe("large");
+    const css = (SearchBarComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("height: 32px");
+    expect(css).toMatch(/border-radius:\s*0/);
+    expect(css).toContain("background: transparent");
+    expect(css).toContain("--app-border-subtle");
+  });
 });

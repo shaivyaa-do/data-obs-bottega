@@ -34,7 +34,10 @@ import { NzIconDirective } from "ng-zorro-antd/icon";
 import { FormsModule } from "@angular/forms";
 import { NgFor, NgIf } from "@angular/common";
 import { NzMenuDirective, NzMenuItemComponent, NzSubMenuComponent } from "ng-zorro-antd/menu";
+import { catchError, of } from "rxjs";
 import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
+import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
+import { SortMethod } from "../../../type/sort-method";
 
 @UntilDestroy()
 @Component({
@@ -58,6 +61,7 @@ import { NzCheckboxComponent } from "ng-zorro-antd/checkbox";
     NgIf,
     NzSubMenuComponent,
     NzSpaceCompactComponent,
+    NzTooltipDirective,
   ],
 })
 export class FiltersComponent implements OnInit {
@@ -65,6 +69,16 @@ export class FiltersComponent implements OnInit {
   private _masterFilterList: ReadonlyArray<string> = [];
   /** Which resource kind this page lists; decides whose owners and ids are offered. */
   @Input() public entityType: EntityType = EntityType.Workflow;
+  /**
+   * Workflows collapse Owner / ID / Operators into one filter-icon menu.
+   * Datasets, models, hub search keep the three labeled pills.
+   */
+  @Input() public compact = false;
+  @Input() public showEditTime = true;
+  @Input() public showExecutionTime = true;
+  @Input() public sortMethod = SortMethod.EditTimeDesc;
+  @Output() public sortMethodChange = new EventEmitter<SortMethod>();
+  public readonly SortMethod = SortMethod;
   @Output()
   public masterFilterListChange = new EventEmitter<typeof this._masterFilterList>();
   public get masterFilterList(): ReadonlyArray<string> {
@@ -157,13 +171,19 @@ export class FiltersComponent implements OnInit {
       const descriptor = this.resourceRegistry.get(this.entityType);
       descriptor
         .retrieveOwners?.()
-        .pipe(untilDestroyed(this))
+        .pipe(
+          catchError(() => of([] as string[])),
+          untilDestroyed(this)
+        )
         .subscribe(list_of_owners => {
           this.owners = list_of_owners.map(i => ({ userName: i, checked: false }));
         });
       descriptor
         .retrieveIds?.()
-        .pipe(untilDestroyed(this))
+        .pipe(
+          catchError(() => of([])),
+          untilDestroyed(this)
+        )
         .subscribe(ids => {
           this.wids = ids.map(id => {
             return {
@@ -427,5 +447,41 @@ export class FiltersComponent implements OnInit {
 
   public getSearchKeywords(): string[] {
     return this.masterFilterList.filter(tag => this.checkIfWorkflowName(tag));
+  }
+
+  public lastSort(): void {
+    this.emitSort(SortMethod.EditTimeDesc);
+  }
+
+  public dateSort(): void {
+    this.emitSort(SortMethod.CreateTimeDesc);
+  }
+
+  public ascSort(): void {
+    this.emitSort(SortMethod.NameAsc);
+  }
+
+  public dscSort(): void {
+    this.emitSort(SortMethod.NameDesc);
+  }
+
+  public execSort(): void {
+    this.emitSort(SortMethod.ExecutionTimeDesc);
+  }
+
+  private emitSort(method: SortMethod): void {
+    this.sortMethod = method;
+    this.sortMethodChange.emit(method);
+  }
+
+  /**
+   * Replaces free-text keyword tags while leaving owner/id/operator/date tags in place.
+   * An empty or whitespace-only value clears keywords so typing in the toolbar search can
+   * both search and clear.
+   */
+  public applyKeyword(keyword: string): void {
+    const filterTags = this.masterFilterList.filter(tag => !this.checkIfWorkflowName(tag));
+    const trimmed = keyword.trim();
+    this.setMasterFilterList(trimmed === "" ? filterTags : [trimmed, ...filterTags], false);
   }
 }

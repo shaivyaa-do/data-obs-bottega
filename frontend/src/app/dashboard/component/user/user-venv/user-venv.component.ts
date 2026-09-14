@@ -30,6 +30,14 @@ import { NzModalComponent, NzModalContentDirective, NzModalService } from "ng-zo
 import { NzOptionComponent, NzSelectComponent } from "ng-zorro-antd/select";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
+import {
+  NzTableComponent,
+  NzTheadComponent,
+  NzTrDirective,
+  NzTableCellDirective,
+  NzThMeasureDirective,
+  NzTbodyComponent,
+} from "ng-zorro-antd/table";
 
 import { NotificationService } from "../../../../common/service/notification/notification.service";
 import {
@@ -68,6 +76,12 @@ type PveDraft = {
     NzOptionComponent,
     NzTooltipDirective,
     NzPopconfirmDirective,
+    NzTableComponent,
+    NzTheadComponent,
+    NzTrDirective,
+    NzTableCellDirective,
+    NzThMeasureDirective,
+    NzTbodyComponent,
   ],
 })
 export class UserVenvComponent implements OnInit {

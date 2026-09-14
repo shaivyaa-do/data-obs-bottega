@@ -25,12 +25,16 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { RouterLink } from "@angular/router";
 import { NzMenuModule } from "ng-zorro-antd/menu";
+import { NzModalService } from "ng-zorro-antd/modal";
+import { of } from "rxjs";
 
 import { HubComponent } from "./hub.component";
 import { commonTestProviders } from "../../common/testing/test-utils";
 import { GuiConfigService } from "../../common/service/gui-config.service";
 import { SidebarTabs } from "../../common/type/gui-config";
 import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT } from "../../app-routing.constant";
+import { SearchService } from "../../dashboard/service/user/search.service";
+import { UserService } from "../../common/service/user/user.service";
 
 // Full SidebarTabs with all flags off; tests enable only the ones they need.
 function makeSidebarTabs(overrides: Partial<SidebarTabs> = {}): SidebarTabs {
@@ -73,7 +77,12 @@ describe("HubComponent", () => {
   function setup(isLogin: boolean, sidebarTabs: SidebarTabs): HubComponent {
     TestBed.configureTestingModule({
       imports: [TestHostComponent, HttpClientTestingModule, NoopAnimationsModule, RouterTestingModule.withRoutes([])],
-      providers: [...commonTestProviders],
+      providers: [
+        ...commonTestProviders,
+        NzModalService,
+        { provide: SearchService, useValue: { search: () => of({ results: [], more: false }) } },
+        { provide: UserService, useValue: { isLogin: () => false, userChanged: () => of() } },
+      ],
     });
     hostFixture = TestBed.createComponent(TestHostComponent);
     host = hostFixture.componentInstance;
@@ -101,11 +110,10 @@ describe("HubComponent", () => {
     return ([] as string[]).concat(link.routerLinkInput()).join("");
   }
 
-  it("creates with default isLogin = false and an empty sidebarTabs (no menu items render)", () => {
-    const component = setup(false, makeSidebarTabs());
-    expect(component).toBeTruthy();
-    expect(component.isLogin).toBe(false);
-    expect(renderedMenuLabels().length).toBe(0);
+  it("renders only the Search item when no hub tab flags are set", () => {
+    setup(false, makeSidebarTabs());
+    const labels = renderedMenuLabels();
+    expect(labels).toEqual(["Search"]);
   });
 
   it("passes the isLogin input through to the component", () => {
@@ -118,11 +126,10 @@ describe("HubComponent", () => {
     expect((component as unknown as { config: GuiConfigService }).config).toBe(TestBed.inject(GuiConfigService));
   });
 
-  it("renders only the Home item when home_enabled is the only flag set", () => {
+  it("renders Home and Search when home_enabled is the only flag set", () => {
     setup(false, makeSidebarTabs({ home_enabled: true }));
     const labels = renderedMenuLabels();
-    expect(labels.length).toBe(1);
-    expect(labels[0]).toContain("Home");
+    expect(labels).toEqual(["Home", "Search"]);
   });
 
   it("hides public Workflows, Datasets and Models when the user is signed in", () => {
@@ -132,6 +139,7 @@ describe("HubComponent", () => {
     );
     const labels = renderedMenuLabels();
     expect(labels.some(l => l.includes("Home"))).toBe(true);
+    expect(labels.some(l => l.includes("Search"))).toBe(true);
     expect(labels.some(l => l.includes("Workflows"))).toBe(false);
     expect(labels.some(l => l.includes("Datasets"))).toBe(false);
     expect(labels.some(l => l.includes("Models"))).toBe(false);
@@ -140,23 +148,26 @@ describe("HubComponent", () => {
   it("renders only the Workflows item when workflow_enabled is the only flag set", () => {
     setup(false, makeSidebarTabs({ workflow_enabled: true }));
     const labels = renderedMenuLabels();
-    expect(labels.length).toBe(1);
-    expect(labels[0]).toContain("Workflows");
+    expect(labels.length).toBe(2);
+    expect(labels).toContain("Search");
+    expect(labels[1]).toContain("Workflows");
   });
 
   it("renders only the Datasets item when dataset_enabled is the only flag set", () => {
     setup(false, makeSidebarTabs({ dataset_enabled: true }));
     const labels = renderedMenuLabels();
-    expect(labels.length).toBe(1);
-    expect(labels[0]).toContain("Datasets");
+    expect(labels.length).toBe(2);
+    expect(labels).toContain("Search");
+    expect(labels.some(l => l.includes("Datasets"))).toBe(true);
   });
 
   it("renders only the Models item when model_enabled is the only flag set", () => {
     // The hub has its own flag: an instance can browse public models without offering its own.
     setup(false, makeSidebarTabs({ model_enabled: true }));
     const labels = renderedMenuLabels();
-    expect(labels.length).toBe(1);
-    expect(labels[0]).toContain("Models");
+    expect(labels.length).toBe(2);
+    expect(labels).toContain("Search");
+    expect(labels.some(l => l.includes("Models"))).toBe(true);
   });
 
   it("renders all four menu items when home, workflow, dataset and model flags are enabled", () => {
@@ -165,8 +176,9 @@ describe("HubComponent", () => {
       makeSidebarTabs({ home_enabled: true, workflow_enabled: true, dataset_enabled: true, model_enabled: true })
     );
     const labels = renderedMenuLabels();
-    expect(labels.length).toBe(4);
+    expect(labels.length).toBe(5);
     expect(labels.some(l => l.includes("Home"))).toBe(true);
+    expect(labels).toContain("Search");
     expect(labels.some(l => l.includes("Workflows"))).toBe(true);
     expect(labels.some(l => l.includes("Datasets"))).toBe(true);
     expect(labels.some(l => l.includes("Models"))).toBe(true);
@@ -175,8 +187,9 @@ describe("HubComponent", () => {
   it("excludes disabled tabs while rendering enabled ones", () => {
     setup(false, makeSidebarTabs({ home_enabled: true, workflow_enabled: false, dataset_enabled: true }));
     const labels = renderedMenuLabels();
-    expect(labels.length).toBe(2);
+    expect(labels.length).toBe(3);
     expect(labels.some(l => l.includes("Home"))).toBe(true);
+    expect(labels).toContain("Search");
     expect(labels.some(l => l.includes("Datasets"))).toBe(true);
     expect(labels.some(l => l.includes("Workflows"))).toBe(false);
   });
@@ -190,5 +203,18 @@ describe("HubComponent", () => {
     expect(routerLinkFor("Workflows")).toBe(HUB_WORKFLOW_RESULT);
     expect(routerLinkFor("Datasets")).toBe(HUB_DATASET_RESULT);
     expect(routerLinkFor("Models")).toBe(HUB_MODEL_RESULT);
+  });
+
+  it("opens the global search popup from Search and does not bind a routerLink", () => {
+    const hub = setup(false, makeSidebarTabs());
+    const searchItem = hostFixture.debugElement
+      .queryAll(By.css("[nz-menu-item]"))
+      .find(de => (de.nativeElement.textContent ?? "").trim() === "Search");
+    expect(searchItem).toBeTruthy();
+    expect(searchItem!.injector.get(RouterLink, null)).toBeNull();
+
+    searchItem!.triggerEventHandler("click", { preventDefault() {}, stopPropagation() {} });
+    hostFixture.detectChanges();
+    expect(hub.searchOpen).toBe(true);
   });
 });

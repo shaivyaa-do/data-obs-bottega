@@ -25,9 +25,9 @@
 }
 
 .create-btn {
-  background-color: #ffffff;
-  color: #007bff;
-  border: 1px solid lightgray;
+  background-color: var(--app-primary);
+  color: #ffffff;
+  border: 1px solid var(--app-primary);
   padding: 5px 20px;
   cursor: pointer;
   margin-left: 15%;
@@ -35,8 +35,8 @@
   width: 30%;
   text-align: center;
   &:hover {
-    background-color: #0069d9;
-    color: rgb(255 255 255 / 0.9);
+    background-color: var(--app-primary-hover);
+    color: #ffffff;
   }
 }
 

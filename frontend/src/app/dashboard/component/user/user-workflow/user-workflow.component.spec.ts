@@ -57,6 +57,7 @@ import {
   testWorkflowFileNameConflictEntries,
 } from "../../user-dashboard-test-fixtures";
 import { FiltersComponent } from "../filters/filters.component";
+import { SortMethod } from "../../../type/sort-method";
 import { UserWorkflowListItemComponent } from "./user-workflow-list-item/user-workflow-list-item.component";
 import { SearchService } from "../../../service/user/search.service";
 import { StubSearchService } from "../../../service/user/stub-search.service";
@@ -1171,38 +1172,112 @@ describe("SavedWorkflowSectionComponent", () => {
         expect(q('[title="Batch Select"]')).toBeTruthy();
       });
 
-      it("does not render a Search all workflows bar", () => {
+      it("renders a compact toolbar search without a Search all workflows bar", () => {
+        expect(q(".toolbar-search")).toBeTruthy();
         expect(q(".search-input-box")).toBeNull();
         expect(q(".workflow-search-bar")).toBeNull();
         expect(fixture.nativeElement.textContent).not.toContain("Search all workflows");
       });
 
-      it("places Create Workflow and Create with Agent to the right of the toolbar icons", () => {
+      it("types into the toolbar search and updates the keyword filter", () => {
+        const input = q(".toolbar-search")?.nativeElement as HTMLInputElement;
+        expect(input.tagName).toBe("INPUT");
+        input.value = "sales";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        fixture.detectChanges();
+
+        expect(component.searchKeyword).toBe("sales");
+        expect(component.filters.masterFilterList).toEqual(["sales"]);
+      });
+
+      it("merges the filter trigger into the search field and hides a standalone upload button", () => {
+        expect(q(".toolbar-search-filter")).toBeTruthy();
+        expect(q(".toolbar-search-filter .filter-trigger")).toBeTruthy();
+        expect(q(".utility-button-group nz-upload")).toBeNull();
+        expect(q('.utility-button-group [nzType="cloud-upload"]')).toBeNull();
+      });
+
+      it("uses a list/grid toggle instead of primary/default icon buttons", () => {
+        expect(q(".view-toggle")).toBeTruthy();
+        expect(q('[title="List View"]')?.nativeElement.classList.contains("selected")).toBe(true);
+        expect(q('[title="Card View"]')?.nativeElement.classList.contains("selected")).toBe(false);
+        expect(q('[title="List View"]')?.nativeElement.classList.contains("ant-btn-primary")).toBe(false);
+      });
+
+      it("hides Owner/ID/Operators pills and shows a single filter trigger", () => {
+        expect(q(".filter-trigger")).toBeTruthy();
+        expect(q(".search-owners-button")).toBeNull();
+        expect(q(".search-wids-button")).toBeNull();
+        expect(q(".search-operators-button")).toBeNull();
+      });
+
+      it("places a New workflow dropdown on the right of the toolbar", () => {
         const actions = q(".create-actions");
         expect(actions).toBeTruthy();
-        const labels = actions
-          .queryAll(By.css(".create-btn"))
-          .map(b => (b.nativeElement.textContent ?? "").replace(/\s+/g, " ").trim());
-        expect(labels).toEqual(["Create Workflow", "Create with Agent"]);
+        const label = (q(".create-btn").nativeElement.textContent ?? "").replace(/\s+/g, " ").trim();
+        expect(label).toContain("New workflow");
+        expect(q('[title="Create a new workflow"]')).toBeNull();
+        expect(q('[title="Create a workflow with an AI agent"]')).toBeNull();
       });
 
-      it("wires the Create Workflow button", () => {
+      /**
+       * The create options live in an nz-dropdown-menu ng-template that only
+       * mounts into a CDK overlay when opened. Instantiating the menu template
+       * puts the rows in the fixture so the click bindings actually run.
+       */
+      const renderCreateMenu = () => {
+        const menu = q(".create-actions")
+          .query(By.css("nz-dropdown-menu"))
+          .componentInstance as { viewContainerRef: { createEmbeddedView: (ref: unknown) => void }; templateRef: unknown };
+        menu.viewContainerRef.createEmbeddedView(menu.templateRef);
+        fixture.detectChanges();
+        return fixture.debugElement.queryAll(By.css(".create-workflow-menu li[nz-menu-item]"));
+      };
+
+      it("offers from-scratch, with-agent, and upload in the New workflow menu", () => {
+        const items = renderCreateMenu();
+        const labels = items.map(item => (item.nativeElement.textContent ?? "").replace(/\s+/g, " ").trim());
+        expect(labels).toEqual(["From scratch", "With agent", "Upload ZIP/JSON"]);
+        expect(items[0].query(By.css('[nzType="plus"]'))).toBeTruthy();
+        expect(items[1].query(By.css('[nzType="robot"]'))).toBeTruthy();
+        expect(items[2].query(By.css('[nzType="cloud-upload"]'))).toBeTruthy();
+        expect(items[2].query(By.css("nz-upload"))).toBeTruthy();
+      });
+
+      it("wires Create new workflow from scratch", () => {
         const spy = vi.spyOn(component, "onClickCreateNewWorkflowFromDashboard").mockImplementation(() => {});
-        q(".create-btn").triggerEventHandler("click", null);
+        renderCreateMenu()[0].triggerEventHandler("click", null);
         expect(spy).toHaveBeenCalled();
       });
 
-      it("wires the Create with Agent button", () => {
+      it("wires Create new workflow with agent", () => {
         const spy = vi.spyOn(component, "onClickCreateWithAgent").mockImplementation(() => {});
-        q('[title="Create a workflow with an AI agent"]').triggerEventHandler("click", null);
+        renderCreateMenu()[1].triggerEventHandler("click", null);
         expect(spy).toHaveBeenCalled();
       });
 
-      it("re-searches when the sort button changes the sort method", () => {
+      it("re-searches when the filter sort method changes", () => {
         const searchSpy = vi.spyOn(component, "search").mockResolvedValue(undefined);
-        q("texera-sort-button").triggerEventHandler("sortMethodChange", "NameAsc");
-        expect(component.sortMethod).toBe("NameAsc");
+        q("texera-filters").triggerEventHandler("sortMethodChange", SortMethod.NameAsc);
+        expect(component.sortMethod).toBe(SortMethod.NameAsc);
         expect(searchSpy).toHaveBeenCalled();
+      });
+
+      it("puts sort inside the filter dropdown instead of a standalone arrow-up button", () => {
+        expect(q("texera-sort-button")).toBeNull();
+        expect(q(".filter-trigger")).toBeTruthy();
+        expect(q("#sortDropdown")).toBeNull();
+      });
+
+      it("caps the workflows table screen at 820px", () => {
+        const css = (component.constructor as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+        expect(css).toContain("max-width: 820px");
+      });
+
+      it("keeps workflow cards on a panel surface instead of a gray fill", () => {
+        const css = (component.constructor as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+        expect(css).toMatch(/\.workflow-card-item[\s\S]*--app-bg-panel/);
+        expect(css).not.toMatch(/\.workflow-card-item[\s\S]*--app-bg-hover/);
       });
 
       it("wires the Batch Select button", () => {

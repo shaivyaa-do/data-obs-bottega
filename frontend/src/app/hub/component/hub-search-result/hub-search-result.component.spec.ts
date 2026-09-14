@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, EventEmitter, forwardRef, Input, Output, TemplateRef } from "@angular/core";
+import { Component, forwardRef, Input, TemplateRef } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { HttpClientTestingModule } from "@angular/common/http/testing";
@@ -34,7 +34,6 @@ import { HubSearchResultComponent } from "./hub-search-result.component";
 import { SearchResultsComponent } from "../../../dashboard/component/user/search-results/search-results.component";
 import { FiltersComponent } from "../../../dashboard/component/user/filters/filters.component";
 import { CardItemComponent } from "../../../dashboard/component/user/list-item/card-item/card-item.component";
-import { SortButtonComponent } from "../../../dashboard/component/user/sort-button/sort-button.component";
 import { SortMethod } from "../../../dashboard/type/sort-method";
 import { DashboardEntry } from "../../../dashboard/type/dashboard-entry";
 import { UserService } from "../../../common/service/user/user.service";
@@ -59,17 +58,6 @@ const VIEW_MODE_STORAGE_KEY = "texera.hub.dataset.viewMode";
  * resolving to `undefined` would throw during change detection).
  */
 @Component({
-  selector: "texera-sort-button",
-  standalone: true,
-  template: "",
-})
-class StubSortButtonComponent {
-  @Input() showEditTime?: boolean;
-  @Input() showExecutionTime?: boolean;
-  @Output() sortMethodChange = new EventEmitter<SortMethod>();
-}
-
-@Component({
   selector: "texera-filters",
   standalone: true,
   template: "",
@@ -77,6 +65,9 @@ class StubSortButtonComponent {
 })
 class StubFiltersComponent {
   @Input() entityType?: EntityType;
+  @Input() showEditTime?: boolean;
+  @Input() showExecutionTime?: boolean;
+  @Input() sortMethod?: SortMethod;
   masterFilterList: ReadonlyArray<string> = [];
   masterFilterListChange = new Subject<ReadonlyArray<string>>();
   getSearchKeywords = vi.fn(() => [] as string[]);
@@ -133,10 +124,10 @@ describe("HubSearchResultComponent", () => {
 
     TestBed.overrideComponent(HubSearchResultComponent, {
       remove: {
-        imports: [SortButtonComponent, FiltersComponent, SearchResultsComponent, CardItemComponent],
+        imports: [FiltersComponent, SearchResultsComponent, CardItemComponent],
       },
       add: {
-        imports: [StubSortButtonComponent, StubFiltersComponent, StubSearchResultsComponent, StubCardItemComponent],
+        imports: [StubFiltersComponent, StubSearchResultsComponent, StubCardItemComponent],
       },
     });
 
@@ -451,7 +442,7 @@ describe("HubSearchResultComponent rendered template", () => {
     );
 
   function openSortMenu(): void {
-    host().querySelector("texera-sort-button a")!.dispatchEvent(new MouseEvent("mouseenter"));
+    host().querySelector("texera-filters a.search-sort-button")!.dispatchEvent(new MouseEvent("mouseenter"));
     tick(500);
     fixture.detectChanges();
   }
@@ -530,7 +521,7 @@ describe("HubSearchResultComponent rendered template", () => {
     // template's coverage has silently gone back to zero.
     render(EntityType.Dataset);
 
-    expect(host().querySelector("texera-sort-button button#sortDropdown")).not.toBeNull();
+    expect(host().querySelector("texera-filters button#sortDropdown")).not.toBeNull();
     expect(host().querySelector("texera-filters button")).not.toBeNull();
     expect(host().querySelector("texera-search-results nz-card")).not.toBeNull();
   });
@@ -559,7 +550,7 @@ describe("HubSearchResultComponent rendered template", () => {
     expect(host().querySelector(".view-toggle")).toBeNull();
     expect(toggleButtons()).toEqual([]);
     // The rest of the filter bar is unaffected.
-    expect(host().querySelector("texera-sort-button button#sortDropdown")).not.toBeNull();
+    expect(host().querySelector("texera-filters button#sortDropdown")).not.toBeNull();
   });
 
   it("highlights whichever view-toggle button matches the current view mode", () => {
@@ -601,10 +592,10 @@ describe("HubSearchResultComponent rendered template", () => {
 
   it("re-runs the search with the sort method the sort button emits", () => {
     render(EntityType.Workflow);
-    const sortButton = fixture.debugElement.query(By.directive(SortButtonComponent))
-      .componentInstance as SortButtonComponent;
+    const filters = fixture.debugElement.query(By.directive(FiltersComponent))
+      .componentInstance as FiltersComponent;
 
-    sortButton.dateSort();
+    filters.dateSort();
 
     // Kills both halves of `sortMethod = $event; search()`: drop the assignment and the
     // search runs with the EditTimeDesc default; drop the call and executeSearch is never reached.
@@ -629,7 +620,7 @@ describe("HubSearchResultComponent rendered template", () => {
     render(EntityType.Workflow, "card");
     expect(fixture.componentInstance.viewMode).toBe("card");
 
-    expect(host().querySelector("cdk-virtual-scroll-viewport")).not.toBeNull();
+    expect(host().querySelector("nz-table.results-table")).not.toBeNull();
     expect(host().querySelector(".card-scroll-container")).toBeNull();
     // The card template itself is withheld too, which the DOM cannot show while
     // the results list is already pinned to the list view.

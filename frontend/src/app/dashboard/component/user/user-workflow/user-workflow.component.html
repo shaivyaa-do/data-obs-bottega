@@ -21,133 +21,183 @@
   <nz-card class="section-title">
     <h2 class="page-title">Workflows</h2>
     <div class="button-group">
-      <nz-space-compact
-        class="utility-button-group"
-        ngbDropdown>
-        <texera-sort-button (sortMethodChange)="sortMethod = $event; search()"></texera-sort-button>
-        <nz-upload [nzBeforeUpload]="onClickUploadExistingWorkflowFromLocal">
+      <div class="toolbar-left">
+        <div
+          class="view-toggle"
+          role="group"
+          aria-label="View">
           <button
+            class="view-toggle-btn"
+            title="List View"
+            type="button"
+            [class.selected]="viewType === 'list'"
+            (click)="setViewType('list')">
+            <i
+              nz-icon
+              nzType="bars"
+              nzTheme="outline"></i>
+          </button>
+          <button
+            class="view-toggle-btn"
+            title="Card View"
+            type="button"
+            [class.selected]="viewType === 'card'"
+            (click)="setViewType('card')">
+            <i
+              nz-icon
+              nzType="appstore"
+              nzTheme="outline"></i>
+          </button>
+        </div>
+        <div class="toolbar-search-filter">
+          <input
+            class="toolbar-search"
+            name="workflow-toolbar-search"
+            nz-input
+            nzVariant="borderless"
+            placeholder="Search"
+            [ngModel]="searchKeyword"
+            (ngModelChange)="onSearchKeywordChange($event)" />
+          <texera-filters
+            #filters
+            class="toolbar-filters"
+            [compact]="true"
+            [sortMethod]="sortMethod"
+            (sortMethodChange)="sortMethod = $event; search()"></texera-filters>
+        </div>
+        <nz-space-compact class="utility-button-group">
+          <button
+            *ngIf="pythonNotebookMigrationEnabled"
             nz-button
-            title="Upload ZIP/JSON file as workflow"
-            nz-tooltip="Upload ZIP/JSON file as workflow"
+            (click)="openAiGenerateModal()"
+            title="AI generate a workflow from a Python notebook"
+            nz-tooltip="AI generate a workflow from a Python notebook"
             nzTooltipPlacement="bottom"
             type="button">
             <i
               nz-icon
-              nzType="cloud-upload"
+              nzType="robot"
               nzTheme="outline"></i>
           </button>
-        </nz-upload>
-        <button
-          *ngIf="pythonNotebookMigrationEnabled"
-          nz-button
-          (click)="openAiGenerateModal()"
-          title="AI generate a workflow from a Python notebook"
-          nz-tooltip="AI generate a workflow from a Python notebook"
-          nzTooltipPlacement="bottom"
-          type="button">
-          <i
-            nz-icon
-            nzType="robot"
-            nzTheme="outline"></i>
-        </button>
-        <button
-          *ngIf="multiWorkflowsOperationButtonEnabled()"
-          (click)="toggleSelection()"
-          nz-button
-          nzType="default"
-          [nz-tooltip]="selectionTooltip"
-          nzTooltipPlacement="bottom"
-          title="Batch Select"
-          type="button">
-          <i
-            nz-icon
-            nzType="select"
-            nzTheme="outline"></i>
-        </button>
-        <button
-          *ngIf="multiWorkflowsOperationButtonEnabled()"
-          (click)="onClickOpenDownloadZip()"
-          nz-button
-          title="Download added workflow as a ZIP file"
-          nz-tooltip="Download added workflow as a ZIP file"
-          nzTooltipPlacement="bottom"
-          type="button">
-          <i
-            nz-icon
-            nzType="cloud-download"
-            nzTheme="outline"></i>
-        </button>
-        <button
-          *ngIf="multiWorkflowsOperationButtonEnabled()"
-          (click)="onClickDuplicateSelectedWorkflows()"
-          nz-button
-          nz-tooltip="Duplicate selected workflows"
-          nzTooltipPlacement="bottom"
-          type="button">
-          <i
-            nz-icon
-            nzTheme="outline"
-            nzType="copy"></i>
-        </button>
-        <button
-          *ngIf="multiWorkflowsOperationButtonEnabled()"
-          nz-popconfirm
-          nzPopconfirmTitle="Confirm to delete selected workflows."
-          nz-button
-          nz-tooltip="Delete selected workflows"
-          (nzOnConfirm)="handleConfirmDeleteSelectedWorkflows()"
-          nzTooltipPlacement="bottom">
-          <i
-            nz-icon
-            nzTheme="outline"
-            nzType="delete"></i>
-        </button>
-        <button
-          nz-button
-          title="List View"
-          (click)="setViewType('list')"
-          [nzType]="viewType === 'list' ? 'primary' : 'default'">
-          <i
-            nz-icon
-            nzType="bars"
-            nzTheme="outline"></i>
-        </button>
-        <button
-          nz-button
-          title="Card View"
-          (click)="setViewType('card')"
-          [nzType]="viewType === 'card' ? 'primary' : 'default'">
-          <i
-            nz-icon
-            nzType="appstore"
-            nzTheme="outline"></i>
-        </button>
-      </nz-space-compact>
-      <texera-filters #filters></texera-filters>
+          <button
+            *ngIf="multiWorkflowsOperationButtonEnabled()"
+            (click)="toggleSelection()"
+            nz-button
+            nzType="default"
+            [nz-tooltip]="selectionTooltip"
+            nzTooltipPlacement="bottom"
+            title="Batch Select"
+            type="button">
+            <i
+              nz-icon
+              nzType="select"
+              nzTheme="outline"></i>
+          </button>
+          <button
+            *ngIf="multiWorkflowsOperationButtonEnabled()"
+            (click)="onClickOpenDownloadZip()"
+            nz-button
+            title="Download added workflow as a ZIP file"
+            nz-tooltip="Download added workflow as a ZIP file"
+            nzTooltipPlacement="bottom"
+            type="button">
+            <i
+              nz-icon
+              nzType="cloud-download"
+              nzTheme="outline"></i>
+          </button>
+          <button
+            *ngIf="multiWorkflowsOperationButtonEnabled()"
+            (click)="onClickDuplicateSelectedWorkflows()"
+            nz-button
+            nz-tooltip="Duplicate selected workflows"
+            nzTooltipPlacement="bottom"
+            type="button">
+            <i
+              nz-icon
+              nzTheme="outline"
+              nzType="copy"></i>
+          </button>
+          <button
+            *ngIf="multiWorkflowsOperationButtonEnabled()"
+            nz-popconfirm
+            nzPopconfirmTitle="Confirm to delete selected workflows."
+            nz-button
+            nz-tooltip="Delete selected workflows"
+            (nzOnConfirm)="handleConfirmDeleteSelectedWorkflows()"
+            nzTooltipPlacement="bottom">
+            <i
+              nz-icon
+              nzTheme="outline"
+              nzType="delete"></i>
+          </button>
+        </nz-space-compact>
+      </div>
       <div class="create-actions">
-        <button
-          nz-button
-          class="create-btn"
-          (click)="onClickCreateNewWorkflowFromDashboard()"
-          title="Create a new workflow">
-          <i
-            nz-icon
-            nzType="file-add"
-            nzTheme="outline"></i>
-          <span>Create Workflow</span>
-        </button>
-        <button
-          nz-button
-          class="create-btn"
-          (click)="onClickCreateWithAgent()"
-          title="Create a workflow with an AI agent">
-          <i
-            nz-icon
-            nzType="robot"
-            nzTheme="outline"></i>
-          <span>Create with Agent</span>
-        </button>
+        <a
+          nz-dropdown
+          [nzDropdownMenu]="createWorkflowMenu"
+          nzTrigger="click">
+          <button
+            nz-button
+            class="create-btn"
+            title="New workflow"
+            type="button">
+            <i
+              nz-icon
+              nzType="plus"
+              nzTheme="outline"></i>
+            <span>New workflow</span>
+            <i
+              nz-icon
+              nzType="down"
+              nzTheme="outline"></i>
+          </button>
+        </a>
+        <nz-dropdown-menu #createWorkflowMenu="nzDropdownMenu">
+          <ul
+            nz-menu
+            class="create-workflow-menu">
+            <li
+              nz-menu-item
+              (click)="onClickCreateNewWorkflowFromDashboard()">
+              <span class="create-menu-row">
+                <i
+                  nz-icon
+                  nzType="plus"
+                  nzTheme="outline"></i>
+                From scratch
+              </span>
+            </li>
+            <li
+              nz-menu-item
+              (click)="onClickCreateWithAgent()">
+              <span class="create-menu-row">
+                <i
+                  nz-icon
+                  nzType="robot"
+                  nzTheme="outline"></i>
+                With agent
+              </span>
+            </li>
+            <li nz-menu-divider></li>
+            <li
+              nz-menu-item
+              (click)="$event.stopPropagation()">
+              <nz-upload
+                [nzBeforeUpload]="onClickUploadExistingWorkflowFromLocal"
+                [nzShowUploadList]="false">
+                <span class="create-menu-row">
+                  <i
+                    nz-icon
+                    nzType="cloud-upload"
+                    nzTheme="outline"></i>
+                  Upload ZIP/JSON
+                </span>
+              </nz-upload>
+            </li>
+          </ul>
+        </nz-dropdown-menu>
       </div>
     </div>
   </nz-card>

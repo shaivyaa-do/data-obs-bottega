@@ -48,6 +48,8 @@ import { HubSearchResultComponent } from "./hub/component/hub-search-result/hub-
 import { EntityType } from "./hub/service/hub.service";
 import { AdminSettingsComponent } from "./dashboard/component/admin/settings/admin-settings.component";
 import { OrcidCallbackComponent } from "./hub/component/login/orcid-callback.component";
+import { ConnectorsComponent } from "./dashboard/component/user/connectors/connectors.component";
+import { ConnectorDetailComponent } from "./dashboard/component/user/connectors/connector-detail.component";
 
 const routes: Routes = [];
 
@@ -190,6 +192,20 @@ routes.push({
         {
           path: "feedback",
           component: FeedbackComponent,
+        },
+      ],
+    },
+    {
+      path: "connectors",
+      canActivate: [AuthGuardService],
+      children: [
+        {
+          path: "",
+          component: ConnectorsComponent,
+        },
+        {
+          path: ":id",
+          component: ConnectorDetailComponent,
         },
       ],
     },

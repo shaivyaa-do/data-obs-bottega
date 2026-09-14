@@ -45,8 +45,8 @@
     font-size: var(--type-label-regular-size) !important;
     font-weight: 500 !important;
     line-height: 1;
-    background-color: #18181b !important;
-    color: rgb(255 255 255 / 0.9) !important;
+    background-color: var(--app-primary) !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 8px !important;
     box-shadow: none !important;
@@ -54,19 +54,21 @@
     transition: background-color 0.15s ease;
 
     i,
-    span[nz-icon] {
-      font-size: var(--type-label-regular-size) !important;
+    span[nz-icon],
+    .anticon {
+      font-size: 16px !important;
+      color: inherit !important;
     }
 
     &:hover,
     &:focus {
-      background-color: #27272a !important;
-      border-color: #27272a !important;
-      color: rgb(255 255 255 / 0.9) !important;
+      background-color: var(--app-primary-hover) !important;
+      border-color: var(--app-primary-hover) !important;
+      color: #ffffff !important;
     }
 
     &:active {
-      background-color: #3f3f46 !important;
+      background-color: var(--app-primary-active) !important;
     }
   }
 }

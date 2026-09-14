@@ -28,7 +28,6 @@ import { DashboardEntry } from "../../../type/dashboard-entry";
 import { SearchResultsComponent } from "../search-results/search-results.component";
 import { CardItemComponent } from "../list-item/card-item/card-item.component";
 import { FiltersComponent } from "../filters/filters.component";
-import { SortButtonComponent } from "../sort-button/sort-button.component";
 import { firstValueFrom } from "rxjs";
 import { USER_DATASET } from "../../../../app-routing.constant";
 import { NzModalService } from "ng-zorro-antd/modal";
@@ -37,14 +36,12 @@ import { DashboardDataset } from "../../../type/dashboard-dataset.interface";
 import { NzMessageService } from "ng-zorro-antd/message";
 import { map, tap } from "rxjs/operators";
 import { NzCardComponent } from "ng-zorro-antd/card";
-import { NzSpaceCompactItemDirective, NzSpaceCompactComponent } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { FiltersInstructionsComponent } from "../filters-instructions/filters-instructions.component";
-import { NzSelectComponent } from "ng-zorro-antd/select";
 import { FormsModule } from "@angular/forms";
+import { NzInputDirective } from "ng-zorro-antd/input";
 import { EntityType } from "../../../../hub/service/hub.service";
 
 @UntilDestroy()
@@ -54,19 +51,15 @@ import { EntityType } from "../../../../hub/service/hub.service";
   styleUrls: ["user-dataset.component.scss"],
   imports: [
     NzCardComponent,
-    NzSpaceCompactItemDirective,
-    NzSpaceCompactComponent,
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
     FiltersComponent,
-    SortButtonComponent,
-    FiltersInstructionsComponent,
-    NzSelectComponent,
-    FormsModule,
     SearchResultsComponent,
     CardItemComponent,
+    FormsModule,
+    NzInputDirective,
   ],
 })
 export class UserDatasetComponent implements AfterViewInit {
@@ -103,8 +96,20 @@ export class UserDatasetComponent implements AfterViewInit {
   }
 
   set filters(value: FiltersComponent) {
-    value.masterFilterListChange.pipe(untilDestroyed(this)).subscribe({ next: () => this.search() });
+    value.masterFilterListChange.pipe(untilDestroyed(this)).subscribe({
+      next: () => {
+        this.searchKeyword = value.getSearchKeywords().join(" ");
+        this.search();
+      },
+    });
     this._filters = value;
+  }
+
+  public searchKeyword = "";
+
+  public onSearchKeywordChange(value: string): void {
+    this.searchKeyword = value;
+    this.filters.applyKeyword(value);
   }
 
   private masterFilterList: ReadonlyArray<string> | null = null;

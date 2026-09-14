@@ -21,6 +21,7 @@ import {
   ChangeDetectorRef,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   OnChanges,
   Output,
@@ -29,6 +30,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 import { NzInputDirective } from "ng-zorro-antd/input";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { NzModalService } from "ng-zorro-antd/modal";
@@ -44,9 +46,6 @@ import { NotificationService } from "../../../../common/service/notification/not
 import { extractErrorMessage } from "../../../../common/util/error";
 import { isDefined } from "../../../../common/util/predicate";
 import { ResourceRegistryService } from "../../../service/user/resource-registry/resource-registry.service";
-import { NzCardComponent } from "ng-zorro-antd/card";
-import { NzRowDirective, NzColDirective } from "ng-zorro-antd/grid";
-import { RouterLink } from "@angular/router";
 import { NgIf, NgClass } from "@angular/common";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
@@ -55,17 +54,18 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { FormsModule } from "@angular/forms";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
+import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 
 @UntilDestroy()
 @Component({
-  selector: "texera-list-item",
+  selector: "tr[texera-list-item]",
   templateUrl: "./list-item.component.html",
   styleUrls: ["./list-item.component.scss"],
+  host: {
+    class: "list-item-row",
+    "[class.selected]": "isSelected",
+  },
   imports: [
-    NzCardComponent,
-    NzRowDirective,
-    RouterLink,
-    NzColDirective,
     NgIf,
     NgClass,
     ɵNzTransitionPatchDirective,
@@ -76,6 +76,7 @@ import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
     NzWaveDirective,
     NzPopconfirmDirective,
     NzInputDirective,
+    NzTooltipDirective,
   ],
 })
 export class ListItemComponent implements OnChanges {
@@ -104,7 +105,6 @@ export class ListItemComponent implements OnChanges {
   @Input() isPrivateSearch = false;
   @Input() editable = false;
   private _entry?: DashboardEntry;
-  hovering: boolean = false;
 
   @Input()
   get entry(): DashboardEntry {
@@ -118,6 +118,10 @@ export class ListItemComponent implements OnChanges {
     this._entry = value;
   }
 
+  get isSelected(): boolean {
+    return this._entry?.checked === true;
+  }
+
   @Output() checkboxChanged = new EventEmitter<void>();
   @Output() deleted = new EventEmitter<void>();
   @Output() duplicated = new EventEmitter<void>();
@@ -129,7 +133,8 @@ export class ListItemComponent implements OnChanges {
     private hubService: HubService,
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
-    private resourceRegistry: ResourceRegistryService
+    private resourceRegistry: ResourceRegistryService,
+    private router: Router
   ) {}
 
   initializeEntry() {
@@ -167,16 +172,38 @@ export class ListItemComponent implements OnChanges {
     }
   }
 
+  @HostListener("click", ["$event"])
+  onRowClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("button, input, textarea, a, .actions-cell")) {
+      return;
+    }
+    if (this.entryLink.length > 0) {
+      void this.router.navigate(this.entryLink);
+    }
+  }
+
+  stopRowNav(event: Event | null | undefined): void {
+    event?.stopPropagation();
+  }
+
   onCheckboxChange(entry: DashboardEntry): void {
     entry.checked = !entry.checked;
     this.cdr.markForCheck();
     this.checkboxChanged.emit();
   }
 
-  public async onClickOpenShareAccess(): Promise<void> {
+  public async onClickOpenShareAccess(event?: Event): Promise<void> {
+    event?.stopPropagation();
     const retrieveOwners = this.resourceRegistry.get(this.entry.type).retrieveOwners;
     if (!retrieveOwners) {
       return;
+    }
+    let allOwners: string[] = [];
+    try {
+      allOwners = await firstValueFrom(retrieveOwners());
+    } catch {
+      allOwners = [];
     }
     const modal = this.modalService.create({
       nzContent: ShareAccessComponent,
@@ -184,13 +211,13 @@ export class ListItemComponent implements OnChanges {
         writeAccess: this.entry.accessLevel === "WRITE",
         type: this.entry.type,
         id: this.entry.id,
-        allOwners: await firstValueFrom(retrieveOwners()),
+        allOwners,
         inWorkspace: false,
       },
       nzFooter: null,
       nzTitle: `Share this ${this.entry.type} with others`,
       nzCentered: true,
-      nzWidth: "700px",
+      nzWidth: "480px",
     });
     modal.componentInstance?.refresh.pipe(untilDestroyed(this)).subscribe(() => {
       this.refresh.emit();
@@ -340,7 +367,8 @@ export class ListItemComponent implements OnChanges {
         wid: wid ?? 0,
       },
       nzFooter: null,
-      nzWidth: "max(900px, 60vw)",
+      nzWidth: "520px",
+      nzCentered: true,
       nzBodyStyle: { maxHeight: "70vh", overflow: "auto" },
     });
 

@@ -641,3 +641,12 @@ describe("UserQuotaComponent (opened from the admin user modal)", () => {
     expect(scroller.style.height).toBe("700px");
   });
 });
+
+describe("UserQuotaComponent quota table chrome", () => {
+  it("lays out quota stats as a 3-column card grid", () => {
+    const css = (UserQuotaComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("repeat(3, minmax(0, 1fr))");
+    expect(css).toContain(".info-box");
+    expect(css).toContain("border-radius: 10px");
+  });
+});

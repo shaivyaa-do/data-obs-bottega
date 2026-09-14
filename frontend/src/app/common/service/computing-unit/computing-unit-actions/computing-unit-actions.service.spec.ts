@@ -106,6 +106,7 @@ describe("ComputingUnitActionsService", () => {
       expect(modalService.create).toHaveBeenCalledTimes(1);
       const config = modalService.create.mock.calls[0][0];
       expect(config.nzData).toMatchObject({ type: "computing-unit", id: 55, inWorkspace: false, writeAccess: true });
+      expect(config.nzWidth).toBe("480px");
     });
 
     it("defaults inWorkspace to true", () => {

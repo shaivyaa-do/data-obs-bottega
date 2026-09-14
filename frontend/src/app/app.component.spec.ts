@@ -46,10 +46,13 @@ describe("AppComponent", () => {
   // The real DeploymentVersionService, with its polling entry point spied so
   // the test asserts on the wiring without kicking off real HTTP polling.
   let startPollingSpy: ReturnType<typeof vi.spyOn>;
+  const iconServiceStub = { addIconLiteral: vi.fn(), addIcon: vi.fn() };
 
   beforeEach(() => {
     Version.buildNumber = "dev";
     config = new StubGuiConfigService();
+    iconServiceStub.addIconLiteral.mockReset();
+    iconServiceStub.addIcon.mockReset();
 
     TestBed.configureTestingModule({
       imports: [CommonModule, RouterTestingModule, HttpClientTestingModule],
@@ -59,7 +62,7 @@ describe("AppComponent", () => {
         DeploymentVersionService,
         // NotificationService is a transitive dependency of DeploymentVersionService.
         { provide: NotificationService, useValue: { blank: vi.fn() } },
-        { provide: NzIconService, useValue: { addIconLiteral: vi.fn() } },
+        { provide: NzIconService, useValue: iconServiceStub },
       ],
     });
     const deploymentVersionService = TestBed.inject(DeploymentVersionService);
@@ -135,6 +138,18 @@ describe("AppComponent", () => {
       Version.buildNumber = "prod-build-123";
       create();
       expect(startPollingSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("icon registration", () => {
+    it("registers Fluent glyphs with addIcon, not namespace-less addIconLiteral", () => {
+      create();
+      expect(iconServiceStub.addIconLiteral).toHaveBeenCalledTimes(1);
+      expect(iconServiceStub.addIconLiteral.mock.calls[0][0]).toContain(":");
+      expect(iconServiceStub.addIcon).toHaveBeenCalled();
+      const icons = iconServiceStub.addIcon.mock.calls.flat();
+      expect(icons.some(icon => icon.name === "delete" && icon.theme === "outline")).toBe(true);
+      expect(icons.every(icon => !String(icon.name).includes(":"))).toBe(true);
     });
   });
 

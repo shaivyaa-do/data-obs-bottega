@@ -34,14 +34,10 @@ import { ResourceRegistryService } from "../../../service/user/resource-registry
 import { ResourceDescriptor } from "../../../type/resource-descriptor";
 import { EntityType } from "../../../../hub/service/hub.service";
 import { NgIf, NgFor } from "@angular/common";
-import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { NzCardComponent } from "ng-zorro-antd/card";
-import { NzRowDirective, NzColDirective } from "ng-zorro-antd/grid";
-import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } from "ng-zorro-antd/form";
 import { NzInputDirective } from "ng-zorro-antd/input";
 import { NzAutocompleteTriggerDirective, NzAutocompleteComponent } from "ng-zorro-antd/auto-complete";
 import { NzTagComponent } from "ng-zorro-antd/tag";
@@ -54,19 +50,12 @@ import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
   styleUrls: ["./share-access.component.scss"],
   imports: [
     NgIf,
-    NzSpaceCompactItemDirective,
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
     FormsModule,
     ReactiveFormsModule,
-    NzCardComponent,
-    NzRowDirective,
-    NzFormItemComponent,
-    NzColDirective,
-    NzFormLabelComponent,
-    NzFormControlComponent,
     NzInputDirective,
     NzAutocompleteTriggerDirective,
     NzAutocompleteComponent,

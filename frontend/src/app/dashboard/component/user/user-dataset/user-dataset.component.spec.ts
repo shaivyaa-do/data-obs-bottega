@@ -20,7 +20,6 @@
 import { of, Subject } from "rxjs";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { NgModel } from "@angular/forms";
 import { provideRouter } from "@angular/router";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { NzMessageService } from "ng-zorro-antd/message";
@@ -30,7 +29,7 @@ import { MOCK_USER_ID, StubUserService } from "../../../../common/service/user/s
 import { SearchService } from "../../../service/user/search.service";
 import { DatasetService } from "../../../service/user/dataset/dataset.service";
 import { SearchResultsComponent } from "../search-results/search-results.component";
-import { SortButtonComponent } from "../sort-button/sort-button.component";
+import { FiltersComponent } from "../filters/filters.component";
 import { CardItemComponent } from "../list-item/card-item/card-item.component";
 import { DashboardEntry } from "../../../type/dashboard-entry";
 import { commonTestImports, commonTestProviders } from "../../../../common/testing/test-utils";
@@ -529,8 +528,7 @@ describe("UserDatasetComponent rendering", () => {
   });
 
   /**
-   * The two view-mode buttons, found by title: the sort button renders its own <button> into the
-   * same nz-space-compact, so a positional selector picks that up first.
+   * The two view-mode toggle buttons, found by title so the sort control is not picked up first.
    */
   function viewButtons(): { list: HTMLButtonElement; card: HTMLButtonElement } {
     const host = fixture.nativeElement as HTMLElement;
@@ -544,13 +542,12 @@ describe("UserDatasetComponent rendering", () => {
   }
 
   it("starts in card view with only that button highlighted", () => {
-    // nz-button renders nzType="primary" as ant-btn-primary; the highlight is how the user can tell
-    // which view they are in, so it has to follow viewType rather than being fixed.
     const { list, card } = viewButtons();
 
     expect(component.viewType).toBe("card");
-    expect(card.classList).toContain("ant-btn-primary");
-    expect(list.classList).not.toContain("ant-btn-primary");
+    expect(card.classList).toContain("selected");
+    expect(list.classList).not.toContain("selected");
+    expect(card.classList).not.toContain("ant-btn-primary");
   });
 
   it("moves the highlight when the list view is chosen", () => {
@@ -559,8 +556,9 @@ describe("UserDatasetComponent rendering", () => {
 
     const { list, card } = viewButtons();
     expect(component.viewType).toBe("list");
-    expect(list.classList).toContain("ant-btn-primary");
-    expect(card.classList).not.toContain("ant-btn-primary");
+    expect(list.classList).toContain("selected");
+    expect(card.classList).not.toContain("selected");
+    expect(list.classList).not.toContain("ant-btn-primary");
   });
 
   it("remembers the chosen view for the next visit", () => {
@@ -597,10 +595,10 @@ describe("UserDatasetComponent rendering", () => {
     // way round issues the request with the *previous* sort key, leaving the list in the old
     // order until some unrelated search comes along. So assert the order too, by reading the
     // sort key the request actually carried.
-    const sortButton = fixture.debugElement.query(By.directive(SortButtonComponent));
+    const filters = fixture.debugElement.query(By.directive(FiltersComponent));
     searchSpy.mockClear();
 
-    sortButton.componentInstance.sortMethodChange.emit(SortMethod.NameAsc);
+    filters.componentInstance.sortMethodChange.emit(SortMethod.NameAsc);
     fixture.detectChanges();
 
     expect(component.sortMethod).toBe(SortMethod.NameAsc);
@@ -622,26 +620,44 @@ describe("UserDatasetComponent rendering", () => {
 
   it("hides the sort button's execution-time options on the dataset page", () => {
     // Datasets have no executions, so those sort options must not be offered.
-    const sortButton = fixture.debugElement.query(By.directive(SortButtonComponent)).componentInstance;
+    const filters = fixture.debugElement.query(By.directive(FiltersComponent)).componentInstance;
 
-    expect(sortButton.showEditTime).toBe(false);
-    expect(sortButton.showExecutionTime).toBe(false);
+    expect(filters.showEditTime).toBe(false);
+    expect(filters.showExecutionTime).toBe(false);
   });
 
-  it("writes the tags typed into the search box back to the filter list", () => {
-    // The search box is bound two-way; with a one-way binding the tags the user types would
-    // render but never reach the filter list, and the search would silently stay unfiltered.
-    // nz-select's rendered value comes through its ControlValueAccessor, so the edit has to be
-    // driven at the NgModel rather than by mutating the bound property.
-    const select = fixture.debugElement.query(By.css("nz-select"));
-    expect(select, "no nz-select in the search bar").not.toBeNull();
-    // Free-text keywords only exist in tag mode; "multiple" would restrict the box to preset
-    // options while leaving the two-way binding below working perfectly.
-    expect(select.componentInstance.nzMode).toBe("tags");
+  it("puts sort inside the filter dropdown instead of a standalone arrow-up button", () => {
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector("texera-sort-button")).toBeNull();
+    expect(host.querySelector(".filter-trigger")).toBeTruthy();
+  });
 
-    select.injector.get(NgModel).viewToModelUpdate(["alpha", "beta"]);
+  it("does not render a Search all dataset bar", () => {
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector(".search-input-box")).toBeNull();
+    expect(host.querySelector(".section-search-bar")).toBeNull();
+    expect(host.textContent).not.toContain("Search all dataset");
+  });
 
-    expect(component.filters.masterFilterList).toEqual(["alpha", "beta"]);
+  it("uses a list/grid toggle and a merged search+filter control", () => {
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector(".view-toggle")).toBeTruthy();
+    expect(host.querySelector(".toolbar-search-filter")).toBeTruthy();
+    expect(host.querySelector(".toolbar-search-filter .filter-trigger")).toBeTruthy();
+    expect(host.querySelector(".search-owners-button")).toBeNull();
+    expect(host.querySelector(".search-operators-button")).toBeNull();
+  });
+
+  it("types into the toolbar search and updates the keyword filter", () => {
+    const host = fixture.nativeElement as HTMLElement;
+    const input = host.querySelector<HTMLInputElement>(".toolbar-search");
+    expect(input).not.toBeNull();
+    input!.value = "sales";
+    input!.dispatchEvent(new Event("input", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(component.searchKeyword).toBe("sales");
+    expect(component.filters.masterFilterList).toEqual(["sales"]);
   });
 });
 

@@ -51,12 +51,17 @@ export function iconSvg(name: string, size: IconSize = DEFAULT_ICON_SIZE, filled
   return fallback;
 }
 
-export function registerFluentNzIcons(addIconLiteral: (name: string, svg: string) => void): void {
+export interface NzIconDefinition {
+  name: string;
+  theme?: "fill" | "outline" | "twotone";
+  icon: string;
+}
+
+export function registerFluentNzIcons(addIcon: (...icons: NzIconDefinition[]) => void): void {
+  const icons: NzIconDefinition[] = [];
   for (const name of Object.keys(ANT_TO_FLUENT)) {
-    const regular = iconSvg(name, 20, false);
-    const filled = iconSvg(name, 20, true);
-    addIconLiteral(name, regular);
-    addIconLiteral(`${name}:outline`, regular);
-    addIconLiteral(`${name}:fill`, filled);
+    icons.push({ name, theme: "outline", icon: iconSvg(name, 20, false) });
+    icons.push({ name, theme: "fill", icon: iconSvg(name, 20, true) });
   }
+  addIcon(...icons);
 }

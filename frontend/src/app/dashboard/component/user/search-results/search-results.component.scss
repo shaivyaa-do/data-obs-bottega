@@ -137,20 +137,72 @@ nz-content {
   }
 }
 
+.list-table-scroll {
+  height: 100%;
+  overflow: auto;
+  @include hide-scrollbar;
+}
+
+:host ::ng-deep nz-table.results-table {
+  display: block;
+  width: 100%;
+
+  .ant-table {
+    width: 100% !important;
+    background: var(--app-bg-panel);
+    border: 1px solid var(--app-border-subtle);
+    border-radius: var(--app-radius-sm);
+    box-shadow: none;
+  }
+
+  .ant-table-container,
+  .ant-table-content,
+  .ant-table-content > table,
+  table {
+    width: 100% !important;
+  }
+
+  .ant-table-thead > tr > th {
+    background: var(--app-bg-panel) !important;
+    border-bottom: 1px solid var(--app-border-subtle) !important;
+  }
+
+  .ant-table-thead > tr > th.name-col,
+  .ant-table-tbody > tr > td:first-child {
+    width: auto;
+  }
+
+  .ant-table-thead > tr > th.actions-col {
+    text-align: right;
+  }
+
+  .ant-table-tbody > tr > td {
+    background: var(--app-bg-panel) !important;
+    border-bottom: 1px solid var(--app-border-subtle) !important;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: var(--app-bg-panel) !important;
+  }
+}
+
 .card-scroll-container {
   height: 100%;
   overflow-y: auto;
   padding: 12px;
+  @include hide-scrollbar;
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   justify-content: start;
   align-items: stretch;
+}
 
-  > * {
-    max-width: 300px;
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

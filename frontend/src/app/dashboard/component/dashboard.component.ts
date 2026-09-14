@@ -44,11 +44,9 @@ import {
   USER_FEEDBACK,
   LOGIN,
   HOME,
-  HUB,
   HUB_WORKFLOW,
   HUB_DATASET,
-  HUB_MODEL,
-  SEARCH,
+  CONNECTORS,
 } from "../../app-routing.constant";
 import { SidebarTabs } from "../../common/type/gui-config";
 import { User } from "../../common/type/user";
@@ -60,7 +58,6 @@ import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patc
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzButtonComponent } from "ng-zorro-antd/button";
-import { SearchBarComponent } from "./user/search-bar/search-bar.component";
 import { UserIconComponent } from "./user/user-icon/user-icon.component";
 import { MODEL_ICON } from "../../common/icon/model-icon";
 
@@ -81,7 +78,6 @@ import { MODEL_ICON } from "../../common/icon/model-icon";
     RouterLink,
     NzIconDirective,
     NzButtonComponent,
-    SearchBarComponent,
     UserIconComponent,
     NzContentComponent,
     RouterOutlet,
@@ -131,43 +127,13 @@ export class DashboardComponent implements OnInit {
   protected readonly USER_QUOTA = USER_QUOTA;
   protected readonly USER_DISCUSSION = USER_DISCUSSION;
   protected readonly USER_FEEDBACK = USER_FEEDBACK;
+  protected readonly CONNECTORS = CONNECTORS;
   protected readonly ADMIN_USER = ADMIN_USER;
   protected readonly ADMIN_GMAIL = ADMIN_GMAIL;
   protected readonly ADMIN_EXECUTION = ADMIN_EXECUTION;
   protected readonly ADMIN_SETTINGS = ADMIN_SETTINGS;
   protected readonly ABOUT = ABOUT;
   protected readonly String = String;
-
-  private static readonly HEADER_TITLES: Array<[string, string]> = [
-    [USER_FEEDBACK, "Feedback"],
-    [USER_PYTHON_VENV, "Environments"],
-    [USER_COMPUTING_UNIT, "Compute"],
-    [USER_DISCUSSION, "Forum"],
-    [USER_DATASET, "Datasets"],
-    [USER_MODEL, "Models"],
-    [USER_QUOTA, "Quota"],
-    [USER_WORKFLOW, "Workflows"],
-    [ADMIN_EXECUTION, "Executions"],
-    [ADMIN_SETTINGS, "Settings"],
-    [ADMIN_GMAIL, "Gmail"],
-    [ADMIN_USER, "Users"],
-    [HUB_WORKFLOW, "Workflows"],
-    [HUB_DATASET, "Datasets"],
-    [HUB_MODEL, "Models"],
-    [SEARCH, "Search"],
-    [HUB, "Hub"],
-    [HOME, "Home"],
-    [ABOUT, "About"],
-    [LOGIN, "Sign in"],
-  ];
-
-  get headerTitle(): string {
-    const path = this.router.url.split("?")[0];
-    const match = DashboardComponent.HEADER_TITLES.find(
-      ([prefix]) => path === prefix || path.startsWith(`${prefix}/`)
-    );
-    return match?.[1] ?? "Workspace";
-  }
 
   constructor(
     private userService: UserService,
@@ -313,11 +279,12 @@ export class DashboardComponent implements OnInit {
     }
     const path = currentRoute.split("?")[0];
     // An opened dataset (/user/dataset/:did, /user/dataset/create) is full-width.
-    // The dataset list (/user/dataset) stays narrow (820px max-width).
+    // The workflow and dataset lists stay narrow (820px max-width).
+    // An opened workflow (/user/workflow/:wid) is full-width because the navbar is hidden.
     if (path.startsWith(`${USER_DATASET}/`)) {
       return false;
     }
-    const fullWidthPrefixes = [HOME, USER_WORKFLOW, HUB_WORKFLOW, HUB_DATASET];
+    const fullWidthPrefixes = [HOME, HUB_WORKFLOW, HUB_DATASET, CONNECTORS];
     return !fullWidthPrefixes.some(prefix => path === prefix || path.startsWith(`${prefix}/`));
   }
 

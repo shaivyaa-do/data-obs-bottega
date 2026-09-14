@@ -62,7 +62,7 @@ export class ComputingUnitActionsService {
       nzFooter: null,
       nzTitle: "Share this computing unit with others",
       nzCentered: true,
-      nzWidth: "800px",
+      nzWidth: "480px",
     });
   }
 

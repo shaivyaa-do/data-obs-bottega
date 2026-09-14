@@ -17,7 +17,9 @@
  under the License.
 -->
 
-<div class="hub-workflow-detail-container">
+<div
+  class="hub-workflow-detail-container"
+  [class.is-modal]="!isHub">
   <button
     *ngIf="isHub"
     nz-button
@@ -33,43 +35,45 @@
   <div class="container">
     <div class="header-info">
       <div class="detail-title">
-        <h1>Workflow Detail Page</h1>
+        <h1 *ngIf="isHub">{{ workflowName || "Workflow Detail" }}</h1>
+        <h2
+          *ngIf="!isHub"
+          class="modal-workflow-name">
+          {{ workflowName }}
+        </h2>
       </div>
       <div class="workflow-panel">
-        <!-- View button -->
         <button
           nz-button
           nzType="text"
-          class="dropdown-item like-button"
-          title="View"
+          class="stat-chip"
+          title="Views"
           (click)="changeViewDisplayStyle()">
           <i
             nz-icon
-            [nzType]="'eye'"
-            class="like-icon">
-          </i>
+            nzType="eye"></i>
           <span>{{ formatCount(viewCount) }}</span>
         </button>
 
         <button
           nz-button
-          class="like-button"
+          nzType="text"
+          class="stat-chip"
           title="Like"
           [disabled]="!isLogin"
           (click)="toggleLike()">
           <i
             nz-icon
             nzType="like"
-            [ngClass]="{liked: isLiked}"
-            class="like-icon">
-          </i>
+            [ngClass]="{liked: isLiked}"></i>
           <span>{{ formatCount(likeCount) }}</span>
         </button>
 
         <button
           nz-button
-          class="clone-button"
-          title="Copy">
+          nzType="text"
+          class="stat-chip"
+          title="Copies">
           <i
             nz-icon
             nzType="user"></i>
@@ -80,41 +84,45 @@
           nz-button
           nzType="primary"
           class="clone-button"
-          title="Copy"
-          [disabled]="!isLogin || !isHub || !isActivatedUser"
+          title="Clone"
+          *ngIf="isHub"
+          [disabled]="!isLogin || !isActivatedUser"
           (click)="cloneWorkflow()">
-          <span>Clone</span>
+          Clone
         </button>
       </div>
     </div>
 
-    <div class="workflow-info">
+    <dl class="workflow-meta">
       <div>
-        <h2>ID</h2>
-        <p>{{ wid }}</p>
+        <dt>ID</dt>
+        <dd>{{ wid }}</dd>
+      </div>
+      <div *ngIf="isHub">
+        <dt>Name</dt>
+        <dd>{{ workflowName }}</dd>
       </div>
       <div>
-        <h2>Workflow Name</h2>
-        <p>{{ workflowName }}</p>
+        <dt>Created by</dt>
+        <dd>{{ ownerName }}</dd>
       </div>
-      <div>
-        <h2>Created By</h2>
-        <p>{{ ownerName }}</p>
-      </div>
-    </div>
-    <div class="workflow-description">
-      <h2>Description</h2>
+    </dl>
+
+    <section class="workflow-description">
+      <h3>Description</h3>
       <texera-markdown-description
         [description]="workflowDescription"
         [enableViewMore]="true">
       </texera-markdown-description>
-    </div>
+    </section>
 
-    <h2>Preview</h2>
-    <div class="preview-containers">
-      <texera-workflow-editor></texera-workflow-editor>
-      <texera-mini-map class="box"></texera-mini-map>
-    </div>
+    <ng-container *ngIf="isHub">
+      <h3>Preview</h3>
+      <div class="preview-containers">
+        <texera-workflow-editor></texera-workflow-editor>
+        <texera-mini-map class="box"></texera-mini-map>
+      </div>
+    </ng-container>
     <ng-template #codeEditor></ng-template>
   </div>
 </div>

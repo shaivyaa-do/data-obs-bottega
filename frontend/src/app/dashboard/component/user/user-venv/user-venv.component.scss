@@ -39,10 +39,10 @@
       font-size: var(--type-label-regular-size) !important;
       font-weight: 500 !important;
       border-radius: 8px !important;
-      background-color: #18181b !important;
+      background-color: var(--app-primary) !important;
       border: none !important;
       box-shadow: none !important;
-      color: rgb(255 255 255 / 0.9) !important;
+      color: #ffffff !important;
       display: inline-flex !important;
       align-items: center !important;
       gap: 6px !important;
@@ -50,33 +50,76 @@
       transition: background-color 0.15s ease;
 
       i,
-      span[nz-icon] {
-        font-size: var(--type-label-regular-size) !important;
+      span[nz-icon],
+      .anticon {
+        font-size: 16px !important;
+        color: inherit !important;
       }
 
       &:hover,
       &:focus {
-        background-color: #27272a !important;
-        color: rgb(255 255 255 / 0.9) !important;
+        background-color: var(--app-primary-hover) !important;
+        color: #ffffff !important;
       }
 
       &:active {
-        background-color: #3f3f46 !important;
+        background-color: var(--app-primary-active) !important;
       }
     }
   }
 }
 
+.list-table-scroll {
+  height: 100%;
+  overflow: auto;
+  @include hide-scrollbar;
+}
+
+:host ::ng-deep nz-table.results-table {
+  display: block;
+  width: 100%;
+
+  .ant-table {
+    width: 100% !important;
+    background: var(--app-bg-panel);
+    border: 1px solid var(--app-border-subtle);
+    border-radius: var(--app-radius-sm);
+    box-shadow: none;
+  }
+
+  .ant-table-container,
+  .ant-table-content,
+  table {
+    width: 100% !important;
+  }
+
+  .ant-table-thead > tr > th {
+    background: var(--app-bg-panel) !important;
+    border-bottom: 1px solid var(--app-border-subtle) !important;
+  }
+
+  .ant-table-thead > tr > th.actions-col,
+  .ant-table-tbody > tr > td.actions-cell {
+    text-align: right;
+  }
+
+  .ant-table-tbody > tr > td {
+    background: var(--app-bg-panel) !important;
+    border-bottom: 1px solid var(--app-border-subtle) !important;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: var(--app-bg-panel) !important;
+  }
+}
+
 .python-env-name {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  font-size: var(--type-label-regular-size);
+  font-weight: 500;
+  color: var(--text-black);
 }
 
 .python-env-delete-icon {
-  flex-shrink: 0;
   color: var(--text-secondary);
   cursor: pointer;
 
@@ -85,54 +128,12 @@
   }
 }
 
-.python-env-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
+.python-env-page-empty {
+  padding: 24px;
+  color: var(--text-secondary);
+  text-align: center;
+}
 
-  .python-env-page-empty {
-    padding: 24px;
-    color: var(--text-secondary);
-    text-align: center;
-    border: 1px dashed #d9d9d9;
-    border-radius: 4px;
-  }
-
-  .python-env-page-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-  }
-
-  .python-env-page-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    padding: 8px 14px;
-    min-height: 38px;
-    box-sizing: border-box;
-    background: var(--app-bg-canvas);
-    border: none !important;
-    border-radius: 8px;
-    box-shadow: none !important;
-    cursor: pointer;
-    transition: background 0.15s ease;
-
-    &:hover {
-      background: var(--app-bg-active, #e4e4e7);
-    }
-
-    .python-env-name {
-      font-size: var(--type-label-regular-size);
-      font-weight: 500;
-      color: var(--text-black);
-    }
-  }
+.python-env-page-item {
+  cursor: pointer;
 }

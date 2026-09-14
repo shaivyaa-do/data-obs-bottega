@@ -194,6 +194,19 @@ describe("UserDatasetVersionCreatorComponent", () => {
     expect(modalClose).toHaveBeenCalledWith(null);
   });
 
+  it("onClickCreate does not report undefined when the create request times out", async () => {
+    const fixture = await createFixture({ isCreatingVersion: false });
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.form.get("name")?.setValue("My Dataset");
+    createDataset.mockReturnValue(throwError(() => ({ status: 504, error: null })));
+
+    component.onClickCreate();
+
+    expect(notifyError).toHaveBeenCalledWith("Dataset my-dataset creation failed: The request timed out. Try again.");
+    expect(notifyError.mock.calls[0][0]).not.toMatch(/undefined/);
+  });
+
   it("onClickCreate locks the form while the creation request is still outstanding", async () => {
     const fixture = await createFixture({ isCreatingVersion: false });
     fixture.detectChanges();

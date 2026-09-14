@@ -104,13 +104,17 @@ export class MarkdownDescriptionComponent implements OnInit, OnChanges, AfterVie
   readonly toolbar = TOOLBAR;
   readonly COLLAPSED_HEIGHT_PX = COLLAPSED_HEIGHT_PX;
 
+  private get isDescriptionEditorModal(): boolean {
+    return this.modalData != null && Object.prototype.hasOwnProperty.call(this.modalData, "description");
+  }
+
   constructor(private markdownService: MarkdownService) {}
   ngOnInit(): void {
-    if (this.modalData) {
-      this.description = this.modalData.description ?? "";
+    if (this.isDescriptionEditorModal) {
+      this.description = this.modalData?.description ?? "";
       this.editable = true;
     }
-    this.currentMode = this.modalData ? "edit" : "preview";
+    this.currentMode = this.isDescriptionEditorModal ? "edit" : "preview";
     this.editingContent = this.description;
     this.renderMarkdown(this.description);
   }
@@ -138,7 +142,7 @@ export class MarkdownDescriptionComponent implements OnInit, OnChanges, AfterVie
     this.description = this.editingContent;
     this.descriptionChange.emit(this.description);
     this.renderMarkdown(this.description);
-    this.currentMode = this.modalData ? "edit" : "preview";
+    this.currentMode = this.isDescriptionEditorModal ? "edit" : "preview";
   }
 
   cancel(): void {

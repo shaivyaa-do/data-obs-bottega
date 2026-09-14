@@ -65,6 +65,8 @@
   --app-text-disabled: var(--text-tertiary);
 
   --app-primary: #0078d4;
+  --app-primary-hover: #006cbe;
+  --app-primary-active: #005a9e;
   --app-color-focus: #1a73e8;
   --app-left-nav-width: 212px;
   --app-left-nav-collapsed-width: 40px;
@@ -706,6 +708,29 @@ body {
     border-color: #27272a !important;
     color: rgb(255 255 255 / 0.9) !important;
   }
+
+  .anticon,
+  .texera-icon {
+    color: inherit !important;
+  }
+}
+
+button.create-btn {
+  background: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+  color: #ffffff !important;
+
+  &:hover,
+  &:focus {
+    background: var(--app-primary-hover) !important;
+    border-color: var(--app-primary-hover) !important;
+    color: #ffffff !important;
+  }
+
+  &:active {
+    background: var(--app-primary-active) !important;
+    border-color: var(--app-primary-active) !important;
+  }
 }
 
 .ant-btn {
@@ -816,20 +841,40 @@ body {
   padding-top: 6px;
   padding-bottom: 6px;
   box-sizing: border-box;
-  border-radius: var(--app-radius-sm) !important;
-  border-color: var(--app-border-light) !important;
+  border-radius: var(--app-radius-xs) !important;
+  border-color: var(--app-border-subtle) !important;
+}
+
+.ant-input-affix-wrapper {
+  padding-top: 0;
+  padding-bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.ant-input-affix-wrapper .ant-input {
+  min-height: 0 !important;
+  height: 100% !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .ant-card {
   border-radius: var(--app-radius-md);
   border-color: var(--app-border-light);
   background: var(--app-bg-panel);
+  box-shadow: none;
 }
 
 .ant-card.card-item {
-  background: var(--app-bg-canvas);
-  border: none;
-  box-shadow: none;
+  background: var(--app-bg-panel);
+  border: 1px solid var(--app-border-subtle);
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.06);
 }
 
 .ant-modal-content {
@@ -967,9 +1012,15 @@ texera-login {
 
 .anticon,
 .texera-icon {
-  color: var(--text-primary);
   font-size: 20px;
   line-height: 1;
+}
+
+.ant-btn-primary .anticon,
+.ant-btn-primary .texera-icon,
+button.create-btn .anticon,
+button.create-btn .texera-icon {
+  color: inherit;
 }
 
 .anticon svg,

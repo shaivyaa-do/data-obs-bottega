@@ -184,6 +184,7 @@ export class UserWorkflowListItemComponent {
       nzFooter: null,
       nzTitle: "Share this workflow with others",
       nzCentered: true,
+      nzWidth: "480px",
     });
   }
 

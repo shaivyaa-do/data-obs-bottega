@@ -22,17 +22,33 @@
  * @param err
  */
 export function extractErrorMessage(err: unknown): string {
+  if (typeof err === "object" && err !== null && "status" in err) {
+    const status = (err as { status?: number }).status;
+    if (status === 504 || status === 408) {
+      return "The request timed out. Try again.";
+    }
+    if (status === 502 || status === 503) {
+      return "The server is temporarily unavailable. Try again.";
+    }
+    if (status === 0) {
+      return "Could not reach the server.";
+    }
+  }
+
   if (err instanceof Error) {
     return err.message;
   }
 
   if (typeof err === "object" && err !== null && "error" in err) {
-    const backendErr = (err as any).error;
+    const backendErr = (err as { error: unknown }).error;
     if (typeof backendErr === "string") {
       return backendErr;
     }
     if (typeof backendErr === "object" && backendErr !== null && "message" in backendErr) {
-      return backendErr.message;
+      const message = (backendErr as { message: unknown }).message;
+      if (typeof message === "string" && message.length > 0) {
+        return message;
+      }
     }
   }
 

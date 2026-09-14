@@ -28,15 +28,18 @@ import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT, USER_A
 import { UserService } from "../../../common/service/user/user.service";
 import { BrowseSectionComponent } from "../browse-section/browse-section.component";
 import { NgIf } from "@angular/common";
+import { NzIconDirective } from "ng-zorro-antd/icon";
+import { MODEL_ICON } from "../../../common/icon/model-icon";
 
 @UntilDestroy()
 @Component({
   selector: "texera-landing-page",
   templateUrl: "./landing-page.component.html",
   styleUrls: ["./landing-page.component.scss"],
-  imports: [BrowseSectionComponent, NgIf],
+  imports: [BrowseSectionComponent, NgIf, NzIconDirective],
 })
 export class LandingPageComponent implements OnInit {
+  public readonly modelIcon = MODEL_ICON;
   public isLogin = this.userService.isLogin();
   public currentUid = this.userService.getCurrentUser()?.uid;
   public displayName = this.readDisplayName();

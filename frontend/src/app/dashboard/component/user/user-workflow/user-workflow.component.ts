@@ -57,10 +57,13 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { SortButtonComponent } from "../sort-button/sort-button.component";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
 import { NgIf } from "@angular/common";
 import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
+import { FormsModule } from "@angular/forms";
+import { NzInputDirective } from "ng-zorro-antd/input";
+import { NzDropdownADirective, NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
+import { NzMenuDirective, NzMenuDividerDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
 
 /**
  * Saved-workflow-section component contains information and functionality
@@ -100,7 +103,6 @@ import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
-    SortButtonComponent,
     NzUploadComponent,
     NzTooltipDirective,
     NgIf,
@@ -109,6 +111,14 @@ import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
     SearchResultsComponent,
     CardItemComponent,
     NzSpaceCompactComponent,
+    FormsModule,
+    NzInputDirective,
+    NzDropdownADirective,
+    NzDropdownDirective,
+    NzDropdownMenuComponent,
+    NzMenuDirective,
+    NzMenuDividerDirective,
+    NzMenuItemComponent,
   ],
 })
 export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
@@ -136,10 +146,21 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
     throw new Error("Property cannot be accessed before it is initialized.");
   }
   set filters(value: FiltersComponent) {
-    value.masterFilterListChange.pipe(untilDestroyed(this)).subscribe({ next: () => this.search() });
+    value.masterFilterListChange.pipe(untilDestroyed(this)).subscribe({
+      next: () => {
+        this.searchKeyword = value.getSearchKeywords().join(" ");
+        this.search();
+      },
+    });
     this._filters = value;
   }
   private masterFilterList: ReadonlyArray<string> | null = null;
+  public searchKeyword = "";
+
+  public onSearchKeywordChange(value: string): void {
+    this.searchKeyword = value;
+    this.filters.applyKeyword(value);
+  }
 
   public sortMethod = SortMethod.EditTimeDesc;
   public viewType: "list" | "card" =

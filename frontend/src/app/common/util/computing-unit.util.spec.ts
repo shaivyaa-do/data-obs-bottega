@@ -37,6 +37,7 @@ import {
   isComputingUnitShmTooLarge,
   getJvmMemorySliderConfig,
   buildLocalComputingUnitUri,
+  displayResourceValue,
 } from "./computing-unit.util";
 
 function makeUnit(overrides: Partial<DashboardWorkflowComputingUnit> = {}): DashboardWorkflowComputingUnit {
@@ -70,6 +71,21 @@ function makeUnit(overrides: Partial<DashboardWorkflowComputingUnit> = {}): Dash
     },
   };
 }
+
+describe("displayResourceValue", () => {
+  it("returns an em dash for missing or invalid resource strings", () => {
+    expect(displayResourceValue(undefined)).toBe("—");
+    expect(displayResourceValue(null)).toBe("—");
+    expect(displayResourceValue("")).toBe("—");
+    expect(displayResourceValue("NaN")).toBe("—");
+    expect(displayResourceValue("N/A")).toBe("—");
+  });
+
+  it("returns a valid resource string unchanged", () => {
+    expect(displayResourceValue("1000m")).toBe("1000m");
+    expect(displayResourceValue("2Gi")).toBe("2Gi");
+  });
+});
 
 describe("parseResourceUnit", () => {
   it("should extract the unit from a resource string", () => {
@@ -401,5 +417,19 @@ describe("ComputingUnitMetadataComponent", () => {
     render(unit);
     expect(cellText("Access")).toBe("WRITE");
     expect(cellText("GPU Limit")).toBe("None");
+  });
+
+  it("renders NaN resource limits as an em dash in the info table", () => {
+    const unit = makeUnit();
+    unit.computingUnit.resource.cpuLimit = "NaN";
+    unit.computingUnit.resource.memoryLimit = "NaN";
+    unit.computingUnit.resource.jvmMemorySize = "NaN";
+    unit.computingUnit.resource.shmSize = "NaN";
+    render(unit);
+    expect(cellText("CPU Limit")).toBe("—");
+    expect(cellText("Memory Limit")).toBe("—");
+    expect(cellText("JVM Memory")).toBe("—");
+    expect(cellText("Shared Memory")).toBe("—");
+    expect(fixture!.nativeElement.querySelector("table.cu-info-table")).not.toBeNull();
   });
 });

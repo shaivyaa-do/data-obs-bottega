@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { Router } from "@angular/router";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { DownloadService } from "src/app/dashboard/service/user/download/download.service";
 import { By } from "@angular/platform-browser";
@@ -55,7 +56,7 @@ describe("ListItemComponent", () => {
 
   beforeEach(async () => {
     const workflowPersistServiceSpy = { updateWorkflowName: vi.fn(), updateWorkflowDescription: vi.fn() };
-    const datasetServiceSpy = { updateDatasetName: vi.fn() };
+    const datasetServiceSpy = { updateDatasetName: vi.fn(), retrieveOwners: vi.fn().mockReturnValue(of([])) };
 
     await TestBed.configureTestingModule({
       imports: [ListItemComponent, HttpClientTestingModule, BrowserAnimationsModule, RouterTestingModule],
@@ -453,7 +454,7 @@ describe("ListItemComponent", () => {
 
       it("opens the dataset share dialog with the dataset's owners", async () => {
         const create = vi.spyOn(modalService, "create").mockReturnValue(modalReturning(new Subject<void>()));
-        (datasetService as any).retrieveOwners = vi.fn().mockReturnValue(of([]));
+        (datasetService as any).retrieveOwners = vi.fn().mockReturnValue(of(["carol"]));
         feed(entryOf({ type: "dataset", dataset: { isOwner: true }, accessLevel: "READ" }));
 
         await component.onClickOpenShareAccess();
@@ -461,7 +462,22 @@ describe("ListItemComponent", () => {
         expect(create).toHaveBeenCalledWith(
           expect.objectContaining({
             nzTitle: "Share this dataset with others",
-            nzData: expect.objectContaining({ type: "dataset", writeAccess: false }),
+            nzData: expect.objectContaining({ type: "dataset", writeAccess: false, allOwners: ["carol"] }),
+          })
+        );
+      });
+
+      it("still opens the dataset share dialog when owner lookup fails", async () => {
+        const create = vi.spyOn(modalService, "create").mockReturnValue(modalReturning(new Subject<void>()));
+        (datasetService as any).retrieveOwners = vi.fn().mockReturnValue(throwError(() => new Error("owners down")));
+        feed(entryOf({ type: "dataset", dataset: { isOwner: true }, accessLevel: "WRITE" }));
+
+        await component.onClickOpenShareAccess();
+
+        expect(create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            nzTitle: "Share this dataset with others",
+            nzData: expect.objectContaining({ type: "dataset", allOwners: [] }),
           })
         );
       });
@@ -668,25 +684,28 @@ describe("ListItemComponent", () => {
       expect(click.stopPropagation).toHaveBeenCalledTimes(1);
     });
 
-    it("opens the edit modal from the edit button and from the description line", () => {
+    it("does not render a type icon or an inline edit button", () => {
+      render({ description: "hello" });
+
+      expect(q(".type-icon")).toBeNull();
+      expect(q(".edit-button")).toBeNull();
+      expect(button("Edit")).toBeNull();
+    });
+
+    it("stacks the description under the name, left-aligned with the name", () => {
       const edit = vi.spyOn(component, "openEditModal").mockImplementation(() => {});
       render({ description: "hello" });
 
-      button("Edit").triggerEventHandler("click", new MouseEvent("click"));
+      expect(q(".resource-heading")).toBeNull();
+      const name = q(".resource-name").nativeElement as HTMLElement;
+      const description = q(".resource-description").nativeElement as HTMLElement;
+      expect(name.compareDocumentPosition(description) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(name.offsetLeft).toBe(description.offsetLeft);
+
+      q(".resource-name").triggerEventHandler("click", new MouseEvent("click"));
       q(".resource-description").triggerEventHandler("click", new MouseEvent("click"));
 
       expect(edit).toHaveBeenCalledTimes(2);
-    });
-
-    it("tracks hover over the row", () => {
-      render();
-      const row = q("div[nz-row]");
-
-      row.triggerEventHandler("mouseenter", null);
-      expect(component.hovering).toBe(true);
-
-      row.triggerEventHandler("mouseleave", null);
-      expect(component.hovering).toBe(false);
     });
 
     it("toggles the row checkbox of a private workflow entry", () => {
@@ -718,6 +737,11 @@ describe("ListItemComponent", () => {
       component.deleted.subscribe(() => deleted++);
       render();
 
+      expect(q('[nz-tooltip="Detail"]')).toBeTruthy();
+      expect(q('[nz-tooltip="Share"]')).toBeTruthy();
+      expect(q('[nz-tooltip="Copy"]')).toBeTruthy();
+      expect(q('[nz-tooltip="Delete"]')).toBeTruthy();
+
       button("Detail").triggerEventHandler("click", null);
       button("Share").triggerEventHandler("click", null);
       button("Copy").triggerEventHandler("click", null);
@@ -729,6 +753,20 @@ describe("ListItemComponent", () => {
       expect(share).toHaveBeenCalledTimes(1);
       expect(duplicated).toBe(1);
       expect(deleted).toBe(1);
+    });
+
+    it("opens the dataset share dialog from the table Share control without navigating", async () => {
+      const navigate = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const create = vi.spyOn(modalService, "create").mockReturnValue({ componentInstance: undefined } as any);
+      render({ type: "dataset" });
+
+      const shareBtn = button("Share").nativeElement as HTMLButtonElement;
+      shareBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+      fixture.detectChanges();
+
+      expect(create).toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     it("offers the download button to workflows and datasets only", () => {
@@ -761,5 +799,15 @@ describe("ListItemComponent", () => {
       expect(like).toHaveBeenCalledTimes(1);
       expect(likeButton.nativeElement.textContent).toContain("12");
     });
+  });
+});
+
+describe("ListItemComponent table row chrome", () => {
+  it("uses a white row with a light border and no hover fill", () => {
+    const css = (ListItemComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("box-shadow: none");
+    expect(css).toContain("--app-bg-panel");
+    expect(css).toContain("--app-border-subtle");
+    expect(css).not.toContain("--app-bg-hover");
   });
 });

@@ -40,7 +40,6 @@ import { SearchResultsComponent } from "../search-results/search-results.compone
 import { CardItemComponent } from "../list-item/card-item/card-item.component";
 import { FiltersComponent } from "../filters/filters.component";
 import { FiltersInstructionsComponent } from "../filters-instructions/filters-instructions.component";
-import { SortButtonComponent } from "../sort-button/sort-button.component";
 import { UserModelCreatorComponent } from "./user-model-creator/user-model-creator.component";
 import { EntityType } from "../../../../hub/service/hub.service";
 
@@ -59,7 +58,6 @@ import { EntityType } from "../../../../hub/service/hub.service";
     NzIconDirective,
     FiltersComponent,
     FiltersInstructionsComponent,
-    SortButtonComponent,
     NzSelectComponent,
     FormsModule,
     SearchResultsComponent,

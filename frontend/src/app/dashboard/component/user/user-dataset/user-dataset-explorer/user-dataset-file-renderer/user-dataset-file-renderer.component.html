@@ -85,10 +85,14 @@
         alt="{{filePath}}"
         class="full-size-image" />
     </div>
-    <div *ngIf="displayMarkdown">
+    <div
+      *ngIf="displayMarkdown"
+      class="text-preview">
       <markdown [data]="textContent"></markdown>
     </div>
-    <div *ngIf="displayJson">
+    <div
+      *ngIf="displayJson"
+      class="text-preview">
       <ngx-json-viewer [json]="textContent"></ngx-json-viewer>
     </div>
     <div *ngIf="displayMP4 && safeFileURL">
@@ -105,6 +109,10 @@
         Your browser does not support the audio element.
       </audio>
     </div>
-    <div *ngIf="displayPlainText">{{ textContent }}</div>
+    <div
+      *ngIf="displayPlainText"
+      class="text-preview">
+      {{ textContent }}
+    </div>
   </div>
 </div>

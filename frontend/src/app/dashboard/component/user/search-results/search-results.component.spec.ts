@@ -48,8 +48,8 @@ function makeEntry(type: string, id: number, checked = false): DashboardEntry {
  */
 @Component({
   standalone: true,
-  selector: "texera-list-item",
-  template: "<div class='stub-list-item'>{{ entry?.id }}</div>",
+  selector: "tr[texera-list-item]",
+  template: "<td class='stub-list-item'>{{ entry?.id }}</td>",
 })
 class StubListItemComponent {
   @Input() isPrivateSearch = false;
@@ -262,9 +262,13 @@ describe("SearchResultsComponent", () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("cdk-virtual-scroll-viewport")).toBeTruthy();
-      // one list item per entry (rendered via the stub)
-      expect(el.querySelectorAll("texera-list-item").length).toBe(2);
+      expect(el.querySelector("nz-table.results-table")).toBeTruthy();
+      expect(el.querySelector("cdk-virtual-scroll-viewport")).toBeNull();
+      expect(el.querySelector("nz-list")).toBeNull();
+      const headers = Array.from(el.querySelectorAll("th")).map(th => th.textContent?.trim());
+      expect(headers[headers.length - 1]).toBe("Actions");
+      // one table row per entry (rendered via the stub)
+      expect(el.querySelectorAll("tr[texera-list-item]").length).toBe(2);
       const button = el.querySelector("button");
       expect(button?.textContent).toContain("Load more");
     });
@@ -297,6 +301,18 @@ describe("SearchResultsComponent", () => {
 
       hostFixture.destroy();
     });
+  });
+});
+
+describe("SearchResultsComponent list table chrome", () => {
+  it("styles the results table as a white surface with a light border and no hover fill", () => {
+    const css = (SearchResultsComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("box-shadow: none");
+    expect(css).toContain("--app-border-subtle");
+    expect(css).toContain("--app-bg-panel");
+    expect(css).toContain("scrollbar-width: none");
+    expect(css).toContain("repeat(2, minmax(0, 1fr))");
+    expect(css).not.toContain("max-width: 300px");
   });
 });
 
@@ -403,7 +419,7 @@ describe("SearchResultsComponent rendered template", () => {
 
   /**
    * Lets the click handler's promise chain settle. fixture.whenStable() cannot be used here:
-   * the cdk-virtual-scroll-viewport in the list view keeps the zone permanently unstable.
+   * ng-zorro table animations keep the zone permanently unstable in this suite.
    */
   const settle = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -422,7 +438,7 @@ describe("SearchResultsComponent rendered template", () => {
 
       await loadFirstPage(loadMoreFunction);
 
-      expect(el().querySelectorAll("texera-list-item").length).toBe(2);
+      expect(el().querySelectorAll("tr[texera-list-item]").length).toBe(2);
       expect(renderedNames()).toEqual(["alpha", "beta"]);
       expect(loadMoreButton()?.textContent?.trim()).toBe("Load more");
 
@@ -517,8 +533,7 @@ describe("SearchResultsComponent rendered template", () => {
       expect(host.notifyCount).toBe(1);
     });
 
-    it("passes currentUid down, so the owner badge follows the current user", async () => {
-      // alpha belongs to the host's current user (7), beta to someone else (99)
+    it("passes currentUid down to each list item", async () => {
       await loadFirstPage(
         vi.fn<LoadMoreFunction>().mockResolvedValue({
           entries: [workflowEntry(1, "alpha", false, 7), workflowEntry(2, "beta", false, 99)],
@@ -526,19 +541,13 @@ describe("SearchResultsComponent rendered template", () => {
         })
       );
 
-      /** Names of the entries whose list item shows the owner badge. */
-      const ownerBadgedNames = (): string[] =>
-        Array.from(el().querySelectorAll("texera-list-item"))
-          .filter(item => item.querySelector(".owner-badge") !== null)
-          .map(item => (item.querySelector(".resource-name")?.textContent ?? "").trim());
+      const items = fixture.debugElement.queryAll(By.directive(ListItemComponent));
+      expect(items.map(item => (item.componentInstance as ListItemComponent).currentUid)).toEqual([7, 7]);
 
-      expect(ownerBadgedNames()).toEqual(["alpha"]);
-
-      // re-pointing the current user moves the badge, so the binding is not a constant
       host.currentUid = 99;
       fixture.detectChanges();
 
-      expect(ownerBadgedNames()).toEqual(["beta"]);
+      expect(items.map(item => (item.componentInstance as ListItemComponent).currentUid)).toEqual([99, 99]);
     });
 
     it("passes isPrivateSearch down to each list item", async () => {
@@ -550,7 +559,7 @@ describe("SearchResultsComponent rendered template", () => {
       // the checkbox and the button group are private-search only
       expect(el().querySelectorAll("input.large-checkbox").length).toBe(0);
       expect(el().querySelectorAll('button[title="Copy"]').length).toBe(0);
-      expect(el().querySelectorAll("texera-list-item").length).toBe(1);
+      expect(el().querySelectorAll("tr[texera-list-item]").length).toBe(1);
     });
   });
 
@@ -570,7 +579,7 @@ describe("SearchResultsComponent rendered template", () => {
 
       expect(renderedCards()).toEqual(["card:alpha", "card:beta"]);
       // the card view is used instead of, not alongside, the list view
-      expect(el().querySelectorAll("texera-list-item").length).toBe(0);
+      expect(el().querySelectorAll("tr[texera-list-item]").length).toBe(0);
       expect(loadMoreButton()?.textContent?.trim()).toBe("Load more");
 
       await clickLoadMore();
@@ -590,7 +599,7 @@ describe("SearchResultsComponent rendered template", () => {
       expect(renderedCards()).toEqual([]);
       expect(el().querySelector(".card-grid")).toBeNull();
       // the list view is not used as a fallback either
-      expect(el().querySelectorAll("texera-list-item").length).toBe(0);
+      expect(el().querySelectorAll("tr[texera-list-item]").length).toBe(0);
       expect(loadMoreButton()).toBeNull();
     });
   });

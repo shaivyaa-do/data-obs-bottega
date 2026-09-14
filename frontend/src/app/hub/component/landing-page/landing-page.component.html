@@ -18,6 +18,7 @@
 -->
 
 <div class="landing-page-container">
+  <div class="landing-page-heading">Home</div>
   <div
     *ngIf="isLogin"
     class="welcome-hero">
@@ -35,12 +36,18 @@
         type="button"
         class="welcome-btn welcome-btn-primary"
         (click)="openWorkflows()">
+        <span
+          nz-icon
+          nzType="project"></span>
         Open workflows
       </button>
       <button
         type="button"
-        class="welcome-btn"
+        class="welcome-btn welcome-btn-primary"
         (click)="openAgent()">
+        <span
+          nz-icon
+          nzType="plus"></span>
         Create with an agent
       </button>
     </div>
@@ -67,28 +74,52 @@
         type="button"
         class="shortcut-card"
         (click)="openWorkflows()">
-        <span class="shortcut-title">My Workflows</span>
+        <span class="shortcut-heading">
+          <span
+            nz-icon
+            class="shortcut-icon"
+            nzType="project"></span>
+          <span class="shortcut-title">My Workflows</span>
+        </span>
         <span class="shortcut-hint">Open, edit, and run your pipelines</span>
       </button>
       <button
         type="button"
         class="shortcut-card"
         (click)="openAgent()">
-        <span class="shortcut-title">Create with Agent</span>
+        <span class="shortcut-heading">
+          <span
+            nz-icon
+            class="shortcut-icon"
+            nzType="plus"></span>
+          <span class="shortcut-title">Create with Agent</span>
+        </span>
         <span class="shortcut-hint">Describe a workflow in natural language</span>
       </button>
       <button
         type="button"
         class="shortcut-card"
         (click)="openDatasets()">
-        <span class="shortcut-title">My Datasets</span>
+        <span class="shortcut-heading">
+          <span
+            nz-icon
+            class="shortcut-icon"
+            nzType="database"></span>
+          <span class="shortcut-title">My Datasets</span>
+        </span>
         <span class="shortcut-hint">Upload and explore the data you use</span>
       </button>
       <button
         type="button"
         class="shortcut-card"
         (click)="openCompute()">
-        <span class="shortcut-title">Compute</span>
+        <span class="shortcut-heading">
+          <span
+            nz-icon
+            class="shortcut-icon"
+            nzType="deployment-unit"></span>
+          <span class="shortcut-title">Compute</span>
+        </span>
         <span class="shortcut-hint">Start a unit before you run a job</span>
       </button>
     </div>
@@ -106,21 +137,39 @@
         class="stat-card"
         (click)="navigateToSearch('workflow')">
         <span class="stat-value">{{ workflowCount }}</span>
-        <span class="stat-label">Workflows</span>
+        <span class="stat-heading">
+          <span
+            nz-icon
+            class="stat-icon"
+            nzType="project"></span>
+          <span class="stat-label">Workflows</span>
+        </span>
       </button>
       <button
         type="button"
         class="stat-card"
         (click)="navigateToSearch('dataset')">
         <span class="stat-value">{{ datasetCount }}</span>
-        <span class="stat-label">Datasets</span>
+        <span class="stat-heading">
+          <span
+            nz-icon
+            class="stat-icon"
+            nzType="database"></span>
+          <span class="stat-label">Datasets</span>
+        </span>
       </button>
       <button
         type="button"
         class="stat-card"
         (click)="navigateToSearch('model')">
         <span class="stat-value">{{ modelCount }}</span>
-        <span class="stat-label">Models</span>
+        <span class="stat-heading">
+          <span
+            nz-icon
+            class="stat-icon"
+            [nzType]="modelIcon"></span>
+          <span class="stat-label">Models</span>
+        </span>
       </button>
     </div>
   </section>

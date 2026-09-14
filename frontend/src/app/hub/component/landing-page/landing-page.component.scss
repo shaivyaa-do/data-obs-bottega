@@ -20,12 +20,24 @@
 .landing-page-container {
   display: flex;
   flex-direction: column;
-  padding: 0 32px 40px;
+  padding: 14px 14px 0;
   align-items: center;
   height: 100%;
   width: 100%;
   overflow-y: auto;
   background: var(--app-bg-panel);
+  box-sizing: border-box;
+}
+
+.landing-page-heading {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 0 12px;
+  font-family: var(--app-font-display);
+  font-size: var(--type-body-regular-size);
+  font-weight: 500;
+  line-height: var(--type-line-height);
+  color: var(--text-secondary);
 }
 
 .search-bar {
@@ -36,7 +48,7 @@
 .welcome-hero {
   max-width: 1400px;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 0;
   margin-bottom: 20px;
   padding: 28px 32px;
   border-radius: 16px;
@@ -92,6 +104,7 @@
 .welcome-btn {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   border: none;
   border-radius: 10px;
@@ -103,6 +116,11 @@
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+
+  .anticon,
+  .texera-icon {
+    font-size: 14px;
+  }
 }
 
 .welcome-btn:hover {
@@ -113,6 +131,11 @@
   background: var(--app-primary);
   box-shadow: none;
   color: rgb(255 255 255 / 0.9);
+
+  .anticon,
+  .texera-icon {
+    color: inherit;
+  }
 }
 
 .welcome-btn-primary:hover {
@@ -170,7 +193,8 @@
 }
 
 .shortcut-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 240px));
+  justify-content: start;
   margin-bottom: 16px;
 }
 
@@ -212,6 +236,8 @@
 
 .shortcut-card {
   gap: 6px;
+  width: 100%;
+  max-width: 240px;
   min-height: 86px;
   font-size: var(--type-label-regular-size);
   font-weight: 600;
@@ -223,17 +249,27 @@
   font-weight: 600;
 }
 
+.shortcut-heading,
+.stat-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcut-icon,
+.stat-icon {
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .shortcut-hint {
   font-size: var(--type-label-regular-size);
   font-weight: 400;
   line-height: 1.4;
   color: var(--text-primary);
-}
-
-@media (max-width: 900px) {
-  .shortcut-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .section-intro-text > p {

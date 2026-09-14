@@ -17,6 +17,17 @@
  * under the License.
  */
 
+@mixin hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
 .section-container {
   display: flex;
   flex-direction: column;
@@ -104,7 +115,8 @@
     width: 100%;
     max-width: 320px;
     height: 32px;
-    background: var(--app-bg-canvas);
+    background: #ffffff;
+    border: 1px solid var(--app-border-subtle);
     border-radius: var(--app-radius-xs);
   }
 }
@@ -117,17 +129,7 @@
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
-
-  ::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 7px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.5);
-    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
-  }
+  @include hide-scrollbar;
 
   .virtual-scroll-container {
     height: 100%;
@@ -294,6 +296,10 @@
     border-color: #18181b !important;
     color: rgb(255 255 255 / 0.9) !important;
 
+    .anticon {
+      color: inherit !important;
+    }
+
     &:hover,
     &:focus {
       background: #27272a !important;
@@ -357,9 +363,9 @@
   .section-title button.create-btn.ant-btn {
     height: 32px !important;
     padding: 0 12px !important;
-    background: #18181b !important;
-    border-color: #18181b !important;
-    color: rgb(255 255 255 / 0.9) !important;
+    background: var(--app-primary) !important;
+    border-color: var(--app-primary) !important;
+    color: #ffffff !important;
     border-radius: 8px !important;
     font-family: var(--app-font-sans);
     font-size: var(--type-label-regular-size) !important;
@@ -369,11 +375,15 @@
     align-items: center !important;
     gap: 6px !important;
 
+    .anticon {
+      color: inherit !important;
+    }
+
     &:hover,
     &:focus {
-      background: #27272a !important;
-      border-color: #27272a !important;
-      color: rgb(255 255 255 / 0.9) !important;
+      background: var(--app-primary-hover) !important;
+      border-color: var(--app-primary-hover) !important;
+      color: #ffffff !important;
     }
   }
 }

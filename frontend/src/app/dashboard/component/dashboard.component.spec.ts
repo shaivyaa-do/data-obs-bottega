@@ -58,6 +58,7 @@ import {
   USER_AGENT,
   USER_QUOTA,
   USER_WORKFLOW,
+  CONNECTORS,
 } from "../../app-routing.constant";
 
 describe("DashboardComponent", () => {
@@ -279,17 +280,20 @@ describe("DashboardComponent", () => {
     fixture.detectChanges();
 
     expect(fixture.debugElement.query(By.css(".nav-sider"))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css(".shell-header"))).toBeNull();
     expect(fixture.debugElement.query(By.css("nz-layout.workspace-mode"))).toBeNull();
   });
 
-  it("uses full-width content on workflow and opened dataset pages", () => {
-    expect(component.isContentNarrow(USER_WORKFLOW)).toBe(false);
+  it("uses full-width content on opened workflow, opened dataset, hub, and connector pages", () => {
     expect(component.isContentNarrow(`${USER_WORKFLOW}/42`)).toBe(false);
     expect(component.isContentNarrow(`${USER_DATASET}/2`)).toBe(false);
     expect(component.isContentNarrow(`${USER_DATASET}/create`)).toBe(false);
     expect(component.isContentNarrow(HUB_WORKFLOW)).toBe(false);
     expect(component.isContentNarrow(HUB_DATASET)).toBe(false);
     expect(component.isContentNarrow(HOME)).toBe(false);
+    expect(component.isContentNarrow(CONNECTORS)).toBe(false);
+    expect(component.isContentNarrow(`${CONNECTORS}/new/postgresql`)).toBe(false);
+    expect(component.isContentNarrow(`${CONNECTORS}/facilities-prod`)).toBe(false);
   });
 
   it("keeps narrow content on other dashboard pages", () => {
@@ -298,13 +302,14 @@ describe("DashboardComponent", () => {
     expect(component.isContentNarrow(USER_MODEL)).toBe(true);
     expect(component.isContentNarrow(USER_DATASET)).toBe(true);
     expect(component.isContentNarrow(USER_AGENT)).toBe(true);
+    expect(component.isContentNarrow(USER_WORKFLOW)).toBe(true);
   });
 
-  it("applies content-narrow on dataset list, agent, and quota routes, but not workflow or opened dataset", () => {
+  it("applies content-narrow on workflow list, dataset list, agent, and quota routes, but not opened dataset", () => {
     (routerMock as { url: string }).url = USER_WORKFLOW;
     component.checkRoute();
     fixture.detectChanges();
-    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeNull();
+    expect(fixture.debugElement.query(By.css("nz-content.content-narrow"))).toBeTruthy();
 
     (routerMock as { url: string }).url = `${USER_DATASET}/2`;
     component.checkRoute();
@@ -333,11 +338,45 @@ describe("DashboardComponent", () => {
     expect(USER_COMPUTING_UNIT).toBe("/user/compute");
     expect(USER_QUOTA).toBe("/user/quota");
     expect(USER_DISCUSSION).toBe("/user/discussion");
+    expect(CONNECTORS).toBe("/connectors");
     expect(ADMIN_USER).toBe("/admin/user");
     expect(ADMIN_EXECUTION).toBe("/admin/execution");
     expect(ADMIN_GMAIL).toBe("/admin/gmail");
     expect(ADMIN_SETTINGS).toBe("/admin/settings");
     expect(ABOUT).toBe("/about");
+  });
+
+  it("keeps the left nav as the existing 212px light nz-sider with an account footer", () => {
+    (userServiceMock.isLogin as Mock).mockReturnValue(true);
+    component.isLogin = true;
+    fixture.detectChanges();
+
+    const sider = fixture.debugElement.query(By.css("nz-sider.nav-sider"));
+    expect(sider).toBeTruthy();
+    expect([212, "212"]).toContain(sider.componentInstance.nzWidth);
+    expect(sider.componentInstance.nzTheme).toBe("light");
+    expect(fixture.debugElement.query(By.css("ul[nz-menu]"))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css(".nav-footer texera-user-icon"))).toBeTruthy();
+  });
+
+  it("applies left-nav button and group-title spacing on the sider stylesheet", () => {
+    const compiled = (
+      DashboardComponent as unknown as { ɵcmp: { styles: string[] } }
+    ).ɵcmp.styles.join(" ");
+    expect(compiled).toContain("--nav-item-height: 32px");
+    expect(compiled).toContain("--nav-item-icon-gap: 6px");
+    expect(compiled).toContain("--nav-item-padding-x: 10px");
+    expect(compiled).toContain("--nav-group-item-gap: 1px");
+    expect(compiled).toContain("--nav-group-title-margin-top: 14px");
+    expect(compiled).toContain("--nav-group-title-margin-bottom: 6px");
+    expect(compiled).toContain("--nav-group-title-padding-x: 10px");
+    expect(compiled).toContain("--nav-group-title-padding-top: 6px");
+  });
+
+  it("does not render a signed-in account footer when logged out", () => {
+    component.isLogin = false;
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css(".nav-footer texera-user-icon"))).toBeNull();
   });
 
   it("renders every sidebar tab's routerLink when fully enabled", () => {
@@ -361,9 +400,9 @@ describe("DashboardComponent", () => {
     };
     fixture.detectChanges();
 
-    // 8 "Your Work" links (incl. Agents, Python Venvs and Models) + 4 admin links
-    // + 1 feedback link = 13 (About is not in the signed-in nav)
-    expect(fixture.debugElement.queryAll(By.directive(RouterLink)).length).toBe(13);
+    // 9 "Your Work" links (incl. Connectors, Agents, Python Venvs and Models) + 4 admin links
+    // + 1 feedback link = 14 (About is not in the signed-in nav)
+    expect(fixture.debugElement.queryAll(By.directive(RouterLink)).length).toBe(14);
   });
 
   describe("sidebar active-route highlighting (#3490)", () => {
@@ -416,6 +455,9 @@ describe("DashboardComponent", () => {
       const agents = menuItemByLabel("Agents");
       expect(agents).toBeTruthy();
       expect(agents!.componentInstance.nzMatchRouter).toBe(true);
+      const connectors = menuItemByLabel("Connectors");
+      expect(connectors).toBeTruthy();
+      expect(connectors!.componentInstance.nzMatchRouter).toBe(true);
     });
   });
 

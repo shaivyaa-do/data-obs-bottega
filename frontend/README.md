@@ -47,6 +47,10 @@ yarn install
 
 Run `ng help` for the full Angular CLI surface.
 
+## Connectors (product shell)
+
+`/connectors` is **this product’s** JDBC connection UI (My connectors, add-app modal, connect wizard, connection detail). It is not a Texera operator or an Airbyte catalog. Apache Texera remains the workflow **execution canvas** (`/user/workflow/:id`). The first version is a mock API (`ConnectorService`); it does not contact real warehouses.
+
 ## Testing
 
 Tests come first — write the failing test before the source change.
@@ -58,7 +62,7 @@ The full testing reference (Vitest stack, recipes, anti-patterns, coverage troub
 | Path                                           | What lives here                                                                                             |
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `src/app/workspace/`                           | Workflow editor — operator graph, property panel, result panel, code editor.                                |
-| `src/app/dashboard/`                           | User dashboard — workflows, datasets, computing units, admin.                                               |
+| `src/app/dashboard/`                           | User dashboard — workflows, datasets, connectors (product shell), computing units, admin.                   |
 | `src/app/hub/`                                 | Public hub — discover and share workflows.                                                                  |
 | `src/app/common/`                              | Cross-cutting services, types, formly extensions, and shared test helpers (`common/testing/test-utils.ts`). |
 | `src/app/workspace/service/operator-metadata/` | Operator metadata service + the `Stub…Service` test doubles other specs reuse.                              |

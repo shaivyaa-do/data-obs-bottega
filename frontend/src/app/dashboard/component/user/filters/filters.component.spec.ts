@@ -38,7 +38,9 @@ import { StubUserService } from "src/app/common/service/user/stub-user.service";
 import { NotificationService } from "src/app/common/service/notification/notification.service";
 import { DatasetService } from "src/app/dashboard/service/user/dataset/dataset.service";
 import { EntityType } from "src/app/hub/service/hub.service";
+import { SortMethod } from "../../../type/sort-method";
 import { By } from "@angular/platform-browser";
+import { NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
 import { of } from "rxjs";
 
 describe("FiltersComponent", () => {
@@ -355,6 +357,20 @@ describe("FiltersComponent", () => {
       expect(component.masterFilterList).toEqual(["hello", "world", "owner: Texera"]);
       expect(component.getSearchKeywords()).toEqual(["hello", "world"]);
     });
+
+    it("applyKeyword replaces keyword tags and keeps filter tags", () => {
+      component.masterFilterList = ["old", "owner: Texera", "id: 1"];
+      component.applyKeyword("sales");
+      expect(component.masterFilterList).toEqual(["sales", "owner: Texera", "id: 1"]);
+      expect(component.getSearchKeywords()).toEqual(["sales"]);
+    });
+
+    it("applyKeyword with blank input clears keywords and leaves filters", () => {
+      component.masterFilterList = ["sales", "owner: Texera"];
+      component.applyKeyword("   ");
+      expect(component.masterFilterList).toEqual(["owner: Texera"]);
+      expect(component.getSearchKeywords()).toEqual([]);
+    });
   });
 
   describe("master-filter-list building and dropdown reset", () => {
@@ -520,5 +536,104 @@ describe("FiltersComponent per-resource owners", () => {
     await render(EntityType.Workflow);
 
     expect(fixture.debugElement.query(By.css(".search-wids-button"))).not.toBeNull();
+  });
+});
+
+describe("FiltersComponent compact mode", () => {
+  let component: FiltersComponent;
+  let fixture: ComponentFixture<FiltersComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [
+        JwtHelperService,
+        { provide: JWT_OPTIONS, useValue: {} },
+        { provide: WorkflowPersistService, useValue: new StubWorkflowPersistService(testWorkflowEntries) },
+        { provide: OperatorMetadataService, useClass: StubOperatorMetadataService },
+        { provide: UserService, useClass: StubUserService },
+        { provide: DatasetService, useValue: { retrieveOwners: vi.fn(() => of([])) } },
+        provideNzI18n(en_US),
+        ...commonTestProviders,
+      ],
+      imports: [FiltersComponent, NzModalModule, NzDropDownModule, FormsModule, HttpClientTestingModule],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FiltersComponent);
+    component = fixture.componentInstance;
+    component.compact = true;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    const overlayContainer = TestBed.inject(OverlayContainer, null);
+    if (overlayContainer) {
+      overlayContainer.getContainerElement().innerHTML = "";
+    }
+  });
+
+  it("renders a single filter trigger instead of Owner/ID/Operators pills", () => {
+    expect(fixture.debugElement.query(By.css(".filter-trigger"))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css(".search-owners-button"))).toBeNull();
+    expect(fixture.debugElement.query(By.css(".search-wids-button"))).toBeNull();
+    expect(fixture.debugElement.query(By.css(".search-operators-button"))).toBeNull();
+  });
+
+  it("keeps Owner, ID, and Operators as stacked sections inside the overlay", () => {
+    const menu = fixture.debugElement.query(By.directive(NzDropdownMenuComponent))
+      .componentInstance as NzDropdownMenuComponent;
+    menu.viewContainerRef.createEmbeddedView(menu.templateRef);
+    fixture.detectChanges();
+
+    const titles = Array.from(fixture.nativeElement.querySelectorAll(".filter-section-title")).map(el =>
+      (el as HTMLElement).textContent?.trim()
+    );
+    expect(titles).toEqual(["Sort", "Owner", "ID", "Operators"]);
+    expect(fixture.nativeElement.querySelector(".filter-panel")).toBeTruthy();
+  });
+
+  it("emits the chosen sort method from the compact overlay", () => {
+    const menu = fixture.debugElement.query(By.directive(NzDropdownMenuComponent))
+      .componentInstance as NzDropdownMenuComponent;
+    menu.viewContainerRef.createEmbeddedView(menu.templateRef);
+    fixture.detectChanges();
+
+    const emitted: SortMethod[] = [];
+    component.sortMethodChange.subscribe(method => emitted.push(method));
+    const options = Array.from(fixture.nativeElement.querySelectorAll(".sort-option")) as HTMLButtonElement[];
+    expect(options.map(option => option.textContent?.trim())).toEqual([
+      "By Edit Time",
+      "By Create Time",
+      "By Execution Time",
+      "A -> Z",
+      "Z -> A",
+    ]);
+    options[3].click();
+    expect(emitted).toEqual([SortMethod.NameAsc]);
+    expect(component.sortMethod).toBe(SortMethod.NameAsc);
+  });
+
+  it("hides edit-time and execution-time sort options when those inputs are off", () => {
+    component.showEditTime = false;
+    component.showExecutionTime = false;
+    const menu = fixture.debugElement.query(By.directive(NzDropdownMenuComponent))
+      .componentInstance as NzDropdownMenuComponent;
+    menu.viewContainerRef.createEmbeddedView(menu.templateRef);
+    fixture.detectChanges();
+
+    const options = Array.from(fixture.nativeElement.querySelectorAll(".sort-option")).map(el =>
+      (el as HTMLElement).textContent?.trim()
+    );
+    expect(options).toEqual(["By Create Time", "A -> Z", "Z -> A"]);
+  });
+
+  it("does not offer ctime or mtime in the compact overlay", () => {
+    const menu = fixture.debugElement.query(By.directive(NzDropdownMenuComponent))
+      .componentInstance as NzDropdownMenuComponent;
+    menu.viewContainerRef.createEmbeddedView(menu.templateRef);
+    fixture.detectChanges();
+
+    const panel = fixture.nativeElement.querySelector(".filter-panel") as HTMLElement;
+    expect(panel.textContent).not.toMatch(/ctime|mtime|Created|Modified/i);
   });
 });

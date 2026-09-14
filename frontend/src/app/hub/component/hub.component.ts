@@ -18,6 +18,7 @@
  */
 
 import { Component, Input } from "@angular/core";
+import { NavigationEnd, Router, RouterLink } from "@angular/router";
 import { HOME, HUB_DATASET_RESULT, HUB_MODEL_RESULT, HUB_WORKFLOW_RESULT } from "../../app-routing.constant";
 import { GuiConfigService } from "../../common/service/gui-config.service";
 import { SidebarTabs } from "../../common/type/gui-config";
@@ -25,24 +26,56 @@ import { NgIf } from "@angular/common";
 import { NzMenuItemComponent } from "ng-zorro-antd/menu";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
-import { RouterLink } from "@angular/router";
 import { NzIconDirective } from "ng-zorro-antd/icon";
+import { NzModalComponent, NzModalContentDirective, NzModalService } from "ng-zorro-antd/modal";
 import { MODEL_ICON } from "../../common/icon/model-icon";
+import { SearchBarComponent } from "../../dashboard/component/user/search-bar/search-bar.component";
 
 @Component({
   selector: "texera-hub",
   templateUrl: "hub.component.html",
   styleUrls: ["hub.component.scss"],
-  imports: [NgIf, NzMenuItemComponent, ɵNzTransitionPatchDirective, NzTooltipDirective, RouterLink, NzIconDirective],
+  imports: [
+    NgIf,
+    NzMenuItemComponent,
+    ɵNzTransitionPatchDirective,
+    NzTooltipDirective,
+    RouterLink,
+    NzIconDirective,
+    NzModalComponent,
+    NzModalContentDirective,
+    SearchBarComponent,
+  ],
 })
 export class HubComponent {
   @Input() isLogin: boolean = false;
   @Input() sidebarTabs: SidebarTabs = {} as SidebarTabs;
+  searchOpen = false;
   protected readonly HOME = HOME;
   protected readonly HUB_WORKFLOW_RESULT = HUB_WORKFLOW_RESULT;
   protected readonly HUB_DATASET_RESULT = HUB_DATASET_RESULT;
   protected readonly HUB_MODEL_RESULT = HUB_MODEL_RESULT;
   protected readonly MODEL_ICON = MODEL_ICON;
 
-  constructor(protected config: GuiConfigService) {}
+  constructor(
+    protected config: GuiConfigService,
+    private router: Router,
+    _modal: NzModalService
+  ) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.searchOpen = false;
+      }
+    });
+  }
+
+  openSearch(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.searchOpen = true;
+  }
+
+  closeSearch(): void {
+    this.searchOpen = false;
+  }
 }

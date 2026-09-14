@@ -21,64 +21,69 @@
   <nz-card class="section-title">
     <h2 class="page-title">Datasets</h2>
     <div class="button-group">
-      <nz-space-compact class="utility-button-group">
-        <texera-sort-button
-          [showEditTime]="false"
-          [showExecutionTime]="false"
-          (sortMethodChange)="sortMethod = $event; search()"></texera-sort-button>
+      <div class="toolbar-left">
+        <div
+          class="view-toggle"
+          role="group"
+          aria-label="View">
+          <button
+            class="view-toggle-btn"
+            title="List View"
+            type="button"
+            [class.selected]="viewType === 'list'"
+            (click)="setViewType('list')">
+            <i
+              nz-icon
+              nzType="bars"
+              nzTheme="outline"></i>
+          </button>
+          <button
+            class="view-toggle-btn"
+            title="Card View"
+            type="button"
+            [class.selected]="viewType === 'card'"
+            (click)="setViewType('card')">
+            <i
+              nz-icon
+              nzType="appstore"
+              nzTheme="outline"></i>
+          </button>
+        </div>
+        <div class="toolbar-search-filter">
+          <input
+            class="toolbar-search"
+            name="dataset-toolbar-search"
+            nz-input
+            nzVariant="borderless"
+            placeholder="Search"
+            [ngModel]="searchKeyword"
+            (ngModelChange)="onSearchKeywordChange($event)" />
+          <texera-filters
+            #filters
+            class="toolbar-filters"
+            [compact]="true"
+            [entityType]="entityType"
+            [showEditTime]="false"
+            [showExecutionTime]="false"
+            [sortMethod]="sortMethod"
+            (sortMethodChange)="sortMethod = $event; search()"></texera-filters>
+        </div>
+      </div>
+      <div class="create-actions">
         <button
           nz-button
-          title="List View"
-          (click)="setViewType('list')"
-          [nzType]="viewType === 'list' ? 'primary' : 'default'">
+          class="create-btn"
+          (click)="onClickOpenDatasetAddComponent()"
+          title="Create Dataset">
           <i
             nz-icon
-            nzType="bars"
+            nzType="plus"
             nzTheme="outline"></i>
+          <span>Create Dataset</span>
         </button>
-        <button
-          nz-button
-          title="Card View"
-          (click)="setViewType('card')"
-          [nzType]="viewType === 'card' ? 'primary' : 'default'">
-          <i
-            nz-icon
-            nzType="appstore"
-            nzTheme="outline"></i>
-        </button>
-      </nz-space-compact>
-      <texera-filters
-        [entityType]="entityType"
-        #filters></texera-filters>
-      <button
-        nz-button
-        class="create-btn right-aligned-btn"
-        (click)="onClickOpenDatasetAddComponent()"
-        title="Create Dataset">
-        <i
-          nz-icon
-          nzType="plus"
-          nzTheme="outline"></i>
-        <span>Create Dataset</span>
-      </button>
+      </div>
     </div>
   </nz-card>
-
-  <div class="section-search-bar">
-    <texera-filters-instructions></texera-filters-instructions>
-    <nz-select
-      #searchInput
-      class="search-input-box"
-      name="search-input-box"
-      nzMode="tags"
-      nzPlaceHolder="Search all dataset"
-      nzVariant="borderless"
-      [nzOpen]="false"
-      ngDefaultControl
-      [(ngModel)]="filters.masterFilterList"
-      [nzAllowClear]="true">
-    </nz-select>
-  </div>
 
   <ng-template
     #datasetCardTpl

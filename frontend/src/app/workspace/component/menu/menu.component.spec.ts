@@ -612,6 +612,7 @@ describe("MenuComponent", () => {
       expect(createSpy).toHaveBeenCalledTimes(1);
       const config = createSpy.mock.calls[0][0] as ModalOptions;
       expect(config.nzTitle).toBe("Share this workflow with others");
+      expect(config.nzWidth).toBe("480px");
       expect(config.nzData).toEqual(
         expect.objectContaining({
           writeAccess: true,

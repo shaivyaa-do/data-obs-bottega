@@ -23,10 +23,10 @@ import { DashboardWorkflowComputingUnit } from "../type/workflow-computing-unit"
 
 @Component({
   template: `
-    <table class="ant-table">
+    <table class="cu-info-table">
       <tbody>
         <tr>
-          <th style="width: 150px;">Name</th>
+          <th>Name</th>
           <td>{{ unit.computingUnit.name }}</td>
         </tr>
         <tr>
@@ -39,23 +39,23 @@ import { DashboardWorkflowComputingUnit } from "../type/workflow-computing-unit"
         </tr>
         <tr>
           <th>CPU Limit</th>
-          <td>{{ unit.computingUnit.resource.cpuLimit }}</td>
+          <td>{{ displayResourceValue(unit.computingUnit.resource.cpuLimit) }}</td>
         </tr>
         <tr>
           <th>Memory Limit</th>
-          <td>{{ unit.computingUnit.resource.memoryLimit }}</td>
+          <td>{{ displayResourceValue(unit.computingUnit.resource.memoryLimit) }}</td>
         </tr>
         <tr>
           <th>GPU Limit</th>
-          <td>{{ unit.computingUnit.resource.gpuLimit || "None" }}</td>
+          <td>{{ formatGpuLimit(unit.computingUnit.resource.gpuLimit) }}</td>
         </tr>
         <tr>
           <th>JVM Memory</th>
-          <td>{{ unit.computingUnit.resource.jvmMemorySize }}</td>
+          <td>{{ displayResourceValue(unit.computingUnit.resource.jvmMemorySize) }}</td>
         </tr>
         <tr>
           <th>Shared Memory</th>
-          <td>{{ unit.computingUnit.resource.shmSize }}</td>
+          <td>{{ displayResourceValue(unit.computingUnit.resource.shmSize) }}</td>
         </tr>
         <tr>
           <th>Created</th>
@@ -68,11 +68,54 @@ import { DashboardWorkflowComputingUnit } from "../type/workflow-computing-unit"
       </tbody>
     </table>
   `,
+  styles: [
+    `
+      .cu-info-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .cu-info-table th,
+      .cu-info-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--app-border-subtle, rgba(0, 0, 0, 0.06));
+        font-size: var(--type-body-regular-size, 14px);
+        line-height: 1.4;
+      }
+      .cu-info-table th {
+        width: 42%;
+        font-weight: 600;
+        color: var(--text-secondary, #71717a);
+      }
+      .cu-info-table td {
+        color: var(--text-black, #18181b);
+      }
+      .cu-info-table tr:last-child th,
+      .cu-info-table tr:last-child td {
+        border-bottom: none;
+      }
+    `,
+  ],
   standalone: false,
 })
 export class ComputingUnitMetadataComponent {
   readonly unit: DashboardWorkflowComputingUnit = inject(NZ_MODAL_DATA);
   readonly createdAt = new Date(this.unit.computingUnit.creationTime).toLocaleString();
+  readonly displayResourceValue = displayResourceValue;
+
+  formatGpuLimit(value: string | undefined): string {
+    if (!value) {
+      return "None";
+    }
+    return displayResourceValue(value);
+  }
+}
+
+export function displayResourceValue(value: string | undefined | null): string {
+  if (value == null || value === "" || value === "NaN" || value === "N/A") {
+    return "—";
+  }
+  return value;
 }
 
 export function parseResourceUnit(resource: string): string {

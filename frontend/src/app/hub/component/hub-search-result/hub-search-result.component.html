@@ -20,12 +20,12 @@
 <div class="search-container">
   <div class="search-section">
     <div class="filter">
-      <texera-sort-button
-        [showEditTime]="!isVersionedResource"
-        [showExecutionTime]="!isVersionedResource"
-        (sortMethodChange)="sortMethod = $event; search()"></texera-sort-button>
       <texera-filters
         [entityType]="entityType"
+        [showEditTime]="!isVersionedResource"
+        [showExecutionTime]="!isVersionedResource"
+        [sortMethod]="sortMethod"
+        (sortMethodChange)="sortMethod = $event; search()"
         #filters></texera-filters>
       <div
         *ngIf="isVersionedResource"

@@ -822,6 +822,35 @@ describe("ShareAccessComponent", () => {
       return matches[0].nativeElement as HTMLButtonElement;
     }
 
+    it("renders Private and Public as wrapping cards with descriptions, not clipped icon buttons", () => {
+      asOwner();
+      workflowPersistSpy.getWorkflowIsPublished.mockReturnValue(of("Private"));
+      setupComponent({ type: "workflow" });
+
+      const privateBtn = accessButton("Private");
+      const publicBtn = accessButton("Public");
+      expect(privateBtn.classList.contains("ant-btn")).toBe(false);
+      expect(publicBtn.classList.contains("ant-btn")).toBe(false);
+      expect(privateBtn.classList.contains("selected")).toBe(true);
+      expect(publicBtn.classList.contains("selected")).toBe(false);
+      expect(privateBtn.querySelector(".button-text-desc")?.textContent).toContain("Only collaborators");
+      expect(publicBtn.querySelector(".button-text-desc")?.textContent).toContain("Anyone on DO Bottega");
+    });
+
+    it("keeps Access and Share on one row and uses a default plus control", () => {
+      asOwner();
+      setupComponent({ type: "workflow" });
+
+      const submitRow = fixture.debugElement.query(By.css(".share-submit-row"));
+      expect(submitRow).toBeTruthy();
+      expect(submitRow.nativeElement.querySelector("select#access-level")).toBeTruthy();
+      expect(submitRow.nativeElement.querySelector('button[type="submit"]')).toBeTruthy();
+
+      const add = fixture.debugElement.query(By.css("button.add-button")).nativeElement as HTMLButtonElement;
+      expect(add.classList.contains("ant-btn-primary")).toBe(false);
+      expect(fixture.debugElement.query(By.css("button.reload-button"))).toBeTruthy();
+    });
+
     it("offers the restrictive option first: Private, then Public", () => {
       asOwner();
       workflowPersistSpy.getWorkflowIsPublished.mockReturnValue(of("Private"));

@@ -22,30 +22,45 @@
   [nzBodyStyle]="{ height: '100%'}">
   <!-- LIST VIEW -->
   <ng-container *ngIf="viewMode === 'list'">
-    <!-- itemSize: the height (px) of each list item,
-        this MUST be approximately the same as list item size set in CSS,
-        .workflow-list-item sets the item size to be 70px, with additional paddings/margins it's approximately 80px
-      -->
-    <cdk-virtual-scroll-viewport
-      itemSize="70"
-      class="virtual-scroll-container">
-      <nz-list>
-        <ng-container *ngFor="let entry of entries">
-          <texera-list-item
+    <div class="list-table-scroll">
+      <nz-table
+        #resultsTable
+        class="results-table"
+        [nzData]="tableData"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzTableLayout]="'fixed'"
+        nzSize="small">
+        <thead>
+          <tr>
+            <th class="name-col">Name</th>
+            <th nzWidth="12%">Views</th>
+            <th nzWidth="12%">Size</th>
+            <th nzWidth="14%">Created</th>
+            <th nzWidth="14%">Edited</th>
+            <th
+              nzWidth="18%"
+              class="actions-col">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let entry of resultsTable.data; trackBy: trackByEntryId"
+            texera-list-item
             (deleted)="deleted.emit(entry)"
             (duplicated)="duplicated.emit(entry)"
             (refresh)="refresh.emit()"
             [isPrivateSearch]="isPrivateSearch"
             [editable]="editable"
             [entry]="entry"
-            [currentUid]="this.currentUid"
+            [currentUid]="currentUid"
             (checkboxChanged)="onEntryCheckboxChange()">
-          </texera-list-item>
-        </ng-container>
-      </nz-list>
-      <div
-        nz-list-load-more
-        class="load-more">
+          </tr>
+        </tbody>
+      </nz-table>
+      <div class="load-more">
         <button
           nz-button
           *ngIf="!loading && more"
@@ -53,7 +68,7 @@
           Load more
         </button>
       </div>
-    </cdk-virtual-scroll-viewport>
+    </div>
   </ng-container>
 
   <!-- CARD VIEW -->

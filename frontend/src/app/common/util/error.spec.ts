@@ -67,4 +67,9 @@ describe("extractErrorMessage", () => {
     const result = extractErrorMessage(testError);
     expect(result).toBe("An unknown error occurred.");
   });
+
+  it("should describe a gateway timeout instead of reading a missing message", () => {
+    const result = extractErrorMessage({ status: 504, error: null, message: "Http failure" });
+    expect(result).toBe("The request timed out. Try again.");
+  });
 });

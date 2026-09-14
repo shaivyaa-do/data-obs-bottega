@@ -22,12 +22,11 @@ import { DashboardEntry } from "../../../dashboard/type/dashboard-entry";
 import { EntityType } from "../../service/hub.service";
 import { ResourceRegistryService } from "../../../dashboard/service/user/resource-registry/resource-registry.service";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { NgIf, NgFor, NgStyle, DatePipe } from "@angular/common";
+import { NgIf, NgFor, DatePipe } from "@angular/common";
 import { NzCardComponent } from "ng-zorro-antd/card";
 import { RouterLink } from "@angular/router";
 import { UserAvatarComponent } from "../../../dashboard/component/user/user-avatar/user-avatar.component";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
-import { NzAvatarComponent } from "ng-zorro-antd/avatar";
 
 @UntilDestroy()
 @Component({
@@ -41,8 +40,6 @@ import { NzAvatarComponent } from "ng-zorro-antd/avatar";
     RouterLink,
     UserAvatarComponent,
     ɵNzTransitionPatchDirective,
-    NzAvatarComponent,
-    NgStyle,
     DatePipe,
   ],
 })

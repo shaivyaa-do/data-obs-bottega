@@ -36,19 +36,33 @@ describe("iconSvg", () => {
     expect(() => iconSvg("not-an-icon")).toThrow(/No Fluent mapping/);
     expect(() => iconSvg("")).toThrow(/required/);
   });
+
+  it("returns a glyph for the filter ant name", () => {
+    expect(iconSvg("filter")).toContain("<svg");
+  });
 });
 
 describe("registerFluentNzIcons", () => {
-  it("registers outline and fill aliases for every mapped ant name", () => {
-    const calls: Array<[string, string]> = [];
-    registerFluentNzIcons((name, svg) => calls.push([name, svg]));
-    const names = calls.map(([name]) => name);
-    expect(names).toContain("delete");
-    expect(names).toContain("delete:outline");
-    expect(names).toContain("delete:fill");
-    expect(calls.find(([name]) => name === "delete:fill")?.[1]).not.toBe(
-      calls.find(([name]) => name === "delete:outline")?.[1]
-    );
-    expect(new Set(Object.keys(ANT_TO_FLUENT)).size).toBeGreaterThan(90);
+  it("registers outline and fill IconDefinitions for every mapped ant name", () => {
+    const icons: Array<{ name: string; theme?: string; icon: string }> = [];
+    registerFluentNzIcons((...defs) => icons.push(...defs));
+    const deleteOutline = icons.find(icon => icon.name === "delete" && icon.theme === "outline");
+    const deleteFill = icons.find(icon => icon.name === "delete" && icon.theme === "fill");
+    expect(deleteOutline?.icon).toContain("<svg");
+    expect(deleteFill?.icon).not.toBe(deleteOutline?.icon);
+    expect(icons.every(icon => icon.theme === "outline" || icon.theme === "fill")).toBe(true);
+    expect(icons.some(icon => !icon.name.includes(":"))).toBe(true);
+    expect(new Set(icons.map(icon => icon.name)).size).toBeGreaterThan(90);
+  });
+
+  it("does not pass a namespace-less string to addIconLiteral", () => {
+    const literals: string[] = [];
+    registerFluentNzIcons((...defs) => {
+      for (const def of defs) {
+        literals.push(def.name);
+      }
+    });
+    expect(literals).not.toContain("delete:outline");
+    expect(literals.every(name => !name.includes(":"))).toBe(true);
   });
 });

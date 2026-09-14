@@ -17,10 +17,13 @@
  * under the License.
  */
 
+import { readFileSync } from "node:fs";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { of, throwError, Subject } from "rxjs";
 import { UserAgentComponent } from "./user-agent.component";
 import { AgentInfo, AgentService, LLM_PROVIDER_API_KEY_STORAGE_KEY, ModelType } from "../../../../workspace/service/agent/agent.service";
@@ -28,6 +31,8 @@ import { NotificationService } from "../../../../common/service/notification/not
 import { ComputingUnitStatusService } from "../../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
 import { USER_COMPUTING_UNIT, USER_WORKSPACE } from "../../../../app-routing.constant";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
+import { NzModalService } from "ng-zorro-antd/modal";
+import { NzPopoverDirective } from "ng-zorro-antd/popover";
 
 const MODEL: ModelType = { id: "claude-haiku-4.5", name: "Claude Haiku 4.5", description: "Model: claude-haiku-4.5", icon: "robot" };
 
@@ -71,8 +76,9 @@ describe("UserAgentComponent", () => {
     agentChangeSubject = new Subject<void>();
 
     await TestBed.configureTestingModule({
-      imports: [UserAgentComponent, HttpClientTestingModule, RouterTestingModule],
+      imports: [UserAgentComponent, HttpClientTestingModule, RouterTestingModule, NoopAnimationsModule],
       providers: [
+        NzModalService,
         {
           provide: AgentService,
           useValue: {
@@ -208,13 +214,14 @@ describe("UserAgentComponent", () => {
   });
 
   describe("configured agents list", () => {
-    it("renders configured agents below the create form", () => {
+    it("renders configured agents in a table", () => {
       const agents = [makeAgent("a"), makeAgent("b", { name: "Researcher", modelType: "claude-haiku-4.5" })];
       getAllAgents.mockReturnValue(of(agents));
       fixture.detectChanges();
 
+      expect(fixture.nativeElement.querySelector("nz-table.agent-table")).toBeTruthy();
       expect(getAllAgents).toHaveBeenCalledTimes(1);
-      expect(fixture.nativeElement.textContent).toContain("Your Agents");
+      expect(fixture.nativeElement.querySelector(".page-title")?.textContent).toContain("Agents");
       const names = Array.from(
         fixture.nativeElement.querySelectorAll(".configured-agent-name") as NodeListOf<HTMLElement>
       ).map(el => el.textContent?.trim());
@@ -301,6 +308,82 @@ describe("UserAgentComponent", () => {
       (fixture.nativeElement.querySelector(".configured-agent-delete") as HTMLButtonElement).click();
 
       expect(notifyError).toHaveBeenCalled();
+    });
+  });
+
+  describe("configure agent modal", () => {
+    it("shows only the agents table until Configure agent is opened", () => {
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector(".create-btn")?.textContent).toContain("Configure agent");
+      expect(fixture.nativeElement.querySelector(".model-cards")).toBeNull();
+      expect(fixture.nativeElement.querySelector(".agent-name-input")).toBeNull();
+      expect(component.configureVisible).toBe(false);
+    });
+
+    it("opens the configure modal from the toolbar button", () => {
+      fixture.detectChanges();
+      (fixture.nativeElement.querySelector(".create-btn") as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(component.configureVisible).toBe(true);
+    });
+
+    it("hides provider API key help behind an info icon until it is clicked", () => {
+      component.configureVisible = true;
+      fixture.detectChanges();
+
+      const info = fixture.debugElement.query(By.css(".api-key-info"));
+      expect(info).toBeTruthy();
+      expect(info.injector.get(NzPopoverDirective).trigger).toBe("click");
+      expect(info.injector.get(NzPopoverDirective).placement).toBe("bottom");
+      expect(info.injector.get(NzPopoverDirective).overlayClassName).toBe("api-key-help-popover");
+      expect(fixture.nativeElement.textContent).not.toContain("Use the key that matches the model");
+      expect(document.querySelector(".ant-popover")).toBeNull();
+
+      info.nativeElement.click();
+      fixture.detectChanges();
+
+      const panel = document.querySelector(".ant-popover.api-key-help-popover") as HTMLElement | null;
+      expect(panel, "expected the API key help popover to open on click").toBeTruthy();
+      expect(panel?.textContent).toContain("Use the key that matches the model");
+      expect(panel?.textContent).toContain("not saved in the database");
+    });
+
+    it("wraps provider API key help in a compact popover with secondary text", () => {
+      const css = (UserAgentComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+      expect(css).toMatch(/\.api-key-help-popover[\s\S]*max-width:\s*260px/);
+      expect(css).toMatch(/\.api-key-help-text[\s\S]*--text-secondary/);
+      expect(css).toMatch(/\.api-key-help-text[\s\S]*white-space:\s*normal/);
+    });
+
+    it("uses a 360px configure-agent dialog", () => {
+      fixture.detectChanges();
+      const modal = fixture.debugElement.query(By.css("nz-modal"));
+      expect(modal.componentInstance.nzWidth).toBe(360);
+      expect(modal.componentInstance.nzWrapClassName).toBe("configure-agent-modal");
+    });
+
+    it("paints the Create agent submit button as a create-btn", () => {
+      const template = readFileSync(
+        "src/app/dashboard/component/user/user-agent/user-agent.component.html",
+        "utf8"
+      );
+      expect(template).toMatch(/class="submit-btn create-btn"/);
+      expect(template).toMatch(/Create agent/);
+    });
+
+    it("closes the configure modal after a successful create", () => {
+      createAgent.mockReturnValue(of({ id: "agent-7" }));
+      fixture.detectChanges();
+      component.configureVisible = true;
+      component.selectModelType(MODEL.id);
+      component.providerApiKey = "sk-ant-test";
+      component.customAgentName = "Builder";
+
+      component.createAgent();
+
+      expect(component.configureVisible).toBe(false);
     });
   });
 });

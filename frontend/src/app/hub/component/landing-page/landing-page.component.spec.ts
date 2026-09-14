@@ -19,6 +19,8 @@
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { DebugElement } from "@angular/core";
+import { readFileSync } from "node:fs";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { of, throwError } from "rxjs";
@@ -122,6 +124,18 @@ describe("LandingPageComponent", () => {
   it("should create", () => {
     build();
     expect(component).toBeTruthy();
+  });
+
+  it("places the Home heading inside the landing container with 14px side padding", () => {
+    build();
+    fixture.detectChanges();
+    const heading = fixture.nativeElement.querySelector(".landing-page-heading");
+    expect(heading).toBeTruthy();
+    expect(heading.textContent.trim()).toBe("Home");
+    const css = (
+      LandingPageComponent as unknown as { ɵcmp: { styles: string[] } }
+    ).ɵcmp.styles.join(" ");
+    expect(css).toContain("padding: 14px 14px 0");
   });
 
   it("updates isLogin, currentUid and displayName when userChanged() emits", () => {
@@ -281,6 +295,10 @@ describe("LandingPageComponent", () => {
       return found;
     }
 
+    function iconCount(host: DebugElement): number {
+      return host.queryAll(By.css("[nz-icon]")).length;
+    }
+
     it("shows the workflow, dataset and model counts, each in its own card", () => {
       build();
       fixture.detectChanges(); // ngOnInit -> loadCounts
@@ -291,6 +309,15 @@ describe("LandingPageComponent", () => {
       expect(statCards()[1].nativeElement.textContent).toContain("Datasets");
       expect(statCards()[2].nativeElement.textContent).toContain("3");
       expect(statCards()[2].nativeElement.textContent).toContain("Models");
+      expect(iconCount(statCards()[0])).toBe(1);
+      expect(iconCount(statCards()[1])).toBe(1);
+      expect(iconCount(statCards()[2])).toBe(1);
+      statCards().forEach(card => {
+        const heading = card.query(By.css(".stat-heading"));
+        expect(heading, "icon should sit in a heading row with the label").not.toBeNull();
+        expect(heading!.query(By.css("[nz-icon]"))).not.toBeNull();
+        expect(heading!.query(By.css(".stat-label"))).not.toBeNull();
+      });
     });
 
     it("routes to the workflow, dataset and model hubs from the three cards in order", () => {
@@ -322,10 +349,13 @@ describe("LandingPageComponent", () => {
       fixture.detectChanges();
 
       const buttons = fixture.debugElement.queryAll(By.css(".welcome-btn"));
-      expect(buttons.map(b => (b.nativeElement.textContent ?? "").trim())).toEqual([
+      expect(buttons.map(b => (b.nativeElement.textContent ?? "").replace(/\s+/g, " ").trim())).toEqual([
         "Open workflows",
         "Create with an agent",
       ]);
+      expect(buttons[1].nativeElement.classList.contains("welcome-btn-primary")).toBe(true);
+      expect(iconCount(buttons[0])).toBe(1);
+      expect(iconCount(buttons[1])).toBe(1);
 
       buttons[0].triggerEventHandler("click", {});
       expect(routerNavigateSpy).toHaveBeenLastCalledWith([USER_WORKFLOW]);
@@ -355,6 +385,16 @@ describe("LandingPageComponent", () => {
       expect(labels[1]).toContain("Create with Agent");
       expect(labels[2]).toContain("My Datasets");
       expect(labels[3]).toContain("Compute");
+      expect(iconCount(shortcuts[0])).toBe(1);
+      expect(iconCount(shortcuts[1])).toBe(1);
+      expect(iconCount(shortcuts[2])).toBe(1);
+      expect(iconCount(shortcuts[3])).toBe(1);
+      shortcuts.forEach(card => {
+        const heading = card.query(By.css(".shortcut-heading"));
+        expect(heading, "icon should sit in a heading row with the title").not.toBeNull();
+        expect(heading!.query(By.css("[nz-icon]"))).not.toBeNull();
+        expect(heading!.query(By.css(".shortcut-title"))).not.toBeNull();
+      });
 
       shortcuts[0].triggerEventHandler("click", {});
       expect(routerNavigateSpy).toHaveBeenLastCalledWith([USER_WORKFLOW]);
@@ -407,5 +447,30 @@ describe("LandingPageComponent", () => {
         component.currentUid,
       ]);
     });
+  });
+});
+
+describe("LandingPageComponent Fluent icons", () => {
+  it("uses plus on create and matching entity icons on the rest of the home surface", () => {
+    const html = readFileSync("src/app/hub/component/landing-page/landing-page.component.html", "utf8");
+    expect(html).toContain('nzType="project"');
+    expect(html).toContain('nzType="plus"');
+    expect(html).toContain('nzType="database"');
+    expect(html).toContain('nzType="deployment-unit"');
+    expect(html).toContain('[nzType]="modelIcon"');
+  });
+
+  it("sizes home icons smaller than the global 20px glyph", () => {
+    const css = readFileSync("src/app/hub/component/landing-page/landing-page.component.scss", "utf8");
+    expect(css).toMatch(/\.shortcut-heading[\s\S]*flex-direction:\s*row/);
+    expect(css).toMatch(/\.stat-heading[\s\S]*flex-direction:\s*row/);
+    expect(css).toMatch(/\.shortcut-icon[\s\S]*font-size:\s*14px/);
+    expect(css).toMatch(/\.stat-icon[\s\S]*font-size:\s*14px/);
+  });
+
+  it("keeps Your work shortcut cards compact instead of stretching full width", () => {
+    const css = readFileSync("src/app/hub/component/landing-page/landing-page.component.scss", "utf8");
+    expect(css).toMatch(/\.shortcut-grid[\s\S]*?repeat\(auto-fill,\s*minmax\(200px,\s*240px\)\)/);
+    expect(css).toMatch(/\.shortcut-card[\s\S]*?max-width:\s*240px/);
   });
 });

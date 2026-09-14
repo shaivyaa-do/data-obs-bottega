@@ -52,7 +52,7 @@ export class AppComponent {
   ) {
     // ng-zorro has no icon that reads as an ML model, so this one is registered from Material Symbols.
     iconService.addIconLiteral(MODEL_ICON, MODEL_ICON_SVG);
-    registerFluentNzIcons((name, svg) => iconService.addIconLiteral(name, svg));
+    registerFluentNzIcons((...icons) => iconService.addIcon(...icons));
 
     // determine whether configuration was successfully loaded by APP_INITIALIZER
     try {

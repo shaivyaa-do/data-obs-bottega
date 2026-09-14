@@ -32,7 +32,6 @@ import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { SortButtonComponent } from "../sort-button/sort-button.component";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { MODEL_ICON } from "../../../../common/icon/model-icon";
 
@@ -46,7 +45,6 @@ import { MODEL_ICON } from "../../../../common/icon/model-icon";
     NzButtonComponent,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
-    SortButtonComponent,
     NzWaveDirective,
     NgClass,
     FiltersComponent,

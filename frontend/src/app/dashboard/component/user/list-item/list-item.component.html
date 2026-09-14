@@ -17,77 +17,35 @@
  under the License.
 -->
 
-<nz-card
-  [nzBodyStyle]="{padding: '0px'}"
-  class="list-item-card"
-  [class.selected]="entry.checked"
-  [class.has-button-group]="isPrivateSearch"
-  [class.editing-description]="editingDescription">
-  <div
-    (mouseenter)="hovering = true"
-    (mouseleave)="hovering = false"
-    [routerLink]="entryLink"
-    nz-row
-    nzAlign="middle">
-    <div
-      nz-col
-      nzFlex="0"
+<td class="name-cell">
+  <div class="name-cell-inner">
+    <input
       *ngIf="isPrivateSearch && entry.type==='workflow'"
-      style="margin-right: 6px;">
-      <input
-        type="checkbox"
-        class="large-checkbox"
-        [ngClass]="{showc: entry.checked}"
-        [checked]="entry.checked"
-        (change)="onCheckboxChange(entry)"
-        (click)="$event.stopPropagation()" />
-    </div>
-
-    <div
-      nz-col
-      nzFlex="0"
-      class="type-icon">
-      <i
-        nz-icon
-        [nzType]="iconType"></i>
-    </div>
-
-    <div
-      nz-col
-      nzFlex="0"
-      class="workflow-id">
-      <i>#{{ entry.id }}</i>
-    </div>
-
-    <div
-      nz-col
-      class="edit-button"
-      *ngIf="isPrivateSearch">
-      <button
-        nz-button
-        nzType="text"
-        title="Edit"
-        (click)="openEditModal();$event.stopPropagation()">
-        <i
-          nz-icon
-          nzType="edit"></i>
-      </button>
-    </div>
-
-    <div
-      nz-col
-      nzFlex="1"
-      class="resource-name-group">
+      type="checkbox"
+      class="large-checkbox"
+      [ngClass]="{showc: entry.checked}"
+      [checked]="entry.checked"
+      (change)="onCheckboxChange(entry)"
+      (click)="$event.stopPropagation()" />
+    <span
+      class="workflow-id"
+      *ngIf="entry.id != null"
+      >#{{ entry.id }}</span
+    >
+    <div class="resource-name-group">
       <div
         class="resource-name-container"
         *ngIf="!editingName">
-        <span class="resource-name">{{ entry.name }}</span>
+        <span
+          class="resource-name"
+          (click)="openEditModal(); $event.stopPropagation()"
+          >{{ entry.name }}</span
+        >
         <span
           class="resource-description truncate-single-line"
           (click)="openEditModal(); $event.stopPropagation()"
-          *ngIf="renderedDescription || (hovering && editable)">
-          {{ renderedDescription ? renderedDescription.slice(0, 200) : (hovering && editable) ? 'Write a description...' :
-          '' }}
+          *ngIf="renderedDescription || editable">
+          {{ renderedDescription ? renderedDescription.slice(0, 200) : "Write a description..." }}
         </span>
       </div>
       <input
@@ -100,55 +58,13 @@
         (click)="$event.stopPropagation()"
         autofocus />
     </div>
-
-    <div
-      nz-col
-      class="resource-info-group resource-info">
-      <span
-        class="resource-info-item"
-        *ngIf="viewCount !== undefined">
-        <span class="info-label">Views:</span>
-        <span class="info-value">{{ formatCount(this.viewCount) }}</span>
-      </span>
-      <span
-        class="resource-info-item"
-        *ngIf="size">
-        <span class="info-label">Size:</span>
-        <span class="info-value">{{ formatSize(size) }}</span>
-      </span>
-      <span class="resource-info-item">
-        <span class="info-label">Created:</span>
-        <span class="info-value">{{ formatRelativeTime(entry.creationTime) }}</span>
-      </span>
-      <span class="resource-info-item">
-        <span class="info-label">Edited:</span>
-        <span class="info-value">{{ formatRelativeTime(entry.lastModifiedTime) }}</span>
-      </span>
-    </div>
-
-    <div
-      nz-col
-      nzFlex="0"
-      class="resource-info"
-      *ngIf="!isPrivateSearch">
-      <button
-        nz-button
-        nzType="default"
-        class="like-button"
-        title="Like"
-        [disabled]="!currentUid"
-        (click)="toggleLike(); $event.stopPropagation()"
-        [attr.disabled]="!currentUid ? true : null">
-        <i
-          nz-icon
-          [nzType]="'like'"
-          [ngClass]="{liked: isLiked}">
-        </i>
-        <span>{{ formatCount(this.likeCount) }}</span>
-      </button>
-    </div>
   </div>
-
+</td>
+<td class="meta-cell">{{ viewCount !== undefined ? formatCount(viewCount) : "—" }}</td>
+<td class="meta-cell">{{ size ? formatSize(size) : "—" }}</td>
+<td class="meta-cell">{{ formatRelativeTime(entry.creationTime) }}</td>
+<td class="meta-cell">{{ formatRelativeTime(entry.lastModifiedTime) }}</td>
+<td class="actions-cell">
   <div
     *ngIf="isPrivateSearch"
     class="button-group">
@@ -157,7 +73,9 @@
       nz-button
       nzType="text"
       title="Detail"
-      (click)="openDetailModal(this.entry.id)">
+      nz-tooltip="Detail"
+      nzTooltipPlacement="top"
+      (click)="openDetailModal(this.entry.id); stopRowNav($event)">
       <i
         nz-icon
         nzType="eye"></i>
@@ -166,8 +84,10 @@
       nz-button
       nzType="text"
       title="Share"
+      nz-tooltip="Share"
+      nzTooltipPlacement="top"
       *ngIf="canShare"
-      (click)="onClickOpenShareAccess()">
+      (click)="onClickOpenShareAccess($event)">
       <i
         nz-icon
         nzType="share-alt"></i>
@@ -177,7 +97,9 @@
       nzType="text"
       *ngIf="entry.type==='workflow'"
       title="Copy"
-      (click)="duplicated.emit()">
+      nz-tooltip="Copy"
+      nzTooltipPlacement="top"
+      (click)="duplicated.emit(); stopRowNav($event)">
       <i
         nz-icon
         nzType="copy"></i>
@@ -187,7 +109,9 @@
       nzType="text"
       *ngIf="canDownload"
       title="Download"
-      (click)="onClickDownload()">
+      nz-tooltip="Download"
+      nzTooltipPlacement="top"
+      (click)="onClickDownload(); stopRowNav($event)">
       <i
         nz-icon
         nzType="cloud-download"></i>
@@ -196,7 +120,10 @@
       nz-button
       nzType="text"
       title="Delete"
+      nz-tooltip="Delete"
+      nzTooltipPlacement="top"
       [disabled]="disableDelete"
+      (click)="stopRowNav($event)"
       (nzOnConfirm)="deleted.emit()"
       nz-popconfirm
       nzPopconfirmTitle="Confirm to delete this item.">
@@ -205,7 +132,23 @@
         nzType="delete"></i>
     </button>
   </div>
-</nz-card>
+  <button
+    *ngIf="!isPrivateSearch"
+    nz-button
+    nzType="default"
+    class="like-button"
+    title="Like"
+    [disabled]="!currentUid"
+    (click)="toggleLike(); stopRowNav($event)"
+    [attr.disabled]="!currentUid ? true : null">
+    <i
+      nz-icon
+      [nzType]="'like'"
+      [ngClass]="{liked: isLiked}">
+    </i>
+    <span>{{ formatCount(this.likeCount) }}</span>
+  </button>
+</td>
 
 <ng-template #editModalTpl>
   <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 8px;">

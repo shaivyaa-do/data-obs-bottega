@@ -133,7 +133,7 @@ describe("UserVenvComponent", () => {
       expect(byName("empty")).toEqual({ name: "empty", versionOp: "==", version: "" });
 
       const host = fixture.nativeElement as HTMLElement;
-      const items = host.querySelectorAll("li.python-env-page-item");
+      const items = host.querySelectorAll(".python-env-page-item");
       expect(items.length).toBe(1);
       expect(host.querySelector(".python-env-name")?.textContent).toContain("envA");
     });
@@ -526,7 +526,7 @@ describe("UserVenvComponent", () => {
       seedList([]);
       const host = fixture.nativeElement as HTMLElement;
       expect(host.querySelector(".python-env-page-empty")?.textContent).toContain("No environments yet");
-      expect(host.querySelector("ul.python-env-page-list")).toBeNull();
+      expect(host.querySelector(".python-env-page-item")).toBeNull();
     });
 
     it("opens an empty draft modal from the Create button", () => {
@@ -542,7 +542,7 @@ describe("UserVenvComponent", () => {
         { veid: 2, name: "", packages: {} },
       ] as UserPveRecord[]);
 
-      const rows = fixture.debugElement.queryAll(By.css("li.python-env-page-item"));
+      const rows = fixture.debugElement.queryAll(By.css(".python-env-page-item"));
       expect(rows.length).toBe(2);
       expect((fixture.nativeElement as HTMLElement).textContent).toContain("(unnamed)");
       // The empty-state banner is the complementary arm of the same *ngIf pair: it must
@@ -550,6 +550,18 @@ describe("UserVenvComponent", () => {
       expect((fixture.nativeElement as HTMLElement).querySelector(".python-env-page-empty")).toBeNull();
 
       rows[0].triggerEventHandler("click", {});
+      expect(component.pveModalVisible).toBe(true);
+      expect(component.currentDraft?.name).toBe("envA");
+    });
+
+    it("opens the environment from the view icon without relying on row click", () => {
+      seedList([{ veid: 1, name: "envA", packages: {} }] as UserPveRecord[]);
+      const stopPropagation = vi.fn();
+      fixture.debugElement
+        .query(By.css('button[title="View"]'))
+        .triggerEventHandler("click", { stopPropagation });
+
+      expect(stopPropagation).toHaveBeenCalled();
       expect(component.pveModalVisible).toBe(true);
       expect(component.currentDraft?.name).toBe("envA");
     });
@@ -727,7 +739,7 @@ describe("UserVenvComponent", () => {
         { veid: 1, name: "envFirst", packages: {} },
         { veid: 2, name: "envSecond", packages: { numpy: "==1.0" } },
       ] as UserPveRecord[]);
-      const rows = fixture.debugElement.queryAll(By.css("li.python-env-page-item"));
+      const rows = fixture.debugElement.queryAll(By.css(".python-env-page-item"));
       expect(rows.length).toBe(2);
 
       // Clicking the second row must open the second environment, not index 0.
@@ -753,7 +765,7 @@ describe("UserVenvComponent", () => {
       ] as UserPveRecord[]);
       pveServiceSpy.listUserPves.mockReturnValue(feed);
       fixture.detectChanges();
-      const before = fixture.debugElement.queryAll(By.css("li.python-env-page-item"))[0].nativeElement;
+      const before = fixture.debugElement.queryAll(By.css(".python-env-page-item"))[0].nativeElement;
 
       // Fresh record objects, same veids: trackByVeid must keep the existing DOM node.
       feed.next([
@@ -761,7 +773,7 @@ describe("UserVenvComponent", () => {
         { veid: 2, name: "envAlso", packages: {} },
       ] as UserPveRecord[]);
       flushOverlay();
-      const after = fixture.debugElement.queryAll(By.css("li.python-env-page-item"))[0].nativeElement;
+      const after = fixture.debugElement.queryAll(By.css(".python-env-page-item"))[0].nativeElement;
       expect(after).toBe(before);
     });
 
@@ -837,7 +849,7 @@ describe("UserVenvComponent", () => {
      */
     it("keeps Save disabled when the stored environment name is null", () => {
       seedList([{ veid: 1, name: null, packages: {} } as unknown as UserPveRecord]);
-      fixture.debugElement.query(By.css("li.python-env-page-item")).triggerEventHandler("click", {});
+      fixture.debugElement.query(By.css(".python-env-page-item")).triggerEventHandler("click", {});
       flushOverlay();
 
       expect(component.currentDraft?.name).toBeNull();

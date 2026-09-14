@@ -29,6 +29,7 @@ import { NzSwitchComponent } from "ng-zorro-antd/switch";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
+import { NzIconDirective } from "ng-zorro-antd/icon";
 
 import {
   MODEL_FORMATS,
@@ -60,6 +61,7 @@ export function sanitizeModelName(name: string): string {
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
+    NzIconDirective,
   ],
 })
 export class UserModelCreatorComponent implements OnInit {

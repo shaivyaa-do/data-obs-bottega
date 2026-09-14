@@ -42,7 +42,6 @@ import { OperatorMetadataService } from "src/app/workspace/service/operator-meta
 import { StubOperatorMetadataService } from "src/app/workspace/service/operator-metadata/stub-operator-metadata.service";
 import { WorkflowPersistService } from "src/app/common/service/workflow-persist/workflow-persist.service";
 import { StubWorkflowPersistService } from "src/app/common/service/workflow-persist/stub-workflow-persist.service";
-import { SortButtonComponent } from "../sort-button/sort-button.component";
 import { MODEL_ICON } from "../../../../common/icon/model-icon";
 
 // Lightweight stand-in for FiltersComponent. It registers itself under the real
@@ -56,6 +55,7 @@ import { MODEL_ICON } from "../../../../common/icon/model-icon";
   providers: [{ provide: FiltersComponent, useExisting: forwardRef(() => MockFiltersComponent) }],
 })
 class MockFiltersComponent {
+  @Input() sortMethod?: SortMethod;
   masterFilterListChange = EMPTY;
   masterFilterList: ReadonlyArray<string> = [];
   getSearchKeywords = (): string[] => [...this.masterFilterList];
@@ -392,11 +392,11 @@ describe("SearchComponent rendered template", () => {
     expect(lastSearchedType()).toBeNull();
   });
 
-  it("re-runs the search with the sort method the sort button emits", () => {
-    const sortButton = fixture.debugElement.query(By.directive(SortButtonComponent))
-      .componentInstance as SortButtonComponent;
+  it("re-runs the search with the sort method the filter emits", () => {
+    const filters = fixture.debugElement.query(By.directive(FiltersComponent))
+      .componentInstance as FiltersComponent;
 
-    sortButton.dateSort();
+    filters.dateSort();
 
     // Kills both halves of `sortMethod = $event; search()`: drop the assignment
     // and the search runs with the EditTimeDesc default; drop the call and

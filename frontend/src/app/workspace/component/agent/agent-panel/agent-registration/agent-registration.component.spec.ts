@@ -278,6 +278,7 @@ describe("AgentRegistrationComponent", () => {
 
       const button = fixture.debugElement.query(By.css("button[nz-button]")).nativeElement as HTMLElement;
       expect(button.textContent).toContain("Create Agent");
+      expect(button.classList.contains("create-btn")).toBe(true);
       // The spinner is bound off the same flag as the label. Asserting only the
       // label leaves `[nzLoading]` free to be bound inverted, which would spin
       // the button whenever nothing is happening and stop spinning during the

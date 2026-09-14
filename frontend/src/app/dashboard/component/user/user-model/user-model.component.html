@@ -28,15 +28,11 @@
         title="Create Model">
         <i
           nz-icon
-          nzType="file-add"
+          nzType="plus"
           nzTheme="outline"></i>
         <span>Create Model</span>
       </button>
       <nz-space-compact class="utility-button-group">
-        <texera-sort-button
-          [showEditTime]="false"
-          [showExecutionTime]="false"
-          (sortMethodChange)="sortMethod = $event; search()"></texera-sort-button>
         <button
           nz-button
           title="List View"
@@ -60,6 +56,10 @@
       </nz-space-compact>
       <texera-filters
         [entityType]="entityType"
+        [showEditTime]="false"
+        [showExecutionTime]="false"
+        [sortMethod]="sortMethod"
+        (sortMethodChange)="sortMethod = $event; search()"
         #filters></texera-filters>
     </div>
   </nz-card>

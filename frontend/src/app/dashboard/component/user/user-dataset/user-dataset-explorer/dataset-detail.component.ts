@@ -66,7 +66,6 @@ import { NzDividerComponent } from "ng-zorro-antd/divider";
 import { VersionUploaderComponent } from "../../version-uploader/version-uploader.component";
 import { DATASET_FILE_RESOURCE_ENDPOINT } from "../../../../service/user/file-resource/file-resource-endpoint";
 import { NzInputDirective } from "ng-zorro-antd/input";
-import { NzCollapseComponent, NzCollapsePanelComponent } from "ng-zorro-antd/collapse";
 
 export const THROTTLE_TIME_MS = 1000;
 
@@ -104,8 +103,6 @@ export const THROTTLE_TIME_MS = 1000;
     NzDropdownMenuComponent,
     NzMenuDirective,
     NzMenuItemComponent,
-    NzCollapseComponent,
-    NzCollapsePanelComponent,
   ],
 })
 export class DatasetDetailComponent implements OnInit {
@@ -129,6 +126,7 @@ export class DatasetDetailComponent implements OnInit {
 
   public isMaximized = false;
   public isCreateVersionModalVisible = false;
+  public isDatasetInfoModalVisible = false;
 
   public versions: ReadonlyArray<DatasetVersion> = [];
   public selectedVersion: DatasetVersion | undefined;
@@ -239,6 +237,18 @@ export class DatasetDetailComponent implements OnInit {
     this.isCreateVersionModalVisible = false;
   }
 
+  openDatasetInfoModal(): void {
+    this.isDatasetInfoModalVisible = true;
+  }
+
+  closeDatasetInfoModal(): void {
+    this.isDatasetInfoModalVisible = false;
+  }
+
+  goBackToList(): void {
+    this.router.navigate([USER_DATASET]);
+  }
+
   public onClickDownloadVersionAsZip() {
     if (this.did && this.selectedVersion && this.selectedVersion.dvid) {
       this.downloadService
@@ -298,7 +308,8 @@ export class DatasetDetailComponent implements OnInit {
       this.datasetService
         .getDataset(did, this.isLogin)
         .pipe(untilDestroyed(this))
-        .subscribe(dashboardDataset => {
+        .subscribe({
+          next: dashboardDataset => {
           const dataset = dashboardDataset.dataset;
           this.datasetName = dataset.name;
           this.editedDatasetName = dataset.name;
@@ -332,6 +343,10 @@ export class DatasetDetailComponent implements OnInit {
             this.datasetCreationTimeTooltip = `${format(date, "zzzz")} (${timeZoneName})`;
           }
           this.datasetContributors = dashboardDataset.contributors || [];
+        },
+          error: (err: unknown) => {
+            this.notificationService.error(`Failed to load dataset: ${extractErrorMessage(err)}`);
+          },
         });
     }
   }
@@ -341,7 +356,8 @@ export class DatasetDetailComponent implements OnInit {
       this.datasetService
         .retrieveDatasetVersionList(this.did, this.isLogin)
         .pipe(untilDestroyed(this))
-        .subscribe(versionNames => {
+        .subscribe({
+          next: versionNames => {
           this.versions = versionNames;
           // by default, the selected version is the 1st element in the retrieved list
           // which is guaranteed(by the backend) to be the latest created version.
@@ -349,6 +365,14 @@ export class DatasetDetailComponent implements OnInit {
             this.selectedVersion = this.versions[0];
             this.onVersionSelected(this.selectedVersion);
           }
+        },
+          error: (err: unknown) => {
+            if (this.isMissingResource(err)) {
+              this.versions = [];
+              return;
+            }
+            this.notificationService.error(`Failed to load dataset versions: ${extractErrorMessage(err)}`);
+          },
         });
     }
   }
@@ -384,8 +408,19 @@ export class DatasetDetailComponent implements OnInit {
           }),
           untilDestroyed(this)
         )
-        .subscribe(data => {
-          this.latestVersionSize = data.size;
+        .subscribe({
+          next: data => {
+            this.latestVersionSize = data.size;
+          },
+          error: (err: unknown) => {
+            if (this.isMissingResource(err)) {
+              this.latestVersionFileName = "";
+              this.latestVersionCreationTime = "";
+              this.latestVersionSize = undefined;
+              return;
+            }
+            this.notificationService.error(`Failed to load latest dataset version: ${extractErrorMessage(err)}`);
+          },
         });
     }
   }
@@ -407,6 +442,12 @@ export class DatasetDetailComponent implements OnInit {
 
   onClickScaleTheView() {
     this.isMaximized = !this.isMaximized;
+  }
+
+  onSectionTabChange(_index: number): void {
+    if (this.isMaximized) {
+      this.isMaximized = false;
+    }
   }
 
   onVersionSelected(version: DatasetVersion | undefined): void {
@@ -444,7 +485,16 @@ export class DatasetDetailComponent implements OnInit {
   }
 
   userHasWriteAccess(): boolean {
-    return this.userDatasetAccessLevel == "WRITE";
+    const privilege = String(this.userDatasetAccessLevel ?? "").toUpperCase();
+    if (this.isOwner || privilege === "WRITE") {
+      return true;
+    }
+    const email = this.userService.getCurrentUser()?.email?.toLowerCase();
+    return Boolean(this.isLogin && email && this.ownerEmail.toLowerCase() === email);
+  }
+
+  private isMissingResource(err: unknown): boolean {
+    return typeof err === "object" && err !== null && "status" in err && (err as { status?: number }).status === 404;
   }
 
   isDownloadAllowed(): boolean {

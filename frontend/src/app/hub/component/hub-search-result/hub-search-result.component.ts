@@ -35,7 +35,6 @@ import { UserService } from "../../../common/service/user/user.service";
 import { SearchService } from "../../../dashboard/service/user/search.service";
 import { firstValueFrom } from "rxjs";
 import { map } from "rxjs/operators";
-import { SortButtonComponent } from "../../../dashboard/component/user/sort-button/sort-button.component";
 import { EntityType } from "../../service/hub.service";
 
 /** One key for every kind the hub browses; the "dataset" in it is historical. */
@@ -51,7 +50,6 @@ const HUB_VIEW_MODE_STORAGE_KEY = "texera.hub.dataset.viewMode";
     NzButtonComponent,
     NzIconDirective,
     NzTooltipModule,
-    SortButtonComponent,
     FiltersComponent,
     SearchResultsComponent,
     CardItemComponent,

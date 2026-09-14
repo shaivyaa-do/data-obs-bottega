@@ -38,34 +38,70 @@
   <nz-card
     class="section-list-container"
     [nzBodyStyle]="{ height: '100%' }">
-    <div class="python-env-page">
-      <div
-        *ngIf="pves.length === 0"
-        class="python-env-page-empty">
+    <div class="list-table-scroll">
+      <nz-table
+        #envTable
+        class="results-table python-env-page-list"
+        [nzData]="pves"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzNoResult]="emptyEnvs"
+        [nzTableLayout]="'fixed'"
+        nzSize="small">
+        <thead>
+          <tr>
+            <th class="name-col">Name</th>
+            <th nzWidth="20%">Packages</th>
+            <th
+              nzWidth="120px"
+              class="actions-col">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let pve of envTable.data; let i = index; trackBy: trackByVeid"
+            class="python-env-page-item"
+            (click)="openExistingPve(i)">
+            <td>
+              <span class="python-env-name">{{ pve.name || "(unnamed)" }}</span>
+            </td>
+            <td>{{ pve.newPackages.length }}</td>
+            <td class="actions-cell">
+              <button
+                nz-button
+                nzType="text"
+                title="View"
+                nz-tooltip
+                nzTooltipTitle="View environment"
+                (click)="openExistingPve(i); $event.stopPropagation()"
+                aria-label="View environment">
+                <i
+                  nz-icon
+                  nzType="eye"
+                  nzTheme="outline"></i>
+              </button>
+              <i
+                nz-icon
+                nzType="delete"
+                class="python-env-delete-icon"
+                nz-tooltip
+                nzTooltipTitle="Delete environment"
+                (click)="confirmDeletePve(i); $event.stopPropagation()"
+                role="button"
+                aria-label="Delete environment">
+              </i>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+    <ng-template #emptyEnvs>
+      <div class="python-env-page-empty">
         No environments yet. Click <strong>Create Environment</strong> to create one.
       </div>
-
-      <ul
-        *ngIf="pves.length > 0"
-        class="python-env-page-list">
-        <li
-          *ngFor="let pve of pves; let i = index; trackBy: trackByVeid"
-          class="python-env-page-item"
-          (click)="openExistingPve(i)">
-          <span class="python-env-name">{{ pve.name || "(unnamed)" }}</span>
-          <i
-            nz-icon
-            nzType="delete"
-            class="python-env-delete-icon"
-            nz-tooltip
-            nzTooltipTitle="Delete environment"
-            (click)="confirmDeletePve(i); $event.stopPropagation()"
-            role="button"
-            aria-label="Delete environment">
-          </i>
-        </li>
-      </ul>
-    </div>
+    </ng-template>
   </nz-card>
 </div>
 

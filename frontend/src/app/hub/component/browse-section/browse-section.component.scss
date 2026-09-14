@@ -38,27 +38,27 @@
 
   .entity-cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-gap: 16px;
     width: 100%;
     max-width: 1350px;
 
     .entity-card {
       margin: 0;
-      box-shadow: var(--app-elevated-shadow);
-      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(24, 24, 27, 0.06);
+      border-radius: 12px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       background: var(--app-bg-panel);
-      border: 1px solid var(--app-border-light);
+      border: 1px solid var(--app-border-subtle);
       transition:
         transform 0.2s ease,
         box-shadow 0.2s ease;
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(24, 24, 27, 0.08);
       }
 
       .card-title {
@@ -68,9 +68,11 @@
         color: var(--text-black);
         margin: 8px 0;
         text-align: center;
-        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
         overflow: hidden;
-        text-overflow: ellipsis;
+        word-break: break-word;
       }
 
       .card-description {
@@ -97,29 +99,12 @@
           color: var(--text-secondary);
         }
       }
+    }
+  }
 
-      .cover-container {
-        position: relative;
-        width: 100%;
-        height: 150px;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        img.card-cover-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .entity-avatar {
-          position: absolute;
-          bottom: 10px;
-          left: 10px;
-          background-color: var(--app-bg-active);
-        }
-      }
+  @media (max-width: 768px) {
+    .entity-cards {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }

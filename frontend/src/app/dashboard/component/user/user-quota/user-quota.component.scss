@@ -74,19 +74,18 @@
 .info-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(64px, auto));
-  gap: 8px;
-  padding: 4px 4px 12px;
+  gap: 12px;
+  padding: 4px 4px 24px;
 }
 
 .info-box {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: var(--app-bg-canvas);
-  padding: 8px 12px;
-  min-height: 64px;
-  border-radius: 8px;
+  background: var(--app-bg-hover);
+  padding: 16px 18px;
+  min-height: 96px;
+  border-radius: 10px;
   border: none !important;
   box-shadow: none !important;
   font-family: var(--app-font-sans);

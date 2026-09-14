@@ -32,6 +32,18 @@ import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzSpinComponent } from "ng-zorro-antd/spin";
 import { NzInputDirective } from "ng-zorro-antd/input";
 import { NzAlertComponent } from "ng-zorro-antd/alert";
+import { NzModalComponent, NzModalContentDirective } from "ng-zorro-antd/modal";
+import { NzOptionComponent, NzSelectComponent } from "ng-zorro-antd/select";
+import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
+import { NzPopoverDirective } from "ng-zorro-antd/popover";
+import {
+  NzTableComponent,
+  NzTheadComponent,
+  NzTrDirective,
+  NzTableCellDirective,
+  NzThMeasureDirective,
+  NzTbodyComponent,
+} from "ng-zorro-antd/table";
 import { USER_COMPUTING_UNIT, USER_WORKSPACE } from "../../../../app-routing.constant";
 import { sessionGetObject, sessionSetObject } from "../../../../common/util/storage";
 import { AgentService, AgentInfo, LLM_PROVIDER_API_KEY_STORAGE_KEY, ModelType } from "../../../../workspace/service/agent/agent.service";
@@ -56,6 +68,18 @@ import { ComputingUnitStatusService } from "../../../../common/service/computing
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     RouterLink,
+    NzModalComponent,
+    NzModalContentDirective,
+    NzSelectComponent,
+    NzOptionComponent,
+    NzTooltipDirective,
+    NzPopoverDirective,
+    NzTableComponent,
+    NzTheadComponent,
+    NzTrDirective,
+    NzTableCellDirective,
+    NzThMeasureDirective,
+    NzTbodyComponent,
   ],
 })
 export class UserAgentComponent implements OnInit {
@@ -70,6 +94,7 @@ export class UserAgentComponent implements OnInit {
   public isCreating = false;
   public agents: AgentInfo[] = [];
   public isLoadingAgents = false;
+  public configureVisible = false;
   public readonly computingUnitRoute = USER_COMPUTING_UNIT;
 
   constructor(
@@ -122,6 +147,14 @@ export class UserAgentComponent implements OnInit {
     this.selectedModelType = modelTypeId;
   }
 
+  public openConfigureModal(): void {
+    this.configureVisible = true;
+  }
+
+  public closeConfigureModal(): void {
+    this.configureVisible = false;
+  }
+
   public canCreate(): boolean {
     return (
       this.selectedModelType !== null &&
@@ -147,6 +180,7 @@ export class UserAgentComponent implements OnInit {
         next: () => {
           this.isCreating = false;
           this.customAgentName = "";
+          this.configureVisible = false;
           this.notificationService.success("Agent created. Open any workflow and select it from the dropdown.");
         },
         error: () => {

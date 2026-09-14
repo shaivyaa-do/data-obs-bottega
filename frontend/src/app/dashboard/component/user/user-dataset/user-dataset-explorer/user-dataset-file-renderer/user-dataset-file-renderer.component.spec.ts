@@ -871,6 +871,27 @@ describe("UserDatasetFileRendererComponent rendering", () => {
       expect(el.querySelector("markdown")).toBeNull();
     });
 
+    it("lets a JSON preview scroll when the content overflows the pane", () => {
+      const el = render(c => {
+        c.displayJson = true;
+        c.textContent = '{"operators":[{"operatorID":"op1"}]}';
+      });
+
+      const preview = el.querySelector<HTMLElement>(".text-preview");
+      expect(preview).not.toBeNull();
+      expect(preview!.querySelector("ngx-json-viewer")).not.toBeNull();
+    });
+
+    it("lets a plain-text preview scroll when the content overflows the pane", () => {
+      const el = render(c => {
+        c.displayPlainText = true;
+        c.textContent = "line\n".repeat(80);
+      });
+
+      const preview = el.querySelector<HTMLElement>(".text-preview");
+      expect(preview).not.toBeNull();
+    });
+
     it("renders plain text inline", () => {
       const el = render(c => {
         c.displayPlainText = true;

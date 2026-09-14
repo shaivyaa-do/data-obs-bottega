@@ -28,7 +28,17 @@
     <span
       nz-icon
       nzType="home"></span>
-    <span> Home </span>
+    <span>Home</span>
+  </li>
+  <li
+    nz-menu-item
+    nz-tooltip="Search workflows, datasets, and models"
+    nzTooltipPlacement="right"
+    (click)="openSearch($event)">
+    <span
+      nz-icon
+      nzType="search"></span>
+    <span>Search</span>
   </li>
   <li
     *ngIf="!isLogin && sidebarTabs.workflow_enabled"
@@ -67,3 +77,14 @@
     <span>Models</span>
   </li>
 </ul>
+
+<nz-modal
+  [(nzVisible)]="searchOpen"
+  nzTitle="Search"
+  nzWidth="480px"
+  [nzFooter]="null"
+  (nzOnCancel)="closeSearch()">
+  <ng-container *nzModalContent>
+    <texera-search-bar *ngIf="searchOpen"></texera-search-bar>
+  </ng-container>
+</nz-modal>

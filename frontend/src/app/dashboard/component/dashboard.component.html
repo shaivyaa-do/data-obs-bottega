@@ -25,19 +25,18 @@
     class="nav-sider"
     nzWidth="212"
     nzTheme="light">
+    <div
+      *ngIf="logo"
+      class="logo-section">
+      <img
+        alt="logo"
+        class="logo-img"
+        [src]="logo" />
+    </div>
     <ul
       nz-menu
       nzMode="inline"
       nzSelectable="false">
-      <li
-        *ngIf="logo"
-        class="logo-section">
-        <img
-          alt="logo"
-          class="logo-img"
-          [src]="logo" />
-      </li>
-
       <li
         *ngIf="sidebarTabs.hub_enabled"
         nz-submenu
@@ -90,6 +89,17 @@
               nz-icon
               nzType="database"></span>
             <span>Datasets</span>
+          </li>
+          <li
+            nz-menu-item
+            nz-tooltip="Connect warehouses and files for the agent"
+            nzMatchRouter="true"
+            nzTooltipPlacement="right"
+            [routerLink]="CONNECTORS">
+            <span
+              nz-icon
+              nzType="link"></span>
+            <span>Connectors</span>
           </li>
           <li
             *ngIf="sidebarTabs.models_enabled"
@@ -222,6 +232,14 @@
       <ng-container *ngIf="isLogin">
         <texera-user-icon></texera-user-icon>
       </ng-container>
+      <a
+        *ngIf="!isLogin"
+        nz-button
+        nzType="primary"
+        class="nav-login-link"
+        [routerLink]="LOGIN">
+        Sign in
+      </a>
     </div>
     <span
       *ngIf="config.env.attributionEnabled"
@@ -238,23 +256,6 @@
 
   <div class="page-container">
     <div class="context-card-container">
-      <header
-        *ngIf="displayNavbar"
-        class="shell-header"
-        id="nav">
-        <div class="header-title">{{ headerTitle }}</div>
-        <texera-search-bar></texera-search-bar>
-        <a
-          *ngIf="!isLogin"
-          nz-button
-          nzType="primary"
-          nzSize="large"
-          class="nav-login-link"
-          [routerLink]="LOGIN">
-          Sign in
-        </a>
-      </header>
-
       <div class="context-card-box">
         <nz-content [class.content-narrow]="contentNarrow">
           <router-outlet></router-outlet>

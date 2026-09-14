@@ -27,13 +27,19 @@ import { UserService } from "../../../../common/service/user/user.service";
 import { ComputingUnitActionsService } from "../../../../common/service/computing-unit/computing-unit-actions/computing-unit-actions.service";
 import { interval } from "rxjs";
 import { NzCardComponent } from "ng-zorro-antd/card";
-import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
 import { NzIconDirective } from "ng-zorro-antd/icon";
-import { ɵɵCdkVirtualScrollViewport, ɵɵCdkFixedSizeVirtualScroll, ɵɵCdkVirtualForOf } from "@angular/cdk/overlay";
-import { NzListComponent } from "ng-zorro-antd/list";
+import { NgFor } from "@angular/common";
+import {
+  NzTableComponent,
+  NzTheadComponent,
+  NzTrDirective,
+  NzTableCellDirective,
+  NzThMeasureDirective,
+  NzTbodyComponent,
+} from "ng-zorro-antd/table";
 import { UserComputingUnitListItemComponent } from "./user-computing-unit-list-item/user-computing-unit-list-item.component";
 import { ComputingUnitCreateModalComponent } from "../../../../common/component/computing-unit-create-modal/computing-unit-create-modal.component";
 
@@ -44,15 +50,17 @@ import { ComputingUnitCreateModalComponent } from "../../../../common/component/
   styleUrls: ["user-computing-unit.component.scss"],
   imports: [
     NzCardComponent,
-    NzSpaceCompactItemDirective,
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
     NzIconDirective,
-    ɵɵCdkVirtualScrollViewport,
-    ɵɵCdkFixedSizeVirtualScroll,
-    NzListComponent,
-    ɵɵCdkVirtualForOf,
+    NgFor,
+    NzTableComponent,
+    NzTheadComponent,
+    NzTrDirective,
+    NzTableCellDirective,
+    NzThMeasureDirective,
+    NzTbodyComponent,
     UserComputingUnitListItemComponent,
     ComputingUnitCreateModalComponent,
   ],

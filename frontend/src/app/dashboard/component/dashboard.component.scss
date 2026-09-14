@@ -56,41 +56,6 @@
   box-sizing: border-box;
 }
 
-.shell-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  height: 40px;
-  padding: 2px 8px;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.header-title {
-  flex: 1;
-  min-width: 0;
-  font-family: var(--app-font-display);
-  font-size: var(--type-body-regular-size);
-  font-weight: 500;
-  line-height: var(--type-line-height);
-  color: var(--text-secondary);
-}
-
-texera-search-bar {
-  flex: 0 0 auto;
-  width: 240px;
-  max-width: 240px;
-}
-
-.nav-login-link {
-  margin: 0;
-  padding: 0 16px;
-  height: 32px;
-  border-radius: var(--app-radius-xs);
-  font-size: var(--type-label-regular-size);
-  font-weight: 500;
-}
-
 .context-card-box {
   display: flex;
   flex-direction: column;
@@ -119,6 +84,14 @@ nz-content {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 :host ::ng-deep nz-content.content-narrow > *:not(router-outlet) {
@@ -160,6 +133,15 @@ button {
 }
 
 :host ::ng-deep .nav-sider.ant-layout-sider {
+  --nav-item-height: 32px;
+  --nav-item-icon-gap: 6px;
+  --nav-item-padding-x: 10px;
+  --nav-group-item-gap: 1px;
+  --nav-group-title-margin-top: 14px;
+  --nav-group-title-margin-bottom: 6px;
+  --nav-group-title-padding-x: 10px;
+  --nav-group-title-padding-top: 6px;
+
   flex: 0 0 var(--app-left-nav-width) !important;
   max-width: var(--app-left-nav-width) !important;
   min-width: var(--app-left-nav-width) !important;
@@ -198,7 +180,7 @@ button {
   .ant-menu {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
     overflow-x: hidden;
     overflow-y: auto;
     flex: 1 1 auto;
@@ -226,17 +208,17 @@ button {
 
   .ant-menu-submenu-title {
     font-family: var(--app-font-sans);
-    font-size: var(--type-label-regular-size) !important;
-    font-weight: 400;
+    font-size: var(--type-label-medium-size) !important;
+    font-weight: var(--type-weight-medium);
     font-style: normal;
-    line-height: 1.4;
+    line-height: var(--type-line-height);
     letter-spacing: normal;
     text-transform: none;
     color: var(--text-secondary) !important;
     height: auto !important;
-    min-height: 0;
-    padding: 2px 6px 0 !important;
-    margin: 14px 0 6px !important;
+    min-height: 0 !important;
+    padding: var(--nav-group-title-padding-top) var(--nav-group-title-padding-x) 0 !important;
+    margin: var(--nav-group-title-margin-top) 0 var(--nav-group-title-margin-bottom) !important;
     pointer-events: none;
     cursor: default;
     display: flex !important;
@@ -248,49 +230,35 @@ button {
     }
   }
 
-  .ant-menu > .ant-menu-submenu:first-child {
-    position: relative;
-    padding-top: 38px;
-
-    > .ant-menu-submenu-title {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 38px !important;
-      margin: 0 !important;
-      padding: 0 6px 6px !important;
-      align-items: flex-end !important;
-    }
-  }
-
   .ant-menu-submenu-title .anticon,
   .ant-menu-submenu-arrow {
     display: none !important;
   }
 
-  .ant-menu-sub.ant-menu-inline {
+  .ant-menu-sub.ant-menu-inline,
+  .ant-menu-submenu > ul {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: var(--nav-group-item-gap);
     padding: 0 !important;
     background: transparent !important;
   }
 
   .ant-menu-item {
-    height: 32px !important;
-    width: calc(100% - 12px) !important;
-    margin: 0 6px 1px !important;
-    padding: 0 6px !important;
+    height: var(--nav-item-height) !important;
+    min-height: var(--nav-item-height) !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 var(--nav-item-padding-x) !important;
     border: none !important;
     border-radius: 10px !important;
     box-shadow: none;
-    line-height: 1.4 !important;
+    line-height: var(--type-line-height) !important;
     font-family: var(--app-font-sans);
-    font-size: var(--type-label-regular-size);
-    font-weight: 500;
+    font-size: var(--type-body-medium-size);
+    font-weight: var(--type-weight-medium);
     color: var(--text-primary) !important;
-    gap: 8px;
+    gap: var(--nav-item-icon-gap);
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start;
@@ -301,10 +269,10 @@ button {
   }
 
   .ant-menu-item .anticon {
-    font-size: var(--type-body-regular-size) !important;
-    width: 15px !important;
-    height: 15px !important;
-    min-width: 15px;
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px;
     margin: 0 !important;
     color: inherit !important;
     display: inline-flex;
@@ -313,8 +281,8 @@ button {
     flex-shrink: 0;
 
     svg {
-      width: 15px !important;
-      height: 15px !important;
+      width: 16px !important;
+      height: 16px !important;
       fill: currentColor !important;
     }
   }
@@ -323,9 +291,9 @@ button {
     margin: 0 !important;
     min-width: 0;
     flex: 1;
-    font-size: var(--type-label-regular-size);
-    font-weight: 500;
-    line-height: 1;
+    font-size: var(--type-body-medium-size);
+    font-weight: var(--type-weight-medium);
+    line-height: var(--type-line-height);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -386,8 +354,8 @@ button {
 
   .ant-menu-inline-collapsed .ant-menu-item,
   .ant-menu-inline-collapsed .ant-menu-submenu-title {
-    width: 32px !important;
-    margin: 0 0 1px !important;
+    width: var(--nav-item-height) !important;
+    margin: 0 0 var(--nav-group-item-gap) !important;
     padding: 0 !important;
     justify-content: center;
   }
@@ -399,23 +367,11 @@ button {
 
   .ant-menu-inline-collapsed .ant-menu-submenu-title {
     pointer-events: auto;
-    height: 32px !important;
+    height: var(--nav-item-height) !important;
   }
 
   .ant-menu-inline-collapsed .ant-menu-submenu-title .anticon {
     display: inline-flex !important;
-  }
-}
-
-:host ::ng-deep {
-  .shell-header .ant-input-affix-wrapper,
-  .shell-header .ant-input-affix-wrapper-lg {
-    height: 32px !important;
-    border-radius: var(--app-radius-xs) !important;
-    background: var(--app-bg-hover) !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 10px !important;
   }
 }
 
@@ -425,7 +381,7 @@ button {
   align-items: center;
   flex-shrink: 0;
   height: 24px;
-  padding: 4px 6px;
+  padding: 4px 10px;
   margin: 0;
   gap: 6px;
   box-sizing: border-box;
@@ -475,8 +431,17 @@ button {
   justify-content: flex-start;
   width: 100%;
   margin-top: auto;
-  padding: 8px 6px 4px;
+  padding: 8px 10px 4px;
   box-sizing: border-box;
+}
+
+.nav-login-link {
+  margin: 0;
+  padding: 0 16px;
+  height: 32px;
+  border-radius: var(--app-radius-xs);
+  font-size: var(--type-label-regular-size);
+  font-weight: 500;
 }
 
 .nav-footer-collapsed {

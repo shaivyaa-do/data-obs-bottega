@@ -1,0 +1,425 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+
+<div class="wizard-body">
+  <div class="modal-header">
+    <h3 id="connect-wizard-title">Connect {{ app.name }}</h3>
+    <button
+      nz-button
+      nzType="text"
+      type="button"
+      class="modal-close-btn"
+      aria-label="Close"
+      (click)="cancel()">
+      <i
+        nz-icon
+        nzType="close"></i>
+    </button>
+  </div>
+
+  <nz-steps [nzCurrent]="step">
+    <nz-step nzTitle="App"></nz-step>
+    <nz-step nzTitle="Credentials"></nz-step>
+    <nz-step nzTitle="Destination"></nz-step>
+    <nz-step nzTitle="Test & save"></nz-step>
+  </nz-steps>
+
+  <section
+    class="wizard-step"
+    *ngIf="step === 0">
+    <p class="selected-app">{{ app.name }} — {{ app.description }}</p>
+    <button
+      nz-button
+      type="button"
+      *ngIf="!existing"
+      (click)="backToPicker.emit()">
+      Change app
+    </button>
+  </section>
+
+  <section
+    class="wizard-step"
+    *ngIf="step === 1">
+    <label class="field">
+      <span>Display name</span>
+      <input
+        nz-input
+        name="displayName"
+        [(ngModel)]="displayName"
+        placeholder="facilities-prod" />
+    </label>
+    <label class="field">
+      <span>Description (optional)</span>
+      <input
+        nz-input
+        name="description"
+        [(ngModel)]="description" />
+    </label>
+    <div class="field">
+      <span>Environment</span>
+      <nz-radio-group
+        name="environment"
+        [(ngModel)]="environment">
+        <label
+          nz-radio
+          nzValue="prod"
+          >Prod</label
+        >
+        <label
+          nz-radio
+          nzValue="staging"
+          >Staging</label
+        >
+      </nz-radio-group>
+    </div>
+
+    <ng-container *ngIf="isSql()">
+      <label class="field">
+        <span>Host</span>
+        <input
+          nz-input
+          name="host"
+          [(ngModel)]="pg.host" />
+      </label>
+      <label class="field">
+        <span>Port</span>
+        <input
+          nz-input
+          name="port"
+          type="number"
+          [(ngModel)]="pg.port" />
+      </label>
+      <label class="field">
+        <span>Database</span>
+        <input
+          nz-input
+          name="database"
+          [(ngModel)]="pg.database" />
+      </label>
+      <label class="field">
+        <span>Username</span>
+        <input
+          nz-input
+          name="username"
+          [(ngModel)]="pg.username" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input
+          nz-input
+          name="password"
+          type="password"
+          autocomplete="new-password"
+          [(ngModel)]="secret"
+          placeholder="$POSTGRES_PASSWORD" />
+      </label>
+      <label class="field field-inline">
+        <span>SSL</span>
+        <nz-switch
+          name="ssl"
+          [(ngModel)]="pg.ssl"></nz-switch>
+      </label>
+      <label class="field">
+        <span>Schema (optional)</span>
+        <input
+          nz-input
+          name="schema"
+          [(ngModel)]="pg.schema" />
+      </label>
+      <label class="field">
+        <span>Default table (optional)</span>
+        <input
+          nz-input
+          name="defaultTable"
+          [(ngModel)]="pg.defaultTable" />
+      </label>
+    </ng-container>
+
+    <ng-container *ngIf="app.id === 'snowflake'">
+      <label class="field">
+        <span>Account</span>
+        <input
+          nz-input
+          name="account"
+          [(ngModel)]="snowflake.account"
+          placeholder="$SNOWFLAKE_ACCOUNT" />
+      </label>
+      <label class="field">
+        <span>Warehouse</span>
+        <input
+          nz-input
+          name="warehouse"
+          [(ngModel)]="snowflake.warehouse" />
+      </label>
+      <label class="field">
+        <span>Database</span>
+        <input
+          nz-input
+          name="sf-database"
+          [(ngModel)]="snowflake.database" />
+      </label>
+      <label class="field">
+        <span>Schema</span>
+        <input
+          nz-input
+          name="sf-schema"
+          [(ngModel)]="snowflake.schema" />
+      </label>
+      <label class="field">
+        <span>Role</span>
+        <input
+          nz-input
+          name="role"
+          [(ngModel)]="snowflake.role" />
+      </label>
+      <label class="field">
+        <span>User</span>
+        <input
+          nz-input
+          name="sf-user"
+          [(ngModel)]="snowflake.user" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input
+          nz-input
+          name="sf-password"
+          type="password"
+          autocomplete="new-password"
+          [(ngModel)]="secret"
+          placeholder="$SNOWFLAKE_PASSWORD" />
+      </label>
+    </ng-container>
+
+    <ng-container *ngIf="app.id === 'databricks'">
+      <label class="field">
+        <span>Workspace URL</span>
+        <input
+          nz-input
+          name="workspaceUrl"
+          [(ngModel)]="databricks.workspaceUrl" />
+      </label>
+      <label class="field">
+        <span>HTTP path</span>
+        <input
+          nz-input
+          name="httpPath"
+          [(ngModel)]="databricks.httpPath" />
+      </label>
+      <label class="field">
+        <span>Token</span>
+        <input
+          nz-input
+          name="token"
+          type="password"
+          autocomplete="new-password"
+          [(ngModel)]="secret"
+          placeholder="$DATABRICKS_TOKEN" />
+      </label>
+      <label class="field">
+        <span>Catalog</span>
+        <input
+          nz-input
+          name="catalog"
+          [(ngModel)]="databricks.catalog" />
+      </label>
+      <label class="field">
+        <span>Schema</span>
+        <input
+          nz-input
+          name="dbx-schema"
+          [(ngModel)]="databricks.schema" />
+      </label>
+    </ng-container>
+
+    <ng-container *ngIf="app.id === 's3'">
+      <label class="field">
+        <span>Bucket</span>
+        <input
+          nz-input
+          name="bucket"
+          [(ngModel)]="s3.bucket" />
+      </label>
+      <label class="field">
+        <span>Region</span>
+        <input
+          nz-input
+          name="region"
+          [(ngModel)]="s3.region" />
+      </label>
+      <label class="field">
+        <span>Access key</span>
+        <input
+          nz-input
+          name="accessKey"
+          [(ngModel)]="s3.accessKey"
+          placeholder="$AWS_ACCESS_KEY_ID" />
+      </label>
+      <label class="field">
+        <span>Secret</span>
+        <input
+          nz-input
+          name="s3-secret"
+          type="password"
+          autocomplete="new-password"
+          [(ngModel)]="secret"
+          placeholder="$AWS_SECRET_ACCESS_KEY" />
+      </label>
+      <label class="field">
+        <span>Prefix (optional)</span>
+        <input
+          nz-input
+          name="prefix"
+          [(ngModel)]="s3.prefix" />
+      </label>
+    </ng-container>
+  </section>
+
+  <section
+    class="wizard-step"
+    *ngIf="step === 2">
+    <p class="destination-copy">We query the source with JDBC. Destination is how it shows up in Bottega.</p>
+    <nz-radio-group
+      name="destinationMode"
+      [(ngModel)]="destinationMode">
+      <label
+        nz-radio
+        nzValue="live"
+        >Live query — use this connection directly in a workflow source operator. No copy.</label
+      >
+      <label
+        nz-radio
+        nzValue="dataset"
+        >Publish as dataset — run a sample/extract into our dataset catalog (name + version).</label
+      >
+      <label
+        nz-radio
+        nzValue="both"
+        >Both</label
+      >
+    </nz-radio-group>
+    <ng-container *ngIf="needsDatasetFields">
+      <label class="field">
+        <span>Dataset name</span>
+        <input
+          nz-input
+          name="datasetName"
+          [(ngModel)]="datasetName" />
+      </label>
+      <label class="field">
+        <span>Folder / project (optional)</span>
+        <input
+          nz-input
+          name="folder"
+          [(ngModel)]="folder" />
+      </label>
+      <label class="field">
+        <span>SELECT or table (optional)</span>
+        <nz-select
+          *ngIf="tables.length > 0"
+          class="table-select"
+          [(ngModel)]="selectOrTable"
+          nzAllowClear
+          nzPlaceHolder="Pick a table">
+          <nz-option
+            *ngFor="let table of tables"
+            [nzValue]="tableLabel(table)"
+            [nzLabel]="tableLabel(table)"></nz-option>
+        </nz-select>
+        <input
+          *ngIf="tables.length === 0"
+          nz-input
+          name="selectOrTable"
+          [(ngModel)]="selectOrTable"
+          placeholder="Populated after a successful test" />
+      </label>
+      <label class="field">
+        <span>Row limit for first publish</span>
+        <input
+          nz-input
+          name="rowLimit"
+          type="number"
+          [(ngModel)]="rowLimit" />
+      </label>
+    </ng-container>
+  </section>
+
+  <section
+    class="wizard-step"
+    *ngIf="step === 3">
+    <button
+      nz-button
+      class="create-btn"
+      type="button"
+      [disabled]="testState === 'testing'"
+      (click)="testConnection()">
+      {{ testState === "testing" ? "Testing…" : "Test connection" }}
+    </button>
+    <p
+      class="test-message"
+      *ngIf="testMessage"
+      [class.ok]="testOk"
+      [class.err]="!testOk">
+      {{ testMessage }}
+    </p>
+    <div
+      class="discovered"
+      *ngIf="testOk">
+      <p *ngIf="databases.length">Databases: {{ databases.join(", ") }}</p>
+      <p *ngIf="schemas.length">Schemas: {{ schemas.join(", ") }}</p>
+      <p>Select tables that are available to workflows / agent.</p>
+      <label
+        class="table-option"
+        *ngFor="let table of tables">
+        <label
+          nz-checkbox
+          [(ngModel)]="table.enabled"
+          >{{ tableLabel(table) }}</label
+        >
+      </label>
+    </div>
+  </section>
+
+  <div class="wizard-actions">
+    <button
+      nz-button
+      type="button"
+      (click)="back()">
+      Back
+    </button>
+    <button
+      nz-button
+      class="create-btn"
+      type="button"
+      *ngIf="step < 3"
+      [disabled]="(step === 1 && !canAdvanceFromCredentials) || (step === 2 && !canAdvanceFromDestination)"
+      (click)="next()">
+      Next
+    </button>
+    <button
+      nz-button
+      class="create-btn"
+      type="button"
+      *ngIf="step === 3"
+      [disabled]="!testOk"
+      (click)="save()">
+      Save connector
+    </button>
+  </div>
+</div>

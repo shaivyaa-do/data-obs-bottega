@@ -1,0 +1,139 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+
+<div
+  class="section-container subsection-grid-container"
+  *ngIf="connection">
+  <nz-card class="section-title">
+    <div class="detail-header">
+      <button
+        class="go-back-button"
+        nz-button
+        nzType="text"
+        type="button"
+        aria-label="Back to connectors"
+        nz-tooltip="Back to connectors"
+        (click)="back()">
+        <i
+          nz-icon
+          nzType="arrow-left"
+          nzTheme="outline"></i>
+      </button>
+      <h2 class="page-title">{{ connection.name }}</h2>
+      <span
+        class="status-pill"
+        [attr.data-status]="connection.status">
+        {{ statusLabel() }}
+      </span>
+      <div class="detail-actions">
+        <button
+          nz-button
+          type="button"
+          (click)="testAgain()">
+          <i
+            nz-icon
+            nzType="reload"
+            nzTheme="outline"></i>
+          Test again
+        </button>
+        <button
+          nz-button
+          type="button"
+          (click)="disconnect()">
+          <i
+            nz-icon
+            nzType="disconnect"
+            nzTheme="outline"></i>
+          Disconnect
+        </button>
+        <button
+          nz-button
+          class="create-btn"
+          type="button"
+          (click)="openInWorkflow()">
+          <i
+            nz-icon
+            nzType="play-circle"
+            nzTheme="outline"></i>
+          Use in workflow
+        </button>
+      </div>
+    </div>
+  </nz-card>
+
+  <div class="detail-main">
+    <section class="detail-section">
+      <h3 class="section-heading">Overview</h3>
+      <dl class="summary">
+        <div>
+          <dt>App</dt>
+          <dd>{{ typeLabel }}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ statusLabel() }}</dd>
+        </div>
+        <div>
+          <dt>Environment</dt>
+          <dd>{{ connection.environment }}</dd>
+        </div>
+        <div>
+          <dt>Last tested</dt>
+          <dd>{{ lastTested() }}</dd>
+        </div>
+        <div class="span-2">
+          <dt>Destination</dt>
+          <dd>{{ destinationSummary(connection) }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="detail-section">
+      <h3 class="section-heading">Credentials</h3>
+      <dl class="summary creds">
+        <div *ngFor="let row of credentialRows()">
+          <dt>{{ row.label }}</dt>
+          <dd>{{ row.value }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="detail-section">
+      <h3 class="section-heading">Tables enabled</h3>
+      <ul class="table-list">
+        <li *ngFor="let table of enabledTables()">{{ table }}</li>
+      </ul>
+    </section>
+
+    <section class="detail-section">
+      <h3 class="section-heading">Recent tests and publishes</h3>
+      <ul class="log-list">
+        <li *ngFor="let log of recentLogs()">
+          <span class="log-kind">{{ log.kind }}</span>
+          <span
+            [class.ok]="log.ok"
+            [class.err]="!log.ok">
+            {{ log.ok ? "ok" : "fail" }}
+          </span>
+          <span>{{ log.message }}</span>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>

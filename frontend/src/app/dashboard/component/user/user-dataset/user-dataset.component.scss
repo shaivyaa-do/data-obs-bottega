@@ -24,3 +24,123 @@
   height: 55px;
   overflow-y: hidden;
 }
+
+:host ::ng-deep .section-title.ant-card > .ant-card-body {
+  flex-direction: column;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+:host .page-title {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+:host .button-group {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.toolbar-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  .view-toggle {
+    order: 1;
+  }
+
+  .toolbar-search-filter {
+    order: 2;
+  }
+
+  .utility-button-group {
+    order: 3;
+  }
+}
+
+.view-toggle {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 2px;
+  gap: 2px;
+  background: var(--app-bg-hover);
+  border-radius: 8px;
+}
+
+.view-toggle-btn {
+  height: 28px;
+  width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  &.selected {
+    background: #ffffff;
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.toolbar-search-filter {
+  display: inline-flex;
+  align-items: stretch;
+  flex: 0 0 240px;
+  width: 240px;
+  min-width: 180px;
+  max-width: 280px;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid var(--app-border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .toolbar-search-filter {
+  .toolbar-search {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: 32px;
+    padding: 0 10px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: var(--type-label-regular-size);
+  }
+
+  .filter-trigger {
+    height: 32px;
+    width: 32px;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--text-secondary);
+  }
+
+  .filter-trigger-wrap {
+    display: inline-flex;
+    text-decoration: none;
+  }
+}
+
+.create-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}

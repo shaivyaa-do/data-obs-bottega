@@ -1,113 +1,329 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="54" failures="0" errors="0" time="1.142586292">
-    <testsuite name="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" timestamp="2026-09-10T17:24:46.516Z" hostname="Shaivyaas-MacBook-Air.local" tests="54" failures="0" errors="0" skipped="0" time="1.142586292">
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; loads the agents once on init and shows the selected agent with a model dropdown" time="0.121178083">
+<testsuites name="vitest tests" tests="162" failures="0" errors="0" time="2.42210875">
+    <testsuite name="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" timestamp="2026-09-14T19:01:57.391Z" hostname="Shaivyaas-MacBook-Air.local" tests="162" failures="0" errors="0" skipped="0" time="2.42210875">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; section tabs &gt; styles the section tabs as a grey toggle with the selected tab on white" time="0.127983458">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; shows empty state when there are no agents" time="0.02458475">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; offers the file download to a logged-in user who is allowed to download" time="0.066607541">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; reloads the agent list when the service signals an agent change" time="0.029328709">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; withholds it from a signed-out visitor" time="0.035420625">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; feeds the selected agent&apos;s chat and whether it is the active one" time="0.028177834">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; withholds it when the dataset is not downloadable" time="0.033200375">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; opens the panel, activates the agent and selects its tab once agents load" time="0.026722209">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; applies the same rule to the whole-version download" time="0.03053975">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; binds a query-param agent to the current workflow instead of navigating away" time="0.027266583">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; offers no download at all until a version is selected" time="0.025609042">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; ignores an id that matches no agent and keeps the input for a later retry" time="0.022612042">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; view size toggle &gt; offers only Maximize while the view is normal" time="0.043479083">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; defers activation until the agent list arrives through agentChange$" time="0.017632834">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; view size toggle &gt; offers only Minimize once the view is maximized" time="0.026587542">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; deactivates the previously active agent and keeps an already-open panel width" time="0.022807375">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; file heading &gt; offers the copy-path control only once a file is on screen" time="0.024366959">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; does nothing when the input change clears the id" time="0.02027325">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; file heading &gt; copies the path of the file being shown" time="0.024460208">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; openPanel and docked state &gt; the docked button opens the panel and the minimize button docks it again" time="0.018876584">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; file heading &gt; shows the file size in human units, and nothing when it is unknown" time="0.036103083">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; openPanel and docked state &gt; opening the panel activates the first switchable agent so chat is ready" time="0.026114208">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; version details &gt; lets the file table fill the pane without a files sider" time="0.029422083">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; activates the new agent and switches to its tab after refreshing the list" time="0.020120667">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; stages a file deletion and lets the panel count it" time="0.03739075">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; deactivates the previously active agent before activating the created one" time="0.01848775">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; reloads the version list once the panel reports a new version" time="0.030099417">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; leaves the tab selection alone when the created agent is missing from the refreshed list" time="0.018142125">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; contributor cards &gt; renders one row per contributor with values, a creator star, and dashes for blanks" time="0.031406791">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; activates the created agent directly on onAgentCreated" time="0.019375959">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; contributor cards &gt; shows edit controls only with write access" time="0.025109208">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; activates the newly selected agent and deactivates the previous one" time="0.019188042">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; contributor cards &gt; starts adding a contributor when the add tile is clicked" time="0.0238735">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; ignores a tab index beyond the agent list" time="0.018418292">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; loads info, versions, like and view counts but skips liked/upload settings without a current user" time="0.01095225">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; activates the agent behind the selected tab" time="0.021328166">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; fetches liked status for a logged-in user" time="0.015890791">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; binds the selected agent to the current workflow instead of navigating away" time="0.017428375">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; makes no hub calls when the route carries no did" time="0.004980292">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; does not activate when binding to the current workflow fails" time="0.01818875">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; reads a counts response with no like tally as no likes, and no liked record as not liked" time="0.011173375">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; skips the bind request when the agent is already on the current workflow" time="0.017624417">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; maps dataset fields, formats numeric creation time, and resolves the cover image url" time="0.014252875">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; binds an unbound agent (workflowId 0) to the current workflow" time="0.017302125">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; nulls the cover image url when its retrieval fails" time="0.00384975">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; re-selecting the already-active agent tab is a no-op" time="0.017209666">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; leaves the cover image url null and skips the cover fetch when there is no cover image" time="0.00354725">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; the model dropdown switches to the chosen agent" time="0.022661375">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; toasts a timeout instead of leaving the load unhandled when getDataset fails" time="0.002992208">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; re-activates without deactivating when the same agent moved to a different tab" time="0.018631792">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; takes the tooltip&apos;s time zone from the spelled-out name the formatter appends" time="0.004237708">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agent dropdown &gt; keeps every agent selectable, including those last used on another workflow" time="0.018765667">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; leaves the tooltip&apos;s time zone empty when the runtime supplies no zone name" time="0.003442459">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; stops the event and does nothing when the deletion is not confirmed" time="0.016978208">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetVersionList &gt; selects the first version and delegates to onVersionSelected when the list is non-empty" time="0.00328025">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; deactivates and deletes the active agent" time="0.018151625">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetVersionList &gt; makes no selection when the version list is empty" time="0.004334333">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; shifts the selected index down when deleting a tab before the current one" time="0.017077209">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetVersionList &gt; toasts a timeout instead of leaving the load unhandled when the version list fails" time="0.003352042">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; keeps the selected index when deleting a tab after the current one" time="0.020755875">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; walks nested directories to the first file leaf and loads it" time="0.003544875">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; logs and leaves the tabs untouched when the backend delete fails" time="0.020165875">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; survives the version select being emptied" time="0.003739875">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; the close button in the header asks for confirmation and deletes through the service" time="0.018770209">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; does not fetch a file tree for a version without a dvid" time="0.003216417">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel geometry &gt; onResize coalesces updates through requestAnimationFrame" time="0.014518458">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; does not throw and leaves the displayed file untouched when the version has no files" time="0.003783125">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel geometry &gt; handleDragStart undocks the panel" time="0.013536875">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; fetches the latest version independently and sets latestVersionFileName to the first leaf file" time="0.003247125">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; restores a saved width only when the panel was left undocked" time="0.013080042">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; walks nested directories to find the first leaf file" time="0.003035625">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; stays docked when the panel was saved docked, regardless of the saved width" time="0.013126166">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; sets latestVersionFileName to an empty string when the latest version has no files" time="0.002940708">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; rejects a saved width below the minimum" time="0.017550125">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; derives latestVersionCreationTime from the latest version&apos;s creationTime" time="0.009055292">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; rejects a non-numeric saved width" time="0.015420208">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; leaves latestVersionCreationTime empty when the latest version has no creation time" time="0.003537875">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; restores a saved height at or above the minimum" time="0.015896667">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; sets latestVersionSize from a file-tree fetch for the latest version&apos;s dvid" time="0.004050625">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; keeps the default height when the saved height is below the minimum" time="0.014496958">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; does not fetch a size when the latest version has no dvid" time="0.003041541">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; re-applies the saved container style and derives the return position from its transform" time="0.016237334">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; clears a previously fetched latestVersionSize when the latest version has no dvid" time="0.003373833">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; counts as docked when the saved transform nets out to the origin" time="0.017483709">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; ignores a superseded call&apos;s size response that resolves after a newer one" time="0.0030375">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; persists dimensions, docked flag and container style, and deactivates the agent on destroy" time="0.021872584">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; keeps the latest-version facts fixed when a different version is later selected" time="0.00288925">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; saves docked=true for a closed panel and skips the style when no container exists" time="0.024629542">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; does nothing when there is no did" time="0.002788667">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; reveals the body and sizes it from the bound width and height when opened" time="0.014568958">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; toasts a timeout instead of leaving the load unhandled when the latest version fails" time="0.003260542">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; bounds the resizable box by the configured minimum and a fraction of the window" time="0.0091115">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; treats a missing latest version as empty instead of an error" time="0.003740625">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; applies a resize reported by the resizable directive to the rendered box" time="0.009559541">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; always allows the owner to download, even when the dataset is not downloadable" time="0.003045125">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; drags from the title bar within the workspace and undocks on drag start" time="0.008757041">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; allows a non-owner to download a public downloadable dataset without explicit access" time="0.002834125">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; renders the selected agent&apos;s chat, not one chat per agent" time="0.033308875">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; blocks a non-owner from a private downloadable dataset without access" time="0.002478708">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; changing the model dropdown activates that agent and shows only its chat" time="0.027973">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; blocks download when the dataset is not downloadable" time="0.002638167">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; keeps every dropdown option enabled so any agent can be selected on this workflow" time="0.024120416">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; reports write access for the WRITE privilege or the owner" time="0.003274667">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; the close button in the header deletes the shown agent without switching to another" time="0.026049834">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks the dataset public and toasts on success" time="0.003698459">
         </testcase>
-        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; offers resize handles on the left and bottom edges only" time="0.008711458">
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; keeps the public flag and toasts an error when the publicity update fails" time="0.003397125">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks downloads not-allowed and toasts on success" time="0.0029215">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; keeps the downloadable flag and toasts an error when the update fails" time="0.002509209">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks the dataset private and names that state, not the one it left" time="0.002396542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks downloads allowed and names that state, not the one it left" time="0.003069875">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; does not attempt a publicity change without a dataset id" time="0.007195417">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; does not attempt a download-permission change without a dataset id" time="0.002778167">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; creating a version &gt; hands the panel a call that commits through DatasetService" time="0.002769791">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; creating a version &gt; reloads the version list and the latest-version facts once the panel reports one" time="0.003053916">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; downloads the selected version as a zip when did and dvid are present" time="0.003513125">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; does not download a zip when no version is selected" time="0.002373166">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; uses the public endpoint to download the current file for a public non-owner dataset" time="0.00227925">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; uses the authenticated endpoint to download the current file for the owner" time="0.002151416">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; does not download the current file without a selected version dvid" time="0.002253375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; view flags &gt; toggles the maximize and precise-view-count flags" time="0.002455542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; unlikes and decrements the like count when currently liked" time="0.003057416">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; likes and increments the like count when not currently liked" time="0.002250334">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; does nothing when no user is logged in" time="0.002427666">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; leaves the dataset liked when the server refuses the unlike" time="0.002625375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; leaves the dataset unliked when the server refuses the like" time="0.00254275">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; reads a refreshed count with no like tally as no likes after unliking" time="0.002355375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; reads a refreshed count with no like tally as no likes after liking" time="0.002495333">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; refreshes the cover url and toasts success after setting a cover image" time="0.003278708">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; surfaces the backend message when setting the cover image fails" time="0.002523125">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; drops the previous cover url when the refreshed one cannot be fetched" time="0.002234">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; does not surface a non-HTTP failure&apos;s own message when setting the cover image" time="0.002341917">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; falls back to a generic message when the error body carries none" time="0.007610625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; does nothing when there is no selected version to attach the cover to" time="0.002461625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; persists a changed description and updates the field" time="0.002382875">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; skips the persistence call when the description is unchanged" time="0.0024205">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; reverts the description and toasts an error when persistence fails" time="0.00261025">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; stores an empty description when the editor hands back nothing" time="0.002505375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; copyCurrentFilePath &gt; writes the displayed path to the clipboard and toasts success" time="0.0024355">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; copyCurrentFilePath &gt; does nothing when no file is displayed" time="0.0031855">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; copyCurrentFilePath &gt; toasts an error when the clipboard write rejects" time="0.009199417">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; version-node selection &gt; onVersionFileTreeNodeSelected loads the selected node&apos;s content" time="0.000218542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onPreviouslyUploadedFileDeleted &gt; does not delete a file without a dataset id" time="0.002819">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onPreviouslyUploadedFileDeleted &gt; toasts an error and stages nothing when the deletion fails" time="0.002860334">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onPreviouslyUploadedFileDeleted &gt; deletes by the path relative to the version root, which is what the diff reports" time="0.002491792">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; seeds editedDatasetName from the loaded dataset name" time="0.002236542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; persists a valid name unchanged and toasts success" time="0.002412625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; rejects an invalid name with a validation error and does not call the rename API" time="0.002457667">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; toasts an error and leaves the name unchanged when the rename fails" time="0.002555042">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; does nothing when there is no did" time="0.002270667">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; refetches the file tree and the latest-version facts, which both embed the old name" time="0.002790709">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; refuses to rename while an upload is in flight, which would strand it" time="0.002319709">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onDeleteDataset &gt; deletes the dataset, toasts success and navigates back to the dataset list" time="0.007975958">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onDeleteDataset &gt; toasts an error and does not navigate when the deletion fails" time="0.002498083">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onDeleteDataset &gt; does nothing when there is no did" time="0.00261475">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; delete button disabled state &gt; disables the delete button for a non-owner with write access" time="0.013838208">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; delete button disabled state &gt; enables the delete button for the owner" time="0.014094791">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; maps contributors from the dashboard dataset and falls back to an empty list" time="0.003200875">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onAddContributor appends the modal result and persists the list" time="0.006050834">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onAddContributor does not persist when the modal is cancelled" time="0.002677625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onEditContributor replaces the edited row and persists the list" time="0.002574375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onDeleteContributor removes the row and persists the list" time="0.002428625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; rolls the list back and notifies when persisting fails" time="0.002482458">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; does not call the service when did is missing" time="0.004120375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; toggles the like through the like tag when logged in" time="0.015297458">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; unlikes through the same tag when the dataset is already liked" time="0.009166833">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; does not toggle the like when logged out" time="0.008860542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; omits the cover image when there is no cover URL" time="0.008703542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; renders the cover image bound to the cover URL" time="0.009452625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; does not offer a files sider or a way to restore one" time="0.01162575">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; binds the dataset name input and saves it from the template" time="0.029171292">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; renders every contributor row from the list" time="0.011875167">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; routes the settings switches&apos; ngModelChange bindings to the service" time="0.018886208">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; renders a row per contributor with the actions trigger" time="0.021338958">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; edits the chosen contributor through the menu&apos;s binding target" time="0.028558292">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; deletes the chosen contributor through the popconfirm&apos;s binding target" time="0.019635042">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; downloads the current file from the toolbar" time="0.016826042">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; toggles the scaled view from the toolbar" time="0.01618875">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; status tags &gt; labels a public, downloadable dataset with the globe and download icons" time="0.01858475">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; status tags &gt; labels a private, download-restricted dataset with the lock and stop icons" time="0.021390417">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; status tags &gt; tells the view counter and the like counter apart" time="0.013353542">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; data card layout &gt; does not duplicate latest-version facts on the data card" time="0.014608666">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; returns to the dataset list from the back button" time="0.01464875">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; keeps the dataset info preview beside the dataset name" time="0.014772458">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; opens a dataset info table from the preview icon" time="0.023134708">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; em-dashes missing latest-version facts in the info table" time="0.015746417">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; opens Create New Version from the header without visiting Versions &amp; Files" time="0.019641334">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; lets the owner create a version even when the privilege field is not WRITE" time="0.013981917">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; lets the signed-in dataset owner upload when privilege flags are missing" time="0.014605083">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; hides Create New Version from readers" time="0.031107166">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; offers an Upload files action on the data card for writers" time="0.045543625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; spells out what public visibility and blocked downloads mean" time="0.015464833">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; spells out what private visibility and permitted downloads mean" time="0.015291625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; renders settings in the same bordered cards as the data card" time="0.014967625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; restores the dataset header when leaving a maximized versions view" time="0.015925625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; contributor row menu &gt; edits the contributor whose own row menu was used" time="0.220494167">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; contributor row menu &gt; deletes the contributor whose own row menu was used, once the deletion is confirmed" time="0.238431792">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; contributor row menu &gt; adds a contributor from the keyboard on the add tile" time="0.022686375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; downloads the file that is on screen" time="0.032357833">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; downloads the file that is on screen over the public endpoint for a non-owner" time="0.018800166">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; keeps the owner of a public dataset on the authenticated endpoint" time="0.018910792">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; maximizes the view from the toolbar and offers the way back" time="0.020868875">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; does not render a files sider beside the table" time="0.029741458">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; offers every known version and loads the one that is picked" time="0.019566667">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; offers no way to empty the selection" time="0.01754775">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; loads a picked version over the anonymous endpoint when nobody is signed in" time="0.019427459">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; downloads the whole selected version as a zip" time="0.022203583">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; does not put a files sider next to the version picker" time="0.018948375">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; opens a Create New Version upload popup from the top bar" time="0.026730625">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version file tree &gt; shows the file a tree node selection would open" time="0.019674334">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version file tree &gt; deletes the file a tree node asked to remove" time="0.028662292">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version file tree &gt; adopts the cover image offered by a file path, qualified by the selected version" time="0.016389">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings tab &gt; persists a description edited on the Settings tab" time="0.0170815">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings tab &gt; locks the name field while an upload is in flight" time="0.021656084">
+        </testcase>
+        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings tab &gt; deletes the dataset only once the confirmation is accepted" time="0.024836541">
         </testcase>
     </testsuite>
 </testsuites>

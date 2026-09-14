@@ -782,7 +782,8 @@ describe("AgentChatComponent", () => {
       const messages = fixture.nativeElement.querySelectorAll(".messages-container .message");
       expect(messages.length).toBe(2);
       expect(messages[0].classList.contains("user-message")).toBe(true);
-      expect(messages[0].textContent).toContain("You");
+      expect(messages[0].querySelector(".message-header")).toBeNull();
+      expect(messages[0].textContent).not.toContain("You");
       expect(messages[0].textContent).toContain("hello agent");
       expect(messages[1].classList.contains("ai-message")).toBe(true);
       expect(messages[1].textContent).toContain("Test Agent");

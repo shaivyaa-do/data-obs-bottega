@@ -514,24 +514,42 @@ describe("UserComputingUnitListItemComponent", () => {
       document.querySelectorAll(".cdk-overlay-container").forEach(el => (el.innerHTML = ""));
     });
 
-    it("the rename button starts inline editing", () => {
-      const renameButton = fixture.debugElement.query(By.css(".edit-button button"));
-      expect(renameButton).toBeTruthy();
+    it("does not show a rename pencil and opens the info modal from the view icon", () => {
+      expect(fixture.debugElement.query(By.css(".edit-button"))).toBeNull();
+      expect(fixture.debugElement.query(By.css('button[title="Rename"]'))).toBeNull();
 
-      renameButton.triggerEventHandler("click", clickEvent());
+      const createSpy = vi
+        .spyOn(TestBed.inject(NzModalService), "create")
+        .mockReturnValue({} as ReturnType<NzModalService["create"]>);
 
-      expect(component.editingNameOfUnit).toBe(1);
-      expect(component.editingUnitName).toBe("unit-1");
+      fixture.debugElement.query(By.css('button[title="View"]')).triggerEventHandler("click", clickEvent());
+
+      expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({ nzData: component.entry }));
     });
 
-    it("clicking the unit name opens the metadata modal", () => {
+    it("does not open the metadata modal when the unit name is clicked", () => {
       const createSpy = vi
         .spyOn(TestBed.inject(NzModalService), "create")
         .mockReturnValue({} as ReturnType<NzModalService["create"]>);
 
       fixture.debugElement.query(By.css(".resource-name")).triggerEventHandler("click", null);
 
-      expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({ nzData: component.entry }));
+      expect(createSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows an em dash when CPU or memory limits are NaN", () => {
+      const base = makeEntry();
+      component.entry = makeEntry({
+        computingUnit: {
+          ...base.computingUnit,
+          resource: { ...base.computingUnit.resource, cpuLimit: "NaN", memoryLimit: "NaN" },
+        },
+      });
+      fixture.detectChanges();
+
+      const cells = fixture.debugElement.queryAll(By.css("td.meta-cell"));
+      expect(cells[0].nativeElement.textContent).toContain("—");
+      expect(cells[1].nativeElement.textContent).toContain("—");
     });
 
     it("escape on the rename input cancels editing", () => {
@@ -629,5 +647,15 @@ describe("UserComputingUnitListItemComponent", () => {
       popover.hide();
       fixture.detectChanges();
     });
+  });
+});
+
+describe("UserComputingUnitListItemComponent row chrome", () => {
+  it("uses a panel row surface with no drop shadow", () => {
+    const css = (
+      UserComputingUnitListItemComponent as unknown as { ɵcmp: { styles: string[] } }
+    ).ɵcmp.styles.join(" ");
+    expect(css).toContain("box-shadow: none");
+    expect(css).toContain("--app-bg-panel");
   });
 });

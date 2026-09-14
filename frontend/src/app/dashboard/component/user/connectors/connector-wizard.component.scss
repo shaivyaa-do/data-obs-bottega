@@ -1,0 +1,129 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+@use "../../section-style" as *;
+@use "../../button-style" as *;
+
+.wizard-body {
+  padding: 0 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-secondary);
+}
+
+.field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--type-label-regular-size);
+  color: var(--text-tertiary);
+}
+
+.test-message {
+  margin: 0;
+  font-size: var(--type-body-regular-size);
+
+  &.ok {
+    color: var(--text-primary);
+  }
+
+  &.err {
+    color: var(--text-primary);
+  }
+}
+
+.table-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.table-option {
+  display: flex;
+}
+
+.wizard-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 {
+    margin: 0;
+    font-size: var(--type-heading-regular-size, 16px);
+    font-weight: 600;
+  }
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.selected-app,
+.destination-copy {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.discovered {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.table-select {
+  width: 100%;
+}
+
+nz-radio-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}

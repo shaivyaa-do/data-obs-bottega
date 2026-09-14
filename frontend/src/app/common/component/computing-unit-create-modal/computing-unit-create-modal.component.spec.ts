@@ -625,6 +625,8 @@ describe("ComputingUnitCreateModalComponent", () => {
       component.unitCreated.subscribe(unitCreatedSpy);
       const buttons = document.querySelectorAll<HTMLButtonElement>(".ant-modal-footer button");
       expect(buttons.length).toBe(2);
+      expect(buttons[1].classList.contains("create-btn")).toBe(true);
+      expect(buttons[1].textContent).toContain("Create");
 
       buttons[0].click();
       expect(visibleSpy).toHaveBeenCalledWith(false);

@@ -311,28 +311,11 @@ describe("BrowseSectionComponent rendering", () => {
     expect(el.querySelector(".card-description")?.textContent?.trim()).toBe("No description available");
   });
 
-  it("uses the cached cover image when the entity has one", () => {
+  it("does not render a cover image on the cards", () => {
     const el = render([entity({ id: 5, coverImageUrl: "has-cover" })]);
 
-    const img = el.querySelector<HTMLImageElement>(".card-cover-image")!;
-    expect(img.getAttribute("src")).toBe(PRESIGNED_COVER);
-  });
-
-  it("falls back to the default background when the cover image fails to load", () => {
-    // A presigned cover URL can still 404; the inline error handler is the only thing that stops the
-    // card from showing a broken image.
-    const el = render([entity({ id: 5, coverImageUrl: "has-cover" })]);
-    const img = el.querySelector<HTMLImageElement>(".card-cover-image")!;
-
-    img.dispatchEvent(new Event("error"));
-
-    expect(img.src).toContain("card_background.jpg");
-  });
-
-  it("labels the avatar with the entity id", () => {
-    const el = render([entity({ id: 42 })]);
-
-    expect(el.querySelector("nz-avatar")?.textContent?.trim()).toBe("42");
+    expect(el.querySelector(".card-cover-image")).toBeNull();
+    expect(el.querySelector(".cover-container")).toBeNull();
   });
 
   it("passes the owner through to the avatar, defaulting to an empty name", () => {
@@ -343,5 +326,12 @@ describe("BrowseSectionComponent rendering", () => {
 
     const avatars = fixture.debugElement.queryAll(By.css("texera-user-avatar"));
     expect(avatars.map(a => a.componentInstance.userName)).toEqual(["ada", ""]);
+  });
+});
+
+describe("BrowseSectionComponent card grid", () => {
+  it("lays out entity cards two per row", () => {
+    const css = (BrowseSectionComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("repeat(2, minmax(0, 1fr))");
   });
 });

@@ -21,14 +21,20 @@ import { Component, EventEmitter, Input, Output, TemplateRef } from "@angular/co
 import { DashboardEntry } from "../../../type/dashboard-entry";
 import { UserService } from "../../../../common/service/user/user.service";
 import { NzCardComponent } from "ng-zorro-antd/card";
-import { ɵɵCdkVirtualScrollViewport, ɵɵCdkFixedSizeVirtualScroll } from "@angular/cdk/overlay";
-import { NzListComponent } from "ng-zorro-antd/list";
 import { NgFor, NgIf, NgTemplateOutlet } from "@angular/common";
 import { ListItemComponent } from "../list-item/list-item.component";
 import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
+import {
+  NzTableComponent,
+  NzTheadComponent,
+  NzTrDirective,
+  NzTableCellDirective,
+  NzThMeasureDirective,
+  NzTbodyComponent,
+} from "ng-zorro-antd/table";
 
 export type LoadMoreFunction = (start: number, count: number) => Promise<{ entries: DashboardEntry[]; more: boolean }>;
 export type SearchResultsViewMode = "list" | "card";
@@ -39,9 +45,6 @@ export type SearchResultsViewMode = "list" | "card";
   styleUrls: ["./search-results.component.scss"],
   imports: [
     NzCardComponent,
-    ɵɵCdkVirtualScrollViewport,
-    ɵɵCdkFixedSizeVirtualScroll,
-    NzListComponent,
     NgFor,
     ListItemComponent,
     NgIf,
@@ -50,6 +53,12 @@ export type SearchResultsViewMode = "list" | "card";
     NzButtonComponent,
     NzWaveDirective,
     ɵNzTransitionPatchDirective,
+    NzTableComponent,
+    NzTheadComponent,
+    NzTrDirective,
+    NzTableCellDirective,
+    NzThMeasureDirective,
+    NzTbodyComponent,
   ],
 })
 export class SearchResultsComponent {
@@ -57,6 +66,10 @@ export class SearchResultsComponent {
   loading = false;
   more = false;
   entries: ReadonlyArray<DashboardEntry> = [];
+  /** nz-table's [nzData] is typed as T[], while entries stays a ReadonlyArray. */
+  get tableData(): DashboardEntry[] {
+    return this.entries as DashboardEntry[];
+  }
   private resetCounter = 0;
   @Input() isPrivateSearch = false;
   @Input() showResourceTypes = false;

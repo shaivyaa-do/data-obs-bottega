@@ -17,9 +17,178 @@
   under the License.
 -->
 
+<ng-container *ngIf="compact">
+  <a
+    [nzDropdownMenu]="compactFilterMenu"
+    nz-dropdown
+    nzTrigger="click"
+    [nzClickHide]="false"
+    class="filter-trigger-wrap">
+    <button
+      nz-button
+      class="filter-trigger"
+      title="Filter"
+      nz-tooltip="Filter"
+      nzTooltipPlacement="bottom"
+      type="button">
+      <i
+        nz-icon
+        nzTheme="outline"
+        nzType="filter"></i>
+    </button>
+  </a>
+  <nz-dropdown-menu #compactFilterMenu="nzDropdownMenu">
+    <div
+      class="filter-panel"
+      (click)="$event.stopPropagation()">
+      <section class="filter-section">
+        <h4 class="filter-section-title">Sort</h4>
+        <button
+          *ngIf="showEditTime"
+          type="button"
+          class="filter-option sort-option"
+          [class.selected]="sortMethod === SortMethod.EditTimeDesc"
+          (click)="lastSort()">
+          By Edit Time
+        </button>
+        <button
+          type="button"
+          class="filter-option sort-option"
+          [class.selected]="sortMethod === SortMethod.CreateTimeDesc"
+          (click)="dateSort()">
+          By Create Time
+        </button>
+        <button
+          *ngIf="showExecutionTime"
+          type="button"
+          class="filter-option sort-option"
+          [class.selected]="sortMethod === SortMethod.ExecutionTimeDesc"
+          (click)="execSort()">
+          By Execution Time
+        </button>
+        <button
+          type="button"
+          class="filter-option sort-option"
+          [class.selected]="sortMethod === SortMethod.NameAsc"
+          (click)="ascSort()">
+          A -> Z
+        </button>
+        <button
+          type="button"
+          class="filter-option sort-option"
+          [class.selected]="sortMethod === SortMethod.NameDesc"
+          (click)="dscSort()">
+          Z -> A
+        </button>
+      </section>
+      <section
+        class="filter-section"
+        *ngIf="isLogin">
+        <h4 class="filter-section-title">Owner</h4>
+        <label
+          nz-checkbox
+          class="filter-option"
+          *ngFor="let owner of owners"
+          ngDefaultControl
+          [(ngModel)]="owner.checked"
+          (ngModelChange)="updateSelectedOwners()"
+          >{{owner.userName}}</label
+        >
+      </section>
+      <section
+        class="filter-section"
+        *ngIf="isLogin && hasIdFilter">
+        <h4 class="filter-section-title">ID</h4>
+        <label
+          nz-checkbox
+          class="filter-option"
+          *ngFor="let wid of wids"
+          ngDefaultControl
+          [(ngModel)]="wid.checked"
+          (ngModelChange)="updateSelectedIDs()"
+          >{{wid.id}}</label
+        >
+      </section>
+      <section class="filter-section">
+        <h4 class="filter-section-title">Operators</h4>
+        <div
+          class="filter-operator-group"
+          *ngFor="let group of operatorGroups">
+          <h5 class="filter-group-title">{{group}}</h5>
+          <label
+            nz-checkbox
+            class="filter-option"
+            *ngFor="let operator of operators.get(group)"
+            ngDefaultControl
+            [(ngModel)]="operator.checked"
+            (ngModelChange)="updateSelectedOperators()"
+            >{{operator.userFriendlyName}}</label
+          >
+        </div>
+      </section>
+    </div>
+  </nz-dropdown-menu>
+</ng-container>
+
 <nz-space-compact
+  *ngIf="!compact"
   class="filter-button-group"
   ngbDropdown>
+  <a
+    [nzDropdownMenu]="sortOptions"
+    nz-dropdown
+    class="search-sort-button">
+    <button
+      id="sortDropdown"
+      nz-button
+      class="filter-btn"
+      title="Sort">
+      <span>Sort</span>
+    </button>
+  </a>
+  <nz-dropdown-menu #sortOptions="nzDropdownMenu">
+    <ul nz-menu>
+      <li
+        nz-menu-item
+        *ngIf="showEditTime">
+        <button
+          (click)="lastSort()"
+          nz-button>
+          By Edit Time
+        </button>
+      </li>
+      <li nz-menu-item>
+        <button
+          (click)="dateSort()"
+          nz-button>
+          By Create Time
+        </button>
+      </li>
+      <li
+        nz-menu-item
+        *ngIf="showExecutionTime">
+        <button
+          (click)="execSort()"
+          nz-button>
+          By Execution Time
+        </button>
+      </li>
+      <li nz-menu-item>
+        <button
+          (click)="ascSort()"
+          nz-button>
+          A -> Z
+        </button>
+      </li>
+      <li nz-menu-item>
+        <button
+          (click)="dscSort()"
+          nz-button>
+          Z -> A
+        </button>
+      </li>
+    </ul>
+  </nz-dropdown-menu>
   <a
     [hidden]="!isLogin"
     [nzDropdownMenu]="ownerSearchOptions"

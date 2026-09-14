@@ -330,7 +330,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       nzFooter: null,
       nzTitle: "Share this workflow with others",
       nzCentered: true,
-      nzWidth: "800px",
+      nzWidth: "480px",
     });
 
     modalRef.afterClose.pipe(untilDestroyed(this)).subscribe(result => {

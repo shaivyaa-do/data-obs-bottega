@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// A consistent card look across the dashboard: 8px radius, 124px cover, a
+// A consistent card look across the dashboard: 8px radius, content-only cards.
 :host {
   display: block;
   height: 100%;
@@ -31,15 +31,16 @@
   flex-direction: column;
   transition: all 0.2s ease;
   overflow: hidden;
-  border-radius: 10px !important;
-  border: none !important;
-  box-shadow: none !important;
-  background: var(--app-bg-canvas, #f4f4f5) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--app-border-subtle) !important;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.06) !important;
+  background: var(--app-bg-panel) !important;
   cursor: pointer;
 
   &:hover {
-    background: var(--app-bg-active, #e4e4e7) !important;
-    box-shadow: none !important;
+    background: var(--app-bg-panel) !important;
+    border-color: #d4d4d8 !important;
+    box-shadow: 0 2px 8px rgba(24, 24, 27, 0.08) !important;
   }
 
   &.selected {
@@ -56,72 +57,24 @@
   background: transparent !important;
 }
 
-.card-preview {
-  height: 124px;
-  background-color: #e4e4e7;
-  border-radius: 10px 10px 0 0;
-  position: relative;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.card-preview-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 10px 10px 0 0;
-}
-
 .card-checkbox {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 10;
-}
-
-// Cover-image controls, revealed on hover.
-.card-image-controls {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  z-index: 11;
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.card-item:hover .card-image-controls {
-  opacity: 1;
-}
-
-.image-control-btn {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border-radius: 50%;
-  color: rgb(255 255 255 / 0.9);
-  background: rgba(0, 0, 0, 0.35);
-
-  &:hover {
-    color: rgb(255 255 255 / 0.9);
-    background: rgba(0, 0, 0, 0.55);
-  }
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 .card-content {
-  padding: 12px 14px 10px;
+  padding: 16px 18px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
   min-width: 0;
 }
 
 .card-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   cursor: pointer;
   gap: 6px;
@@ -129,7 +82,7 @@
 
 .title-container {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   overflow: hidden;
   flex: 1;
@@ -215,14 +168,19 @@
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--app-border-subtle, rgba(0, 0, 0, 0.06));
-  padding-top: 6px;
-  margin-top: 6px;
+  padding-top: 10px;
+  margin-top: 4px;
 }
 
 .action-btn {
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   color: var(--text-primary);
+
+  i,
+  .anticon {
+    font-size: 16px;
+  }
 
   &:hover {
     color: var(--text-black);
@@ -256,8 +214,10 @@
   background: #fff1f0;
 }
 
-.truncate-single-line {
-  white-space: nowrap;
+.truncate-two-lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }

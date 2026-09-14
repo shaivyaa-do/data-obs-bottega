@@ -25,7 +25,6 @@
     <nz-card
       nzHoverable
       [routerLink]="routeFor(entity)"
-      [nzCover]="coverTemplate"
       class="entity-card"
       *ngFor="let entity of entities">
       <h1 class="card-title">{{ entity.name }}</h1>
@@ -39,21 +38,6 @@
           nz-button>
         </texera-user-avatar>
       </div>
-      <ng-template #coverTemplate>
-        <div class="cover-container">
-          <img
-            alt="example"
-            class="card-cover-image"
-            [src]="getCoverImage(entity)"
-            (error)="$any($event.target).src = defaultBackground" />
-          <nz-avatar
-            class="entity-avatar"
-            [ngStyle]="{ 'background-color': 'grey', 'vertical-align': 'middle' }"
-            [nzGap]="4"
-            [nzText]="'' + entity.id"
-            nzSize="default"></nz-avatar>
-        </div>
-      </ng-template>
     </nz-card>
   </div>
 </div>

@@ -956,28 +956,15 @@ describe("CardItemComponent", () => {
       expect(confirmSpy).toHaveBeenCalled();
     });
 
-    it("renders and wires the cover-image controls when the cover is editable", () => {
-      // A workflow entry with a cover url makes the component compute hasCustomImage = true
-      // through its public entry input, so we don't reach into the private customImage field.
+    it("does not render a cover image on the card", () => {
       component.entry = makeWorkflowEntry({ coverImageUrl: "http://example.com/cover.png" });
       component.isPrivateSearch = true;
-      component.initializeEntry(); // process the entry input (mirrors the ngOnChanges path)
+      component.initializeEntry();
       fixture.detectChanges();
-      expect(component.canEditCover).toBe(true);
-      expect(component.hasCustomImage).toBe(true);
 
-      const cameraSpy = vi.spyOn(component, "openImagePicker").mockImplementation(() => {});
-      const resetSpy = vi.spyOn(component, "resetImage").mockImplementation(() => {});
-      fire('button[title="Change cover image"]', "click", new MouseEvent("click"));
-      fire('button[title="Reset to default image"]', "click", new MouseEvent("click"));
-
-      expect(cameraSpy).toHaveBeenCalled();
-      expect(resetSpy).toHaveBeenCalled();
-
-      // selecting a file fires the hidden input's (change) handler
-      const imageSelectedSpy = vi.spyOn(component, "onImageSelected").mockImplementation(async () => {});
-      fire('input[type="file"]', "change", { target: { files: [] } });
-      expect(imageSelectedSpy).toHaveBeenCalled();
+      expect(fixture.debugElement.query(By.css(".card-preview-image"))).toBeNull();
+      expect(fixture.debugElement.query(By.css(".card-image-controls"))).toBeNull();
+      expect(fixture.debugElement.query(By.css('button[title="Change cover image"]'))).toBeNull();
     });
 
     it("renders the like button in non-private mode and toggles like on click", () => {
@@ -1023,15 +1010,11 @@ describe("CardItemComponent", () => {
       expect(de.query(By.css(".card-checkbox"))).toBeNull();
     });
 
-    it("renders the size row when a size is set and handles a cover-image load error", () => {
+    it("renders the size row when a size is set", () => {
       component.entry = makeWorkflowEntry();
       component.size = 2048;
       fixture.detectChanges();
       expect(fixture.debugElement.query(By.css('span[title="Size"]'))).toBeTruthy();
-
-      const errorSpy = vi.spyOn(component, "onCoverError").mockImplementation(() => {});
-      fire(".card-preview-image", "error", {});
-      expect(errorSpy).toHaveBeenCalled();
     });
 
     it("still reports an empty resource's size, so card and list view agree", () => {
@@ -1164,5 +1147,20 @@ describe("CardItemComponent", () => {
       expect(component.likeCount).toBe(5);
       expect(getCountsSpy).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe("CardItemComponent card chrome", () => {
+  it("uses a bordered card surface on a panel background", () => {
+    const css = (CardItemComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("--app-bg-panel");
+    expect(css).toContain("--app-border-subtle");
+    expect(css).toContain("box-shadow: 0 1px 2px rgba(24, 24, 27, 0.06)");
+  });
+
+  it("gives grid cards enough padding and two lines of title so names stay readable", () => {
+    const css = (CardItemComponent as unknown as { ɵcmp: { styles: string[] } }).ɵcmp.styles.join(" ");
+    expect(css).toContain("padding: 16px 18px 14px");
+    expect(css).toContain("-webkit-line-clamp: 2");
   });
 });
