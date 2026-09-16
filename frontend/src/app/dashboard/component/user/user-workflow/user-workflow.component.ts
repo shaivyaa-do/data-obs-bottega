@@ -44,8 +44,7 @@ import { USER_AGENT, USER_WORKSPACE } from "../../../../app-routing.constant";
 import {
   CONNECTION_ID_QUERY_PARAM,
   CONNECTOR_CODE_QUERY_PARAM,
-  MYSQL_SOURCE_OPERATOR_TYPE,
-  POSTGRES_SOURCE_OPERATOR_TYPE,
+  jdbcSourceOperatorType,
   workflowContentWithJdbcSource,
 } from "../../../../workspace/util/postgres-source-properties";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
@@ -305,8 +304,7 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
   }
 
   private createWorkflowWithSavedConnection(connectionId: string, connectorCode: string | null): void {
-    const operatorType =
-      connectorCode === "mysql" ? MYSQL_SOURCE_OPERATOR_TYPE : POSTGRES_SOURCE_OPERATOR_TYPE;
+    const operatorType = jdbcSourceOperatorType(connectorCode);
     const content = workflowContentWithJdbcSource(connectionId, {
       dataTransferBatchSize: this.config.env.defaultDataTransferBatchSize,
       executionMode: this.config.env.defaultExecutionMode,

@@ -105,6 +105,14 @@
   &[style*="width: 0;"] {
     display: none !important;
   }
+
+  &.expanded {
+    top: 0;
+    height: 100vh !important;
+    max-height: 100vh;
+    border-radius: 0;
+    z-index: 30;
+  }
 }
 
 .panel-header-bar {
@@ -132,6 +140,18 @@
     border: none;
     background: transparent;
     cursor: default;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .result-operator-select {
+    width: 220px;
+    max-width: 40%;
+    margin-left: 12px;
+    margin-right: auto;
+    pointer-events: auto;
   }
 
   #panel-button {

@@ -54,7 +54,13 @@ export class PostgresConnectionSelectComponent extends FieldType<FieldTypeConfig
     if (typeof value === "string" && value.trim() !== "") {
       return value;
     }
-    return this.connectorCode === "mysql" ? "Select a MySQL connection" : "Select a PostgreSQL connection";
+    if (this.connectorCode === "mysql") {
+      return "Select a MySQL connection";
+    }
+    if (this.connectorCode === "snowflake") {
+      return "Select a Snowflake connection";
+    }
+    return "Select a PostgreSQL connection";
   }
 
   get addConnectionLead(): string {
@@ -62,9 +68,13 @@ export class PostgresConnectionSelectComponent extends FieldType<FieldTypeConfig
     if (typeof value === "string" && value.trim() !== "") {
       return value;
     }
-    return this.connectorCode === "mysql"
-      ? "Add a MySQL connection under"
-      : "Add a PostgreSQL connection under";
+    if (this.connectorCode === "mysql") {
+      return "Add a MySQL connection under";
+    }
+    if (this.connectorCode === "snowflake") {
+      return "Add a Snowflake connection under";
+    }
+    return "Add a PostgreSQL connection under";
   }
 
   ngOnInit(): void {

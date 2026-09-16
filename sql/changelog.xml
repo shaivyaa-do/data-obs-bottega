@@ -169,6 +169,11 @@
         <sqlFile path="sql/updates/51.sql"/>
     </changeSet>
 
+    <!-- Enable saved Snowflake connections in data_connector -->
+    <changeSet id="52" author="shaivyaasharma">
+        <sqlFile path="sql/updates/52.sql"/>
+    </changeSet>
+
     <!-- example changeSet
     <changeSet id="1" author="author">
         <sqlFile path="sql/updates/1.sql"/>

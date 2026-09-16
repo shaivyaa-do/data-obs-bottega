@@ -30,8 +30,8 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
-import { Subject } from "rxjs";
-import { distinctUntilChanged, filter, pairwise, startWith, takeUntil } from "rxjs/operators";
+import { Subject, of } from "rxjs";
+import { catchError, distinctUntilChanged, filter, pairwise, startWith, takeUntil } from "rxjs/operators";
 import { AgentState, ReActStep } from "../../../../service/agent/agent-types";
 import { AgentInfo, AgentService } from "../../../../service/agent/agent.service";
 import { WorkflowActionService } from "../../../../service/workflow-graph/model/workflow-action.service";
@@ -281,9 +281,18 @@ export class AgentChatComponent implements OnInit, AfterViewChecked, OnDestroy, 
         untilDestroyed(this)
       )
       .subscribe(workflow => {
-        if (workflow) {
-          this.workflowActionService.reloadWorkflow(workflow, false, false);
+        if (!workflow) {
+          return;
         }
+        // Never replace a non-empty canvas with an empty agent snapshot. That wipe
+        // happened when the agent opened with stale/empty memory and echoed it back
+        // on the first chat step before tools ran.
+        const incomingOps = workflow.content?.operators?.length ?? 0;
+        const localOps = this.workflowActionService.getTexeraGraph().getAllOperators().length;
+        if (incomingOps === 0 && localOps > 0) {
+          return;
+        }
+        this.workflowActionService.reloadWorkflow(workflow, false, false);
       });
   }
 
@@ -407,8 +416,17 @@ export class AgentChatComponent implements OnInit, AfterViewChecked, OnDestroy, 
     const userMessage = this.currentMessage.trim();
     this.currentMessage = "";
 
-    // Fire-and-forget; responses stream in via the WebSocket subscription.
-    this.agentService.sendMessage(this.agentInfo.id, userMessage);
+    // Persist the canvas first so the agent's pre-turn refresh sees manual edits,
+    // then fire-and-forget the chat; responses stream in via the WebSocket.
+    this.workflowPersistService
+      .persistWorkflow(this.workflowActionService.getWorkflow())
+      .pipe(
+        catchError(() => of(null)),
+        untilDestroyed(this)
+      )
+      .subscribe(() => {
+        this.agentService.sendMessage(this.agentInfo.id, userMessage);
+      });
   }
 
   /**

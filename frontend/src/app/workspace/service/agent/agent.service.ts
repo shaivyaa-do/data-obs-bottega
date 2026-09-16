@@ -502,8 +502,10 @@ export class AgentService {
             tracking.headIdSubject.next(convertedStep.id);
           }
 
-          // If the step has afterWorkflowContent, update the workflow
-          if (convertedStep.afterWorkflowContent) {
+          // Apply afterWorkflowContent only for agent/tool steps. The user echo step
+          // carries a snapshot of agent memory at prompt time — often empty/stale —
+          // and must not replace the canvas the user already built.
+          if (convertedStep.afterWorkflowContent && convertedStep.role !== "user") {
             tracking.wsWorkflowActive = true;
             const existingWorkflow = tracking.workflowSubject.getValue();
             const workflow = {
@@ -724,11 +726,9 @@ export class AgentService {
    * calls this before opening the websocket.
    */
   public bindAgentToWorkflow(agentId: string, workflowId: number): Observable<AgentInfo> {
-    const existing = this.agents.get(agentId);
-    if (existing?.delegate?.workflowId === workflowId) {
-      return of(existing);
-    }
-
+    // Always PATCH, even when already bound to this workflowId: the server reloads
+    // workflow content into agent memory. Skipping that left an empty/stale copy that
+    // the chat UI then applied over the user's canvas.
     return defer(() => {
       const body: { workflowId: number; computingUnitId?: number } = { workflowId };
       const selectedUnit = this.computingUnitStatusService.getSelectedComputingUnitValue();

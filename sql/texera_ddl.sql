@@ -801,6 +801,27 @@ VALUES (
 )
 ON CONFLICT (code) DO NOTHING;
 
+INSERT INTO data_connector (code, display_name, fields_schema, jdbc_url_template, driver_class, is_enabled)
+VALUES (
+    'snowflake',
+    'Snowflake',
+    '{
+      "fields": [
+        {"name":"account","label":"Account","type":"string","required":true,"description":"Snowsight account identifier (org-account or locator; locator may include region)"},
+        {"name":"warehouse","label":"Warehouse","type":"string","required":true},
+        {"name":"database","label":"Database","type":"string","required":true},
+        {"name":"schema","label":"Schema","type":"string","required":false,"default":"PUBLIC"},
+        {"name":"role","label":"Role","type":"string","required":false},
+        {"name":"username","label":"Username","type":"string","required":true},
+        {"name":"password","label":"Password","type":"password","required":true,"secret":true}
+      ]
+    }'::jsonb,
+    'jdbc:snowflake://{account}.snowflakecomputing.com/',
+    'net.snowflake.client.jdbc.SnowflakeDriver',
+    TRUE
+)
+ON CONFLICT (code) DO NOTHING;
+
 -- START Fulltext search index creation (DO NOT EDIT THIS LINE)
 CREATE EXTENSION IF NOT EXISTS pgroonga;
 

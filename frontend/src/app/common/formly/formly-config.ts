@@ -104,8 +104,21 @@ export const TEXERA_FORMLY_CONFIG = {
         },
       },
     },
+    {
+      name: "snowflake-connection",
+      component: PostgresConnectionSelectComponent,
+      wrappers: ["form-field"],
+      defaultOptions: {
+        props: {
+          connectorCode: "snowflake",
+          placeholder: "Select a Snowflake connection",
+          addConnectionLead: "Add a Snowflake connection under",
+        },
+      },
+    },
     { name: "postgres-table", component: PostgresTableSelectComponent, wrappers: ["form-field"] },
     { name: "mysql-table", component: PostgresTableSelectComponent, wrappers: ["form-field"] },
+    { name: "snowflake-table", component: PostgresTableSelectComponent, wrappers: ["form-field"] },
   ],
   wrappers: [
     { name: "preset-wrapper", component: PresetWrapperComponent },

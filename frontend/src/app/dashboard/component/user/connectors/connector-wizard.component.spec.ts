@@ -271,3 +271,93 @@ describe("ConnectorWizardComponent mysql flow", () => {
     expect(fixture.nativeElement.textContent).not.toMatch(/Destination/);
   });
 });
+
+describe("ConnectorWizardComponent snowflake flow", () => {
+  it("renders fields_schema without host or port and POSTs account fields", async () => {
+    const snowflakeType: ConnectorType = {
+      id: 3,
+      code: "snowflake",
+      displayName: "Snowflake",
+      fieldsSchema: {
+        fields: [
+          { name: "account", label: "Account", type: "string", required: true },
+          { name: "warehouse", label: "Warehouse", type: "string", required: true },
+          { name: "database", label: "Database", type: "string", required: true },
+          { name: "schema", label: "Schema", type: "string", required: false, default: "PUBLIC" },
+          { name: "role", label: "Role", type: "string", required: false },
+          { name: "username", label: "Username", type: "string", required: true },
+          { name: "password", label: "Password", type: "password", required: true, secret: true },
+        ],
+      },
+    };
+    const snowflake = mergeConnectorApps([snowflakeType]).find(app => app.id === "snowflake")!;
+    const createAndTest = vi.fn().mockReturnValue(
+      of({
+        id: "11",
+        name: "lab-sf",
+        status: "active",
+        connectorCode: "snowflake",
+        connectorDisplayName: "Snowflake",
+        config: { account: "xy12345.us-east-1", warehouse: "COMPUTE_WH", database: "ANALYTICS", username: "analyst" },
+        lastTestedAt: "2026-09-16T10:00:00.000Z",
+        lastError: null,
+      })
+    );
+    await TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [ConnectorWizardComponent, NoopAnimationsModule],
+      providers: [
+        {
+          provide: ConnectorService,
+          useValue: {
+            createAndTest,
+            listConnectorTypes: vi.fn().mockReturnValue(of([snowflakeType])),
+            updateConnector: vi.fn(),
+            testConnector: vi.fn(),
+          },
+        },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(ConnectorWizardComponent);
+    fixture.componentRef.setInput("app", snowflake);
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("Connect Snowflake");
+    expect(text).toContain("Account");
+    expect(text).toContain("Warehouse");
+    expect(text).toContain("Schema (optional)");
+    expect(text).toContain("Role (optional)");
+    expect(text).not.toMatch(/\bHost\b/);
+    expect(text).not.toMatch(/\bPort\b/);
+    expect(text).not.toMatch(/Destination/);
+    expect(fixture.componentInstance.values["schema"]).toBe("PUBLIC");
+
+    const component = fixture.componentInstance;
+    component.displayName = "lab-sf";
+    component.values = {
+      ...component.values,
+      account: "xy12345.us-east-1",
+      warehouse: "COMPUTE_WH",
+      database: "ANALYTICS",
+      username: "analyst",
+      password: SECRET,
+      role: "SYSADMIN",
+    };
+    component.step = 1;
+    component.save();
+    expect(createAndTest).toHaveBeenCalledWith({
+      name: "lab-sf",
+      connectorCode: "snowflake",
+      password: SECRET,
+      account: "xy12345.us-east-1",
+      warehouse: "COMPUTE_WH",
+      database: "ANALYTICS",
+      schema: "PUBLIC",
+      role: "SYSADMIN",
+      username: "analyst",
+    });
+    const posted = createAndTest.mock.calls[0][0] as Record<string, unknown>;
+    expect(posted["host"]).toBeUndefined();
+    expect(posted["port"]).toBeUndefined();
+  });
+});

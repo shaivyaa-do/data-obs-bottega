@@ -357,6 +357,30 @@ describe("SavedWorkflowSectionComponent", () => {
       expect(content.operators[0].operatorProperties).not.toHaveProperty("password");
       expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 43]);
     });
+
+    it("opens a new workflow with Snowflake Source when connector_code is snowflake", () => {
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 44 } }));
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const route = TestBed.inject(ActivatedRoute);
+      vi.spyOn(route.snapshot.queryParamMap, "get").mockImplementation((key: string) => {
+        if (key === "connection_id") {
+          return "11";
+        }
+        if (key === "connector_code") {
+          return "snowflake";
+        }
+        return null;
+      });
+
+      component.ngAfterViewInit();
+
+      const content = persist.createWorkflow.mock.calls[0][0];
+      expect(content.operators[0].operatorType).toBe("SnowflakeSource");
+      expect(content.operators[0].operatorProperties).toEqual({ connectionId: "11" });
+      expect(content.operators[0].operatorProperties).not.toHaveProperty("password");
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 44]);
+    });
   });
 
   describe("onClickCreateWithAgent", () => {

@@ -94,6 +94,23 @@ describe("sanitizePostgresSourceProperties", () => {
     expect(sanitized).not.toHaveProperty("host");
   });
 
+  it("strips Snowflake account fields so workflow.content does not store a password", () => {
+    const sanitized = sanitizePostgresSourceProperties({
+      connectionId: "11",
+      table: "ORDERS",
+      account: "xy12345.us-east-1",
+      warehouse: "COMPUTE_WH",
+      database: "ANALYTICS",
+      schema: "PUBLIC",
+      role: "SYSADMIN",
+      username: "analyst",
+      password: "hunter2",
+    });
+    expect(sanitized).toEqual({ connectionId: "11", table: "ORDERS" });
+    expect(sanitized).not.toHaveProperty("password");
+    expect(sanitized).not.toHaveProperty("account");
+  });
+
   it("leaves a legacy host/password operator untouched when connectionId is missing", () => {
     const original = { host: "localhost", password: "hunter2", table: "t" };
     expect(sanitizePostgresSourceProperties(original)).toEqual(original);
@@ -165,6 +182,19 @@ describe("adaptPostgresSourceSchema", () => {
     const adapted = adaptPostgresSourceSchema(mysqlOp, schema);
     expect(adapted.jsonSchema.required).toEqual(["table", "connectionId"]);
     expect(JSON.stringify(adapted.jsonSchema.properties?.["connectionId"])).toContain("MySQL");
+  });
+
+  it("requires connectionId and table for a new Snowflake Source", () => {
+    const snowflakeOp: OperatorPredicate = { ...postgresOp({}), operatorType: "SnowflakeSource" };
+    const schema: OperatorSchema = {
+      ...postgresSchema(["host", "port", "database", "table", "username", "password", "account", "warehouse"], {
+        omitConnectionId: true,
+      }),
+      operatorType: "SnowflakeSource",
+    };
+    const adapted = adaptPostgresSourceSchema(snowflakeOp, schema);
+    expect(adapted.jsonSchema.required).toEqual(["table", "connectionId"]);
+    expect(JSON.stringify(adapted.jsonSchema.properties?.["connectionId"])).toContain("Snowflake");
   });
 });
 

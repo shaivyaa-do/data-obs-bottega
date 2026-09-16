@@ -25,13 +25,42 @@ import { OperatorSchema } from "../types/operator-schema.interface";
 
 export const POSTGRES_SOURCE_OPERATOR_TYPE = "PostgreSQLSource";
 export const MYSQL_SOURCE_OPERATOR_TYPE = "MySQLSource";
+export const SNOWFLAKE_SOURCE_OPERATOR_TYPE = "SnowflakeSource";
 export const CONNECTION_ID_QUERY_PARAM = "connection_id";
 export const CONNECTOR_CODE_QUERY_PARAM = "connector_code";
 export const POSTGRES_ADD_CONNECTION_MESSAGE = "Add a PostgreSQL connection under Connectors.";
 export const MYSQL_ADD_CONNECTION_MESSAGE = "Add a MySQL connection under Connectors.";
+export const SNOWFLAKE_ADD_CONNECTION_MESSAGE = "Add a Snowflake connection under Connectors.";
 
 export const POSTGRES_JDBC_PROPERTY_KEYS = ["host", "port", "database", "username", "password"] as const;
-export const JDBC_SOURCE_OPERATOR_TYPES = new Set([POSTGRES_SOURCE_OPERATOR_TYPE, MYSQL_SOURCE_OPERATOR_TYPE]);
+export const SNOWFLAKE_JDBC_PROPERTY_KEYS = [
+  ...POSTGRES_JDBC_PROPERTY_KEYS,
+  "account",
+  "warehouse",
+  "schema",
+  "role",
+] as const;
+export const JDBC_SOURCE_OPERATOR_TYPES = new Set([
+  POSTGRES_SOURCE_OPERATOR_TYPE,
+  MYSQL_SOURCE_OPERATOR_TYPE,
+  SNOWFLAKE_SOURCE_OPERATOR_TYPE,
+]);
+
+export function jdbcPropertyKeys(operatorType: string | undefined): readonly string[] {
+  return operatorType === SNOWFLAKE_SOURCE_OPERATOR_TYPE
+    ? SNOWFLAKE_JDBC_PROPERTY_KEYS
+    : POSTGRES_JDBC_PROPERTY_KEYS;
+}
+
+export function jdbcSourceOperatorType(connectorCode: string | null | undefined): string {
+  if (connectorCode === "mysql") {
+    return MYSQL_SOURCE_OPERATOR_TYPE;
+  }
+  if (connectorCode === "snowflake") {
+    return SNOWFLAKE_SOURCE_OPERATOR_TYPE;
+  }
+  return POSTGRES_SOURCE_OPERATOR_TYPE;
+}
 
 export function isJdbcSourceOperatorType(operatorType: string | undefined): boolean {
   return operatorType != null && JDBC_SOURCE_OPERATOR_TYPES.has(operatorType);
@@ -54,7 +83,7 @@ export function sanitizePostgresSourceProperties(
     return properties;
   }
   const next = { ...properties };
-  for (const key of POSTGRES_JDBC_PROPERTY_KEYS) {
+  for (const key of SNOWFLAKE_JDBC_PROPERTY_KEYS) {
     delete next[key];
   }
   return next;
@@ -68,7 +97,7 @@ export function adaptPostgresSourceSchema(operator: OperatorPredicate, schema: O
     return schema;
   }
   const jsonSchema = cloneDeep(schema.jsonSchema);
-  const jdbcKeys = new Set<string>(POSTGRES_JDBC_PROPERTY_KEYS);
+  const jdbcKeys = new Set<string>(jdbcPropertyKeys(schema.operatorType));
   const required = (jsonSchema.required ?? []).filter(key => !jdbcKeys.has(key));
   if (!required.includes("connectionId")) {
     required.push("connectionId");
@@ -77,14 +106,11 @@ export function adaptPostgresSourceSchema(operator: OperatorPredicate, schema: O
     required.push("table");
   }
   const properties = { ...(jsonSchema.properties ?? {}) };
-  const isMysql = schema.operatorType === MYSQL_SOURCE_OPERATOR_TYPE;
   if (properties["connectionId"] == null) {
     properties["connectionId"] = {
       type: "string",
       title: "Connection",
-      description: isMysql
-        ? "Saved MySQL connection from Connectors"
-        : "Saved PostgreSQL connection from Connectors",
+      description: connectionDescription(schema.operatorType),
       propertyOrder: 2,
     };
   }
@@ -110,6 +136,20 @@ export function postgresSourceOperator(connectionId: string): OperatorPredicate 
 
 export function mysqlSourceOperator(connectionId: string): OperatorPredicate {
   return jdbcSourceOperator(connectionId, MYSQL_SOURCE_OPERATOR_TYPE);
+}
+
+export function snowflakeSourceOperator(connectionId: string): OperatorPredicate {
+  return jdbcSourceOperator(connectionId, SNOWFLAKE_SOURCE_OPERATOR_TYPE);
+}
+
+function connectionDescription(operatorType: string): string {
+  if (operatorType === MYSQL_SOURCE_OPERATOR_TYPE) {
+    return "Saved MySQL connection from Connectors";
+  }
+  if (operatorType === SNOWFLAKE_SOURCE_OPERATOR_TYPE) {
+    return "Saved Snowflake connection from Connectors";
+  }
+  return "Saved PostgreSQL connection from Connectors";
 }
 
 export function workflowContentWithPostgresSource(

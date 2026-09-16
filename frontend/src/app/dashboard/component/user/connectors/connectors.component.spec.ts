@@ -62,6 +62,23 @@ const MYSQL_TYPE: ConnectorType = {
   },
 };
 
+const SNOWFLAKE_TYPE: ConnectorType = {
+  id: 3,
+  code: "snowflake",
+  displayName: "Snowflake",
+  fieldsSchema: {
+    fields: [
+      { name: "account", label: "Account", type: "string", required: true },
+      { name: "warehouse", label: "Warehouse", type: "string", required: true },
+      { name: "database", label: "Database", type: "string", required: true },
+      { name: "schema", label: "Schema", type: "string", required: false, default: "PUBLIC" },
+      { name: "role", label: "Role", type: "string", required: false },
+      { name: "username", label: "Username", type: "string", required: true },
+      { name: "password", label: "Password", type: "password", required: true, secret: true },
+    ],
+  },
+};
+
 function saved(over: Partial<SavedConnector> = {}): SavedConnector {
   return {
     id: "7",
@@ -188,6 +205,26 @@ describe("ConnectorsComponent", () => {
     expect(fixture.nativeElement.textContent).toContain("Password");
   });
 
+  it("marks Snowflake Available only when GET /types includes snowflake and opens a host-free wizard", async () => {
+    await render([], [POSTGRES_TYPE, MYSQL_TYPE, SNOWFLAKE_TYPE]);
+    fixture.componentInstance.openAddModal();
+    fixture.detectChanges();
+    const cards = fixture.debugElement.queryAll(By.css(".catalog-card"));
+    const snowflake = cards.find(card => card.query(By.css("h4"))?.nativeElement.textContent.trim() === "Snowflake");
+    expect(snowflake?.nativeElement.disabled).toBe(false);
+    expect(snowflake?.nativeElement.textContent).toContain("Available");
+    snowflake?.nativeElement.click();
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("Connect Snowflake");
+    expect(text).toContain("Account");
+    expect(text).toContain("Warehouse");
+    expect(text).toContain("Password");
+    expect(text).not.toMatch(/\bHost\b/);
+    expect(text).not.toMatch(/\bPort\b/);
+    expect(text).not.toMatch(/Destination/);
+  });
+
   it("starts the wizard only for a seeded Available app", async () => {
     await render([]);
     fixture.componentInstance.openAddModal();
@@ -239,6 +276,26 @@ describe("ConnectorsComponent", () => {
       queryParams: { connection_id: "7", connector_code: "postgres" },
     });
     expect(notification.info).not.toHaveBeenCalled();
+  });
+
+  it("sends Use in workflow for a snowflake card with connector_code snowflake", async () => {
+    await render([
+      saved({
+        id: "11",
+        name: "lab-sf",
+        connectorCode: "snowflake",
+        connectorDisplayName: "Snowflake",
+        config: { account: "xy12345", warehouse: "COMPUTE_WH", database: "ANALYTICS", username: "analyst" },
+      }),
+    ]);
+    const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
+    expect(fixture.nativeElement.textContent).toContain("lab-sf");
+    expect(fixture.nativeElement.textContent).toContain("Snowflake");
+    expect(fixture.nativeElement.textContent).toContain("Live query in workflows");
+    fixture.debugElement.query(By.css(".use-in-workflow")).nativeElement.click();
+    expect(navigate).toHaveBeenCalledWith([USER_WORKFLOW], {
+      queryParams: { connection_id: "11", connector_code: "snowflake" },
+    });
   });
 
   it("deletes a connector from the card menu and drops the card", async () => {

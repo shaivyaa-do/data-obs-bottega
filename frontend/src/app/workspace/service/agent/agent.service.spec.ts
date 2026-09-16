@@ -205,14 +205,28 @@ describe("AgentService", () => {
       expect((service as any).agentStateTracking.get("agent-1").workflowId).toBe(42);
     });
 
-    it("skips the HTTP call when the agent is already bound to that workflow", () => {
+    it("reloads the agent workflow from the backend even when already bound to that workflow", () => {
+      selectedUnit = { computingUnit: { cuid: 7 } } as unknown as DashboardWorkflowComputingUnit;
       seedAgent("agent-1", 42);
       let bound: AgentInfo | undefined;
 
       service.bindAgentToWorkflow("agent-1", 42).subscribe(agent => (bound = agent));
 
-      httpMock.expectNone(r => r.method === "PATCH" && r.url === "/api/agents/agent-1/delegate");
+      const req = httpMock.expectOne(r => r.method === "PATCH" && r.url === "/api/agents/agent-1/delegate");
+      expect(req.request.body).toEqual({ workflowId: 42, computingUnitId: 7 });
+      req.flush({
+        ...apiAgent,
+        id: "agent-1",
+        delegate: {
+          userToken: "secret",
+          userInfo: { uid: 1, name: "u", email: "u@example.com", role: "REGULAR" },
+          workflowId: 42,
+          workflowName: "Current",
+        },
+      });
+
       expect(bound?.delegate?.workflowId).toBe(42);
+      expect(bound?.delegate?.workflowName).toBe("Current");
     });
 
     it("rebinds an agent that was already pointed at a different workflow", () => {
@@ -872,6 +886,28 @@ describe("AgentService", () => {
         expect(service.getHeadId("agent-1")).toBe("s2");
         expect(workflow!.content).toEqual({ operators: [1] });
         expect((service as any).agentStateTracking.get("agent-1").wsWorkflowActive).toBe(true);
+      });
+
+      it("does not apply afterWorkflowContent from a user echo step to the canvas stream", () => {
+        seedAgent("agent-1");
+        service.activateAgent("agent-1");
+        let workflow: Workflow | null = null;
+        service.getWorkflowObservable("agent-1").subscribe(w => (workflow = w));
+
+        emit(FakeWebSocket.latest(), {
+          type: "WsServerStepEvent",
+          step: {
+            messageId: "m1",
+            stepId: 0,
+            id: "user-echo",
+            role: "user",
+            timestamp: "2026-06-11T00:00:00.000Z",
+            afterWorkflowContent: { operators: [] },
+          },
+        });
+
+        expect(workflow).toBeNull();
+        expect((service as any).agentStateTracking.get("agent-1").wsWorkflowActive).toBe(false);
       });
 
       it("cleans up the agent when the backend reports 'Agent not found'", () => {

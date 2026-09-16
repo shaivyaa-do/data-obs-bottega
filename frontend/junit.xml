@@ -1,329 +1,487 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="162" failures="0" errors="0" time="2.42210875">
-    <testsuite name="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" timestamp="2026-09-14T19:01:57.391Z" hostname="Shaivyaas-MacBook-Air.local" tests="162" failures="0" errors="0" skipped="0" time="2.42210875">
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; section tabs &gt; styles the section tabs as a grey toggle with the selected tab on white" time="0.127983458">
+<testsuites name="vitest tests" tests="207" failures="0" errors="0" time="1.727290749">
+    <testsuite name="src/app/workspace/service/agent/agent.service.spec.ts" timestamp="2026-09-16T23:33:48.043Z" hostname="Shaivyaas-MacBook-Air.local" tests="93" failures="0" errors="0" skipped="0" time="0.11283275">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent &gt; creates an agent without putting the user token in the payload" time="0.013518">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; offers the file download to a logged-in user who is allowed to download" time="0.066607541">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent &gt; includes a trimmed provider API key and never puts the user token in the payload" time="0.004327709">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; withholds it from a signed-out visitor" time="0.035420625">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent &gt; omits providerApiKey when it is blank" time="0.003157042">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; withholds it when the dataset is not downloadable" time="0.033200375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent &gt; includes workflowId and the selected computing unit id in the payload" time="0.001404583">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; applies the same rule to the whole-version download" time="0.03053975">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; bindAgentToWorkflow &gt; PATCHes the delegate endpoint with workflowId and the selected computing unit" time="0.004452458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; download gating &gt; offers no download at all until a version is selected" time="0.025609042">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; bindAgentToWorkflow &gt; reloads the agent workflow from the backend even when already bound to that workflow" time="0.001196917">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; view size toggle &gt; offers only Maximize while the view is normal" time="0.043479083">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; bindAgentToWorkflow &gt; rebinds an agent that was already pointed at a different workflow" time="0.001315416">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; view size toggle &gt; offers only Minimize once the view is maximized" time="0.026587542">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; bindAgentToWorkflow &gt; notifies and errors when the bind request fails" time="0.001414959">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; file heading &gt; offers the copy-path control only once a file is on screen" time="0.024366959">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; fetchOperatorResults &gt; pulls operator results over REST and pushes them to operatorResultSummaries$" time="0.001143917">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; file heading &gt; copies the path of the file being shown" time="0.024460208">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; fetchOperatorResults &gt; falls back to empty results when the request fails" time="0.000978416">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; file heading &gt; shows the file size in human units, and nothing when it is unknown" time="0.036103083">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; stopGeneration &gt; sends a stop command over the websocket when one is open" time="0.000897084">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; version details &gt; lets the file table fill the pane without a files sider" time="0.029422083">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; stopGeneration &gt; falls back to the REST stop endpoint when no websocket is open" time="0.000725792">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; stages a file deletion and lets the panel count it" time="0.03739075">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; syncAgentsWithBackend &gt; evicts locally-cached agents missing from the backend and notifies subscribers" time="0.000715834">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; rendered explorer &gt; reloads the version list once the panel reports a new version" time="0.030099417">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; syncAgentsWithBackend &gt; pushes backend state updates into existing agents&apos; state streams without a change event" time="0.000831417">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; contributor cards &gt; renders one row per contributor with values, a creator star, and dashes for blanks" time="0.031406791">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getAgent &gt; serves cache hits without issuing a request" time="0.00095775">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; contributor cards &gt; shows edit controls only with write access" time="0.025109208">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getAgent &gt; fetches, maps and caches an unknown agent" time="0.000696042">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered explorer &gt; contributor cards &gt; starts adding a contributor when the add tile is clicked" time="0.0238735">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getAgent &gt; maps a 404 to a descriptive error" time="0.000587041">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; loads info, versions, like and view counts but skips liked/upload settings without a current user" time="0.01095225">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getAllAgents &gt; maps backend agents and evicts stale local ones" time="0.000684458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; fetches liked status for a logged-in user" time="0.015890791">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getAllAgents &gt; falls back to the local cache on HTTP failure" time="0.000560375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; makes no hub calls when the route carries no did" time="0.004980292">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; deleteAgent &gt; evicts the agent and notifies on {deleted: true}" time="0.0007105">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; ngOnInit &gt; reads a counts response with no like tally as no likes, and no liked record as not liked" time="0.011173375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; deleteAgent &gt; keeps the agent and emits false when the backend refuses the delete" time="0.001871083">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; maps dataset fields, formats numeric creation time, and resolves the cover image url" time="0.014252875">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; deleteAgent &gt; still evicts locally and emits true when the DELETE fails" time="0.000936584">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; nulls the cover image url when its retrieval fails" time="0.00384975">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; fetchModelTypes &gt; maps LiteLLM models and replays the cached result without a second request" time="0.001123584">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; leaves the cover image url null and skips the cover fetch when there is no cover image" time="0.00354725">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; fetchModelTypes &gt; emits an empty list when the model endpoint fails" time="0.0015585">
+            <system-err>
+Failed to fetch models from API: HttpErrorResponse {
+  headers: HttpHeaders {
+    headers: Map(0) {},
+    normalizedNames: Map(0) {},
+    lazyInit: undefined,
+    lazyUpdate: null
+  },
+  status: 500,
+  statusText: &apos;Server Error&apos;,
+  url: &apos;api/models&apos;,
+  ok: false,
+  type: undefined,
+  redirected: undefined,
+  responseType: undefined,
+  name: &apos;HttpErrorResponse&apos;,
+  message: &apos;Http failure response for api/models: 500 Server Error&apos;,
+  error: &apos;boom&apos;
+}
+
+            </system-err>
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; toasts a timeout instead of leaving the load unhandled when getDataset fails" time="0.002992208">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; returns false for unknown agents and opens no socket" time="0.001342208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; takes the tooltip&apos;s time zone from the spelled-out name the formatter appends" time="0.004237708">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; opens one websocket to the agent&apos;s react endpoint and reuses it on re-activation" time="0.001185292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetInfo &gt; leaves the tooltip&apos;s time zone empty when the runtime supplies no zone name" time="0.003442459">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; closes the socket and recreates stopPolling$ on deactivate, then reconnects on activate" time="0.001419167">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetVersionList &gt; selects the first version and delegates to onVersionSelected when the list is non-empty" time="0.00328025">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; reflects the socket readyState in the connection queries" time="0.001337833">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetVersionList &gt; makes no selection when the version list is empty" time="0.004334333">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; keeps an already-open socket on re-activation and replaces a non-open one" time="0.001890333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveDatasetVersionList &gt; toasts a timeout instead of leaving the load unhandled when the version list fails" time="0.003352042">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; ignores deactivation of an unknown agent and of an already-inactive one" time="0.001970125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; walks nested directories to the first file leaf and loads it" time="0.003544875">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; activateAgent / deactivateAgent &gt; deactivates cleanly when the socket was already dropped by a close event" time="0.001020917">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; survives the version select being emptied" time="0.003739875">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; connection setup &gt; switches to the wss scheme when the page is served over https" time="0.001393417">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; does not fetch a file tree for a version without a dvid" time="0.003216417">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; connection setup &gt; logs a payload that is not valid JSON instead of throwing out of the handler" time="0.002247375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onVersionSelected &gt; does not throw and leaves the displayed file untouched when the version has no files" time="0.003783125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; connection setup &gt; logs socket transport errors" time="0.000730125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; fetches the latest version independently and sets latestVersionFileName to the first leaf file" time="0.003247125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; connection setup &gt; ignores a close event from a socket that has already been replaced" time="0.000659333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; walks nested directories to find the first leaf file" time="0.003035625">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; sendMessage &gt; reports an error for an unknown agent" time="0.002097375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; sets latestVersionFileName to an empty string when the latest version has no files" time="0.002940708">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; sendMessage &gt; reports when no websocket connection is available" time="0.000593958">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; derives latestVersionCreationTime from the latest version&apos;s creationTime" time="0.009055292">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; sendMessage &gt; sends a WsClientPromptCommand carrying the message source over an open socket" time="0.00055275">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; leaves latestVersionCreationTime empty when the latest version has no creation time" time="0.003537875">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; sendMessage &gt; surfaces send failures as a notification" time="0.0051895">
+            <system-err>
+Failed to send message to agent: Error: socket closed
+    at _FakeWebSocket.&lt;anonymous&gt; (/Users/shaivyaasharma/data-obs-bottega/frontend/src/app/workspace/service/agent/agent.service.spec.ts:781:17)
+    at _FakeWebSocket.Mock (file:///Users/shaivyaasharma/data-obs-bottega/frontend/node_modules/@vitest/spy/dist/index.js:332:34)
+    at _AgentService.sendMessage (/Users/shaivyaasharma/data-obs-bottega/frontend/src/app/workspace/service/agent/agent.service.ts:946:26)
+    at /Users/shaivyaasharma/data-obs-bottega/frontend/src/app/workspace/service/agent/agent.service.spec.ts:784:17
+    at /Users/shaivyaasharma/data-obs-bottega/frontend/src/test-zone-setup.ts:90:33
+    at _ZoneDelegate.invoke (/Users/shaivyaasharma/data-obs-bottega/frontend/node_modules/zone.js/fesm2015/zone.js:398:28)
+    at ProxyZoneSpec.onInvoke (/Users/shaivyaasharma/data-obs-bottega/frontend/node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
+    at _ZoneDelegate.invoke (/Users/shaivyaasharma/data-obs-bottega/frontend/node_modules/zone.js/fesm2015/zone.js:397:34)
+    at ZoneImpl.run (/Users/shaivyaasharma/data-obs-bottega/frontend/node_modules/zone.js/fesm2015/zone.js:113:43)
+    at /Users/shaivyaasharma/data-obs-bottega/frontend/src/test-zone-setup.ts:88:16
+
+            </system-err>
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; sets latestVersionSize from a file-tree fetch for the latest version&apos;s dvid" time="0.004050625">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; applies a WsServerSnapshotEvent: state, converted steps, HEAD and workflow" time="0.002601167">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; does not fetch a size when the latest version has no dvid" time="0.003041541">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; appends, replaces in place and advances HEAD on WsServerStepEvent" time="0.001569834">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; clears a previously fetched latestVersionSize when the latest version has no dvid" time="0.003373833">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; does not apply afterWorkflowContent from a user echo step to the canvas stream" time="0.001348583">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; ignores a superseded call&apos;s size response that resolves after a newer one" time="0.0030375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; cleans up the agent when the backend reports &apos;Agent not found&apos;" time="0.001138">
+            <system-err>
+Agent agent-1 error: Agent not found
+
+            </system-err>
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; keeps the latest-version facts fixed when a different version is later selected" time="0.00288925">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; shows other websocket errors as notifications and keeps the agent" time="0.000714">
+            <system-err>
+Agent agent-1 error: boom
+
+            </system-err>
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; does nothing when there is no did" time="0.002788667">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; marks the agent UNAVAILABLE only on abnormal socket close" time="0.000564">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; toasts a timeout instead of leaving the load unhandled when the latest version fails" time="0.003260542">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; leaves the workflow stream alone when a snapshot carries no workflow content" time="0.000579834">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; retrieveLatestVersionFile &gt; treats a missing latest version as empty instead of an error" time="0.003740625">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; ignores a step event that carries no step" time="0.000538792">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; always allows the owner to download, even when the dataset is not downloadable" time="0.003045125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; advances HEAD to the synthesised id when the step carries none" time="0.000483375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; allows a non-owner to download a public downloadable dataset without explicit access" time="0.002834125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; ignores a status event that carries no state" time="0.000505209">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; blocks a non-owner from a private downloadable dataset without access" time="0.002478708">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; falls back to a generic notification when the error event carries no message" time="0.000547625">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; blocks download when the dataset is not downloadable" time="0.002638167">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; server events &gt; warns about an unrecognised message type and changes nothing" time="0.000599959">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; isDownloadAllowed and userHasWriteAccess &gt; reports write access for the WRITE privilege or the owner" time="0.003274667">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; stopStatePolling &gt; closes the socket and drops the tracking entry for a tracked agent" time="0.000556041">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks the dataset public and toasts on success" time="0.003698459">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; stopStatePolling &gt; is a no-op for an agent that was never tracked" time="0.000394375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; keeps the public flag and toasts an error when the publicity update fails" time="0.003397125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; workflow polling &gt; polls the workflow every second until websocket updates suppress it" time="0.0018115">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks downloads not-allowed and toasts on success" time="0.0029215">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; websocket lifecycle and events &gt; workflow polling &gt; swallows polling errors and keeps the interval alive" time="0.00103125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; keeps the downloadable flag and toasts an error when the update fails" time="0.002509209">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; clearMessages &gt; resets the step stream on success" time="0.000521541">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks the dataset private and names that state, not the one it left" time="0.002396542">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; clearMessages &gt; keeps the steps when the clear request fails" time="0.001019666">
+            <system-err>
+Error clearing messages for agent agent-1: HttpErrorResponse {
+  headers: HttpHeaders {
+    headers: Map(0) {},
+    normalizedNames: Map(0) {},
+    lazyInit: undefined,
+    lazyUpdate: null
+  },
+  status: 500,
+  statusText: &apos;Server Error&apos;,
+  url: &apos;/api/agents/agent-1/clear&apos;,
+  ok: false,
+  type: undefined,
+  redirected: undefined,
+  responseType: undefined,
+  name: &apos;HttpErrorResponse&apos;,
+  message: &apos;Http failure response for /api/agents/agent-1/clear: 500 Server Error&apos;,
+  error: &apos;boom&apos;
+}
+
+            </system-err>
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; marks downloads allowed and names that state, not the one it left" time="0.003069875">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; setHoveredMessage &gt; emits the deduplicated union of operator ids across tool calls" time="0.001192792">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; does not attempt a publicity change without a dataset id" time="0.007195417">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; setHoveredMessage &gt; emits empty arrays when the hovered step is cleared" time="0.000808125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; publicity and downloadable toggles &gt; does not attempt a download-permission change without a dataset id" time="0.002778167">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getReActStepsByOperatorAccess &gt; collects viewing and modifying steps exactly once each" time="0.000657584">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; creating a version &gt; hands the panel a call that commits through DatasetService" time="0.002769791">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; attaches X-Agent-Workflow-Id when the agent&apos;s tracking has a workflowId" time="0.0005355">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; creating a version &gt; reloads the version list and the latest-version facts once the panel reports one" time="0.003053916">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; omits the header when no workflow is associated" time="0.001218834">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; downloads the selected version as a zip when did and dvid are present" time="0.003513125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; falls back to the documented default settings when the fetch fails" time="0.001289625">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; does not download a zip when no version is selected" time="0.002373166">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; updates the cached agent&apos;s settings on a successful PATCH" time="0.002166709">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; uses the public endpoint to download the current file for a public non-owner dataset" time="0.00227925">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; notifies and rethrows when the settings update fails" time="0.001121542">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; uses the authenticated endpoint to download the current file for the owner" time="0.002151416">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; posts operator ids and converts the returned steps" time="0.000627417">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; downloads &gt; does not download the current file without a selected version dvid" time="0.002253375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; agent request routing and fallbacks &gt; falls back for system-info, operator-types and steps-by-operators failures" time="0.000561292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; view flags &gt; toggles the maximize and precise-view-count flags" time="0.002455542">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; canvas annotation toggles &gt; togglePortShapes drives showPortShapes$ and the synchronous getter" time="0.000392459">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; unlikes and decrements the like count when currently liked" time="0.003057416">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; canvas annotation toggles &gt; requestScrollToStep broadcasts the scroll target" time="0.000355208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; likes and increments the like count when not currently liked" time="0.002250334">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; getAgentState returns the tracked value, or UNAVAILABLE for an unknown id" time="0.000360625">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; does nothing when no user is logged in" time="0.002427666">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; isAgentConnected is false for an unavailable/unknown agent and true otherwise" time="0.000362333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; leaves the dataset liked when the server refuses the unlike" time="0.002625375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; getHeadId / getHeadIdObservable return the tracked HEAD, or null when untracked" time="0.000335">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; leaves the dataset unliked when the server refuses the like" time="0.00254275">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; getVisibleSteps returns the tracked snapshot, or [] when untracked" time="0.000324958">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; reads a refreshed count with no like tally as no likes after unliking" time="0.002355375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; getWorkflowObservable emits the tracked workflow, or null when untracked" time="0.000362417">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; toggleLike &gt; reads a refreshed count with no like tally as no likes after liking" time="0.002495333">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; getAgentWorkflowId walks the delegate chain: missing agent, no delegate, full" time="0.000401875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; refreshes the cover url and toasts success after setting a cover image" time="0.003278708">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; state accessors without tracking &gt; getAgentCount reports the number of registered agents" time="0.000974625">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; surfaces the backend message when setting the cover image fails" time="0.002523125">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; setHoveredMessage guards &gt; emits empty arrays for a non-null step that carries no operator access" time="0.001028333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; drops the previous cover url when the refreshed one cannot be fetched" time="0.002234">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; setHoveredMessage guards &gt; is a no-op when the agent has no tracking" time="0.000631417">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; does not surface a non-HTTP failure&apos;s own message when setting the cover image" time="0.002341917">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getReActStepsByOperatorAccess without operator access &gt; skips steps whose operatorAccess is absent" time="0.000506583">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; falls back to a generic message when the error body carries none" time="0.007610625">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; mapStateToAgentState &gt; maps STOPPING, UNAVAILABLE and unrecognised backend states" time="0.000939541">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; does nothing when there is no selected version to attach the cover to" time="0.002461625">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent failure fallback chain &gt; prefers the nested error.error message" time="0.000901042">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; persists a changed description and updates the field" time="0.002382875">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent failure fallback chain &gt; falls back to err.message when there is no nested error" time="0.000687291">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; skips the persistence call when the description is unchanged" time="0.0024205">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; createAgent failure fallback chain &gt; falls back to the default label when the error carries neither field" time="0.000496375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; reverts the description and toasts an error when persistence fails" time="0.00261025">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; updateAgentSettings edge cases &gt; returns the response without touching the cache when the agent is unknown" time="0.0005655">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; cover image and description persistence &gt; stores an empty description when the editor hands back nothing" time="0.002505375">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; updateAgentSettings edge cases &gt; falls back to the default label when the failure carries neither field" time="0.000910458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; copyCurrentFilePath &gt; writes the displayed path to the clipboard and toasts success" time="0.0024355">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getReActSteps failure &gt; emits an empty array instead of propagating the error" time="0.000726875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; copyCurrentFilePath &gt; does nothing when no file is displayed" time="0.0031855">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; syncAgentsWithBackend branches &gt; swallows a failed sync and treats the backend as empty" time="0.000717458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; copyCurrentFilePath &gt; toasts an error when the clipboard write rejects" time="0.009199417">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; syncAgentsWithBackend branches &gt; does not add a backend agent that is not already cached locally" time="0.000529125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; version-node selection &gt; onVersionFileTreeNodeSelected loads the selected node&apos;s content" time="0.000218542">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; syncAgentsWithBackend branches &gt; updates an existing agent&apos;s state even when it has no tracking entry" time="0.000442292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onPreviouslyUploadedFileDeleted &gt; does not delete a file without a dataset id" time="0.002819">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getAllAgents keeps agents still present on the backend &gt; does not prune a local agent that the backend still reports" time="0.000469709">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onPreviouslyUploadedFileDeleted &gt; toasts an error and stages nothing when the deletion fails" time="0.002860334">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; stopGeneration error handlers &gt; logs when the websocket send throws" time="0.000525083">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onPreviouslyUploadedFileDeleted &gt; deletes by the path relative to the version root, which is what the diff reports" time="0.002491792">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; stopGeneration error handlers &gt; logs when the REST fallback fails" time="0.000504833">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; seeds editedDatasetName from the loaded dataset name" time="0.002236542">
+        <testcase classname="src/app/workspace/service/agent/agent.service.spec.ts" name="AgentService &gt; getOrCreateStateTracking back-fills a workflow id &gt; adds a workflow id onto tracking that was created without one" time="0.000385791">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; persists a valid name unchanged and toasts success" time="0.002412625">
+    </testsuite>
+    <testsuite name="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" timestamp="2026-09-16T23:33:48.049Z" hostname="Shaivyaas-MacBook-Air.local" tests="54" failures="0" errors="0" skipped="0" time="0.771611041">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; loads the agents once on init and shows the selected agent with a model dropdown" time="0.071990458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; rejects an invalid name with a validation error and does not call the rename API" time="0.002457667">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; shows empty state when there are no agents" time="0.015448042">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; toasts an error and leaves the name unchanged when the rename fails" time="0.002555042">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; reloads the agent list when the service signals an agent change" time="0.019262209">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; does nothing when there is no did" time="0.002270667">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; initialization and agent list wiring &gt; feeds the selected agent&apos;s chat and whether it is the active one" time="0.0174665">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; refetches the file tree and the latest-version facts, which both embed the old name" time="0.002790709">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; opens the panel, activates the agent and selects its tab once agents load" time="0.016076333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onSaveDatasetName &gt; refuses to rename while an upload is in flight, which would strand it" time="0.002319709">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; binds a query-param agent to the current workflow instead of navigating away" time="0.017896584">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onDeleteDataset &gt; deletes the dataset, toasts success and navigates back to the dataset list" time="0.007975958">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; ignores an id that matches no agent and keeps the input for a later retry" time="0.014339667">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onDeleteDataset &gt; toasts an error and does not navigate when the deletion fails" time="0.002498083">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; defers activation until the agent list arrives through agentChange$" time="0.01199325">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; onDeleteDataset &gt; does nothing when there is no did" time="0.00261475">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; deactivates the previously active agent and keeps an already-open panel width" time="0.016746333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; delete button disabled state &gt; disables the delete button for a non-owner with write access" time="0.013838208">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agentIdToActivate input &gt; does nothing when the input change clears the id" time="0.014472375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; delete button disabled state &gt; enables the delete button for the owner" time="0.014094791">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; openPanel and docked state &gt; the docked button opens the panel and the minimize button docks it again" time="0.01293225">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; maps contributors from the dashboard dataset and falls back to an empty list" time="0.003200875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; openPanel and docked state &gt; opening the panel activates the first switchable agent so chat is ready" time="0.017737084">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onAddContributor appends the modal result and persists the list" time="0.006050834">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; activates the new agent and switches to its tab after refreshing the list" time="0.012846167">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onAddContributor does not persist when the modal is cancelled" time="0.002677625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; deactivates the previously active agent before activating the created one" time="0.014107334">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onEditContributor replaces the edited row and persists the list" time="0.002574375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; leaves the tab selection alone when the created agent is missing from the refreshed list" time="0.014534708">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; onDeleteContributor removes the row and persists the list" time="0.002428625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onAgentCreated &gt; activates the created agent directly on onAgentCreated" time="0.015439667">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; rolls the list back and notifies when persisting fails" time="0.002482458">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; activates the newly selected agent and deactivates the previous one" time="0.012535208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; contributors &gt; does not call the service when did is missing" time="0.004120375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; ignores a tab index beyond the agent list" time="0.017703334">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; toggles the like through the like tag when logged in" time="0.015297458">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; activates the agent behind the selected tab" time="0.029635875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; unlikes through the same tag when the dataset is already liked" time="0.009166833">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; binds the selected agent to the current workflow instead of navigating away" time="0.012718375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; does not toggle the like when logged out" time="0.008860542">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; does not activate when binding to the current workflow fails" time="0.011621709">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; omits the cover image when there is no cover URL" time="0.008703542">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; rebinds when the agent is already on the current workflow so agent memory reloads" time="0.012909208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; renders the cover image bound to the cover URL" time="0.009452625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; binds an unbound agent (workflowId 0) to the current workflow" time="0.013503417">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; does not offer a files sider or a way to restore one" time="0.01162575">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; re-selecting the already-active agent tab is a no-op" time="0.01313075">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; binds the dataset name input and saves it from the template" time="0.029171292">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; the model dropdown switches to the chosen agent" time="0.020663875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; renders every contributor row from the list" time="0.011875167">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; onTabSelectChange &gt; re-activates without deactivating when the same agent moved to a different tab" time="0.013047375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; routes the settings switches&apos; ngModelChange bindings to the service" time="0.018886208">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; agent dropdown &gt; keeps every agent selectable, including those last used on another workflow" time="0.016298833">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; renders a row per contributor with the actions trigger" time="0.021338958">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; stops the event and does nothing when the deletion is not confirmed" time="0.011833459">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; edits the chosen contributor through the menu&apos;s binding target" time="0.028558292">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; deactivates and deletes the active agent" time="0.014035208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; deletes the chosen contributor through the popconfirm&apos;s binding target" time="0.019635042">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; shifts the selected index down when deleting a tab before the current one" time="0.016510709">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; downloads the current file from the toolbar" time="0.016826042">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; keeps the selected index when deleting a tab after the current one" time="0.017028042">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent behavior &gt; template rendering &gt; toggles the scaled view from the toolbar" time="0.01618875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; logs and leaves the tabs untouched when the backend delete fails" time="0.012338458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; status tags &gt; labels a public, downloadable dataset with the globe and download icons" time="0.01858475">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; deleteAgent &gt; the close button in the header asks for confirmation and deletes through the service" time="0.01118925">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; status tags &gt; labels a private, download-restricted dataset with the lock and stop icons" time="0.021390417">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel geometry &gt; onResize coalesces updates through requestAnimationFrame" time="0.01001875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; status tags &gt; tells the view counter and the like counter apart" time="0.013353542">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel geometry &gt; handleDragStart undocks the panel" time="0.009612208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; data card layout &gt; does not duplicate latest-version facts on the data card" time="0.014608666">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; restores a saved width only when the panel was left undocked" time="0.009512666">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; returns to the dataset list from the back button" time="0.01464875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; stays docked when the panel was saved docked, regardless of the saved width" time="0.007809834">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; keeps the dataset info preview beside the dataset name" time="0.014772458">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; rejects a saved width below the minimum" time="0.011672791">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; opens a dataset info table from the preview icon" time="0.023134708">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; rejects a non-numeric saved width" time="0.009801875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; em-dashes missing latest-version facts in the info table" time="0.015746417">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; restores a saved height at or above the minimum" time="0.008929666">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; opens Create New Version from the header without visiting Versions &amp; Files" time="0.019641334">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; keeps the default height when the saved height is below the minimum" time="0.009237083">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; lets the owner create a version even when the privilege field is not WRITE" time="0.013981917">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; re-applies the saved container style and derives the return position from its transform" time="0.008007292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; lets the signed-in dataset owner upload when privilege flags are missing" time="0.014605083">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; counts as docked when the saved transform nets out to the origin" time="0.008888125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; hides Create New Version from readers" time="0.031107166">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; persists dimensions, docked flag and container style, and deactivates the agent on destroy" time="0.00982">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; dataset header &gt; offers an Upload files action on the data card for writers" time="0.045543625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; panel settings persistence &gt; saves docked=true for a closed panel and skips the style when no container exists" time="0.011177292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; spells out what public visibility and blocked downloads mean" time="0.015464833">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; reveals the body and sizes it from the bound width and height when opened" time="0.008305375">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; spells out what private visibility and permitted downloads mean" time="0.015291625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; bounds the resizable box by the configured minimum and a fraction of the window" time="0.005345625">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; renders settings in the same bordered cards as the data card" time="0.014967625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; applies a resize reported by the resizable directive to the rendered box" time="0.005236667">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings hints &gt; restores the dataset header when leaving a maximized versions view" time="0.015925625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; drags from the title bar within the workspace and undocks on drag start" time="0.005090292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; contributor row menu &gt; edits the contributor whose own row menu was used" time="0.220494167">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; renders the selected agent&apos;s chat, not one chat per agent" time="0.019463792">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; contributor row menu &gt; deletes the contributor whose own row menu was used, once the deletion is confirmed" time="0.238431792">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; changing the model dropdown activates that agent and shows only its chat" time="0.016885833">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; contributor row menu &gt; adds a contributor from the keyboard on the add tile" time="0.022686375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; keeps every dropdown option enabled so any agent can be selected on this workflow" time="0.015021458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; downloads the file that is on screen" time="0.032357833">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; the close button in the header deletes the shown agent without switching to another" time="0.014643125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; downloads the file that is on screen over the public endpoint for a non-owner" time="0.018800166">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-panel.component.spec.ts" name="AgentPanelComponent &gt; rendered template &gt; offers resize handles on the left and bottom edges only" time="0.005621125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; keeps the owner of a public dataset on the authenticated endpoint" time="0.018910792">
+    </testsuite>
+    <testsuite name="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" timestamp="2026-09-16T23:33:48.051Z" hostname="Shaivyaas-MacBook-Air.local" tests="60" failures="0" errors="0" skipped="0" time="0.842846958">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; ngOnInit workflow polling &gt; ensures workflow polling when the agent delegate carries a workflowId" time="0.048371209">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; maximizes the view from the toolbar and offers the way back" time="0.020868875">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; ngOnInit workflow polling &gt; does not start polling when there is no delegate" time="0.014026875">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; file toolbar &gt; does not render a files sider beside the table" time="0.029741458">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; auto-persist toggling on state transitions &gt; disables persistence when generation starts and re-enables when it finishes" time="0.019605">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; offers every known version and loads the one that is picked" time="0.019566667">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; auto-persist toggling on state transitions &gt; re-enables persistence when STOPPING resolves to AVAILABLE" time="0.013336708">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; offers no way to empty the selection" time="0.01754775">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; auto-persist toggling on state transitions &gt; re-enables persistence on destroy if it was left disabled" time="0.012000792">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; loads a picked version over the anonymous endpoint when nobody is signed in" time="0.019427459">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; auto-persist toggling on state transitions &gt; does not touch the flag on destroy when it was never disabled" time="0.008356959">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; downloads the whole selected version as a zip" time="0.022203583">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; step subscription and hovered-message tracking &gt; auto-advances the hover highlight to the latest step on new emissions" time="0.027195292">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; does not put a files sider next to the version picker" time="0.018948375">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; step subscription and hovered-message tracking &gt; keeps a manually hovered non-latest step across the next emission" time="0.015266167">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version picker &gt; opens a Create New Version upload popup from the top bar" time="0.026730625">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; step subscription and hovered-message tracking &gt; advances a hover that was sitting on the previous latest step" time="0.011899208">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version file tree &gt; shows the file a tree node selection would open" time="0.019674334">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; step subscription and hovered-message tracking &gt; reverts to the latest step when unhovered (null)" time="0.010076708">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version file tree &gt; deletes the file a tree node asked to remove" time="0.028662292">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; HEAD-path filtering of visible steps &gt; shows only the root-to-HEAD ancestor chain when a HEAD is set" time="0.011601166">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; version file tree &gt; adopts the cover image offered by a file path, qualified by the selected version" time="0.016389">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; workflow reload while the tab is active &gt; reloads on activation, deduplicates identical content, and stops when deactivated" time="0.007236333">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings tab &gt; persists a description edited on the Settings tab" time="0.0170815">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; sendMessage / onEnterPress &gt; ignores whitespace-only input" time="0.007309125">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings tab &gt; locks the name field while an upload is in flight" time="0.021656084">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; sendMessage / onEnterPress &gt; does not send while the agent is not AVAILABLE" time="0.008035458">
         </testcase>
-        <testcase classname="src/app/dashboard/component/user/user-dataset/user-dataset-explorer/dataset-detail.component.spec.ts" name="DatasetDetailComponent rendered template &gt; settings tab &gt; deletes the dataset only once the confirmation is accepted" time="0.024836541">
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; sendMessage / onEnterPress &gt; sends the trimmed text and clears the input" time="0.009469167">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; sendMessage / onEnterPress &gt; still sends when canvas persist fails so chat is not blocked" time="0.009991291">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; sendMessage / onEnterPress &gt; Enter sends the message and prevents the default newline" time="0.011583458">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; sendMessage / onEnterPress &gt; Shift+Enter inserts a newline instead of sending" time="0.008303458">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; state display helpers &gt; maps Available to icon &quot;check-circle&quot;, color &quot;#52c41a&quot; and its tooltip" time="0.007004208">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; state display helpers &gt; maps Generating to icon &quot;sync&quot;, color &quot;#1890ff&quot; and its tooltip" time="0.008325">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; state display helpers &gt; maps Stopping to icon &quot;sync&quot;, color &quot;#1890ff&quot; and its tooltip" time="0.008223917">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; state display helpers &gt; maps Unavailable to icon &quot;close-circle&quot;, color &quot;#ff4d4f&quot; and its tooltip" time="0.009004833">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; state display helpers &gt; reports the per-state boolean flags" time="0.009892084">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; state display helpers &gt; falls back to the unknown-status tooltip for an unrecognized state" time="0.007713083">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; tool result and operator-access helpers &gt; prefers output, then result, then the raw entry" time="0.006229416">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; tool result and operator-access helpers &gt; returns null for missing tool results or an out-of-range index" time="0.007552792">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; tool result and operator-access helpers &gt; resolves per-tool-call operator access from the map" time="0.006482959">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; tool result and operator-access helpers &gt; reports no operator access for a missing or empty map" time="0.005636292">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; showSystemInfo / refreshSystemInfo &gt; populates prompt and tools, applies default settings, and sorts operator types" time="0.0672715">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; showSystemInfo / refreshSystemInfo &gt; applies explicit settings values from the server" time="0.033537375">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; showSystemInfo / refreshSystemInfo &gt; closeSystemInfoModal hides the modal" time="0.0081255">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; settings save methods &gt; saveMaxCharLimit sends only { maxOperatorResultCharLimit } and toasts &quot;Max character limit saved&quot;" time="0.008403958">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; settings save methods &gt; saveMaxCellCharLimit sends only { maxOperatorResultCellCharLimit } and toasts &quot;Max cell character limit saved&quot;" time="0.009204834">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; settings save methods &gt; saveToolTimeout sends only { toolTimeoutSeconds } and toasts &quot;Tool timeout saved&quot;" time="0.009474">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; settings save methods &gt; saveExecutionTimeout sends only { executionTimeoutMinutes } and toasts &quot;Execution timeout saved&quot;" time="0.0096415">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; settings save methods &gt; saveMaxSteps sends only { maxSteps } and toasts &quot;Max steps saved&quot;" time="0.017380709">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; settings save methods &gt; stays silent when the settings update errors (service already notified)" time="0.009014375">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; operator type selection &gt; toggling on adds without duplicates and saves; toggling off removes" time="0.007433">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; operator type selection &gt; enableAllOperatorTypes selects every known type; deselectAllOperatorTypes clears" time="0.008850542">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; operator type selection &gt; filters operator types by type or description, case-insensitively" time="0.007228042">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; exportReActSteps &gt; warns and skips the fetch when there is nothing to export" time="0.011560292">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; exportReActSteps &gt; downloads fetched steps as JSON with operatorAccess flattened to a plain object" time="0.017166">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; exportReActSteps &gt; shows an error toast when the fetch fails" time="0.010066042">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; scroll-to-step requests &gt; scrolls to and highlights the requested step of this agent" time="0.021313625">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; scroll-to-step requests &gt; ignores scroll requests addressed to other agents" time="0.007827709">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; shows an empty-chat placeholder until there are messages" time="0.007576958">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; renders user and agent message bubbles with roles, content and tool summary" time="0.009981833">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; pluralises the tool-call summary and opens the details modal from the hover button" time="0.025038834">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; closing the step-detail modal clears the flag through its two-way binding" time="0.017494417">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; mirrors typed text into currentMessage through the textarea&apos;s ngModel binding" time="0.008889083">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; shows the thinking spinner and stop button while generating" time="0.009801875">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; shows the stopping indicator while the agent stops" time="0.00845875">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; shows the disconnected banner and hides the clear button when unavailable" time="0.008622875">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; disables the send button until there is input and the agent is available" time="0.008270792">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; clear button delegates to the service" time="0.010649667">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; system-info modal &gt; opens from the toolbar info button and renders all four tab headers" time="0.024319959">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; system-info modal &gt; renders the tools list, parameter inputs, and sorted operator toggles per tab" time="0.0265165">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; system-info modal &gt; edits and saves every parameter from the Parameters tab" time="0.03301875">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; system-info modal &gt; toggles, bulk-selects and searches operator types from the Operators tab" time="0.027932917">
+        </testcase>
+        <testcase classname="src/app/workspace/component/agent/agent-panel/agent-chat/agent-chat.component.spec.ts" name="AgentChatComponent &gt; template rendering &gt; system-info modal &gt; clears the modal flag when nz-modal reports that it closed" time="0.021338333">
         </testcase>
     </testsuite>
 </testsuites>

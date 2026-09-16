@@ -255,6 +255,7 @@ class WorkflowCompiler(
     // 2b. fill JDBC fields on PostgreSQL Source ops from saved connection_cred
     logicalPlan.resolvePostgresConnections(context.userId, errorList)
     logicalPlan.resolveMysqlConnections(context.userId, errorList)
+    logicalPlan.resolveSnowflakeConnections(context.userId, errorList)
 
     // 3. expand the logical plan to the physical plan, and get the output ports that need storage
     val (physicalPlan, outputPortsNeedingStorage) =

@@ -103,6 +103,20 @@ export class WorkflowResultService {
   }
 
   /**
+   * Operator IDs that currently have a table or visualization result cached.
+   * Pagination entries come first, then snapshot-only operators, with each id listed once.
+   */
+  public getResultOperatorIds(): string[] {
+    const ids = [...this.paginatedResultServices.keys()];
+    for (const operatorId of this.operatorResultServices.keys()) {
+      if (!this.paginatedResultServices.has(operatorId)) {
+        ids.push(operatorId);
+      }
+    }
+    return ids;
+  }
+
+  /**
    * Drop cached results and reset table stats so a re-entered workflow doesn't show
    * stale results (resultTableStats is a ReplaySubject, so push an empty snapshot).
    * Emits resultClearedStream so subscribers tear down already-displayed frames.

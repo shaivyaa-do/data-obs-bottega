@@ -87,8 +87,20 @@ export function customFormlyFieldType(input: {
   if (key === "connectionId" && operatorType === "MySQLSource") {
     return "mysql-connection";
   }
-  if (key === "table" && (operatorType === "PostgreSQLSource" || operatorType === "MySQLSource")) {
-    return operatorType === "MySQLSource" ? "mysql-table" : "postgres-table";
+  if (key === "connectionId" && operatorType === "SnowflakeSource") {
+    return "snowflake-connection";
+  }
+  if (
+    key === "table" &&
+    (operatorType === "PostgreSQLSource" || operatorType === "MySQLSource" || operatorType === "SnowflakeSource")
+  ) {
+    if (operatorType === "MySQLSource") {
+      return "mysql-table";
+    }
+    if (operatorType === "SnowflakeSource") {
+      return "snowflake-table";
+    }
+    return "postgres-table";
   }
   return undefined;
 }

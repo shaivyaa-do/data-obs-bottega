@@ -29,6 +29,7 @@ import org.apache.texera.amber.operator.source.scan.csv.CSVScanSourceOpDesc
 import org.apache.texera.amber.operator.source.scan.json.JSONLScanSourceOpDesc
 import org.apache.texera.amber.operator.source.sql.mysql.MySQLSourceOpDesc
 import org.apache.texera.amber.operator.source.sql.postgresql.PostgreSQLSourceOpDesc
+import org.apache.texera.amber.operator.source.sql.snowflake.SnowflakeSourceOpDesc
 import org.apache.texera.amber.operator.split.SplitOpDesc
 import org.apache.texera.amber.operator.udf.python.DualInputPortsPythonUDFOpDescV2
 import org.apache.texera.amber.operator.udf.python.source.PythonUDFSourceOpDescV2
@@ -39,6 +40,10 @@ import org.apache.texera.common.compiler.mysql.{MysqlConnectionLookup, MysqlJdbc
 import org.apache.texera.common.compiler.postgres.{
   PostgresConnectionLookup,
   PostgresJdbcCredentials
+}
+import org.apache.texera.common.compiler.snowflake.{
+  SnowflakeConnectionLookup,
+  SnowflakeJdbcCredentials
 }
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -514,5 +519,83 @@ class LogicalPlanSpec extends AnyFlatSpec with Matchers {
     assert(!lookedUp)
     op.host shouldBe "legacy.internal"
     op.password shouldBe "plaintext"
+  }
+
+  // ---------------------------------------------------------------------------
+  // resolveSnowflakeConnections
+  // ---------------------------------------------------------------------------
+
+  private def snowflakeWithConnection(id: String = "11"): SnowflakeSourceOpDesc = {
+    val op = new SnowflakeSourceOpDesc
+    op.connectionId = id
+    op.table = "ORDERS"
+    op
+  }
+
+  private val snowflakeStubCreds = SnowflakeJdbcCredentials(
+    account = "xy12345.us-east-1",
+    warehouse = "COMPUTE_WH",
+    database = "ANALYTICS",
+    schema = "PUBLIC",
+    role = Some("SYSADMIN"),
+    username = "reader",
+    password = "hunter2"
+  )
+
+  private def snowflakeStubLookup(
+      credsById: Map[String, SnowflakeJdbcCredentials] = Map("11" -> snowflakeStubCreds)
+  ): SnowflakeConnectionLookup =
+    (uid: Int, connectionId: String) => {
+      assert(uid == 9)
+      credsById.getOrElse(
+        connectionId,
+        throw new IllegalArgumentException(SnowflakeConnectionLookup.AddConnectionMessage)
+      )
+    }
+
+  "LogicalPlan.resolveSnowflakeConnections" should
+    "fill JDBC fields from the lookup without storing them on a missing connectionId" in {
+    val op = snowflakeWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    plan.resolveSnowflakeConnections(Some(9), Some(errors), Some(snowflakeStubLookup()))
+    assert(errors.isEmpty)
+    op.account shouldBe "xy12345.us-east-1"
+    op.warehouse shouldBe "COMPUTE_WH"
+    op.database shouldBe "ANALYTICS"
+    op.schema shouldBe "PUBLIC"
+    op.role shouldBe "SYSADMIN"
+    op.username shouldBe "reader"
+    op.password shouldBe "hunter2"
+    op.connectionId shouldBe "11"
+    op.table shouldBe "ORDERS"
+  }
+
+  it should "collect an error when the current user is missing" in {
+    val op = snowflakeWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    plan.resolveSnowflakeConnections(None, Some(errors), Some(snowflakeStubLookup()))
+    assert(errors.size == 1)
+    assert(errors.head._1 == op.operatorIdentifier)
+    assert(errors.head._2.getMessage == SnowflakeSourceOpDesc.AddConnectionMessage)
+    assert(op.password == null)
+  }
+
+  it should "leave a Snowflake Source without connectionId untouched" in {
+    val op = new SnowflakeSourceOpDesc
+    op.table = "ORDERS"
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    var lookedUp = false
+    val lookup: SnowflakeConnectionLookup = (_, _) => {
+      lookedUp = true
+      snowflakeStubCreds
+    }
+    plan.resolveSnowflakeConnections(Some(9), Some(errors), Some(lookup))
+    assert(errors.isEmpty)
+    assert(!lookedUp)
+    assert(op.password == null)
+    assert(op.account == null)
   }
 }

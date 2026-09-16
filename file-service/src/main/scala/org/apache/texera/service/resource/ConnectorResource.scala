@@ -38,7 +38,10 @@ import org.apache.texera.service.util.{
   JdbcListTables,
   JdbcSelectOne,
   MysqlJdbcTester,
-  PostgresJdbcTester
+  PostgresJdbcTester,
+  SnowflakeJdbcTester,
+  SnowflakeSelectOne,
+  SnowflakeSession
 }
 import org.jooq.exception.DataAccessException
 import org.jooq.impl.DSL
@@ -52,7 +55,8 @@ import scala.util.control.NonFatal
 object ConnectorResource {
   val PostgresCode = "postgres"
   val MysqlCode = "mysql"
-  private val SupportedCodes = Set(PostgresCode, MysqlCode)
+  val SnowflakeCode = "snowflake"
+  private val SupportedCodes = Set(PostgresCode, MysqlCode, SnowflakeCode)
 
   case class ConnectorTypeResponse(
       id: Int,
@@ -75,12 +79,15 @@ object ConnectorResource {
   case class CreateConnectorRequest(
       name: String,
       connectorCode: String,
-      host: String,
-      port: Any,
-      database: String,
-      username: String,
+      host: String = null,
+      port: Any = null,
+      database: String = null,
+      username: String = null,
       schema: Option[String] = None,
-      password: String
+      password: String = null,
+      account: String = null,
+      warehouse: String = null,
+      role: Option[String] = None
   )
 
   case class PatchConnectorRequest(
@@ -90,7 +97,10 @@ object ConnectorResource {
       database: Option[String] = None,
       username: Option[String] = None,
       schema: Option[String] = None,
-      password: Option[String] = None
+      password: Option[String] = None,
+      account: Option[String] = None,
+      warehouse: Option[String] = None,
+      role: Option[String] = None
   )
 
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
@@ -195,6 +205,24 @@ object ConnectorResource {
     node
   }
 
+  private def snowflakeConfigObject(
+      account: String,
+      warehouse: String,
+      database: String,
+      username: String,
+      schema: Option[String],
+      role: Option[String]
+  ): ObjectNode = {
+    val node = mapper.createObjectNode()
+    node.put("account", account)
+    node.put("warehouse", warehouse)
+    node.put("database", database)
+    node.put("username", username)
+    schema.foreach(s => node.put("schema", s))
+    role.foreach(r => node.put("role", r))
+    node
+  }
+
   private def toIso(value: Any): Option[String] =
     value match {
       case null              => None
@@ -229,6 +257,9 @@ object ConnectorResource {
 
   private def safeJdbcMessage(error: Throwable, password: String, code: String): String = {
     val raw = Option(error.getMessage).getOrElse(error.getClass.getSimpleName)
+    if (raw == SnowflakeJdbcTester.MfaMessage) {
+      return raw
+    }
     val stripped = raw.replaceAll("(?i)password=[^\\s;]*", "password=***")
     val noSecret =
       if (password != null && password.nonEmpty) stripped.replace(password, "***")
@@ -238,8 +269,9 @@ object ConnectorResource {
 
   private def productName(code: String): String =
     code match {
-      case MysqlCode => "MySQL"
-      case _         => "PostgreSQL"
+      case MysqlCode     => "MySQL"
+      case SnowflakeCode => "Snowflake"
+      case _             => "PostgreSQL"
     }
 
   private def defaultPortFor(code: String): Int =
@@ -278,16 +310,21 @@ object ConnectorResource {
 @Path("/connectors")
 class ConnectorResource(
     cipher: AesGcmCipher,
-    testers: Map[String, JdbcSelectOne with JdbcListTables]
+    testers: Map[String, JdbcSelectOne with JdbcListTables],
+    snowflakeTester: SnowflakeSelectOne
 ) extends LazyLogging {
 
+  def this(cipher: AesGcmCipher, testers: Map[String, JdbcSelectOne with JdbcListTables]) =
+    this(cipher, testers, new SnowflakeJdbcTester())
+
   def this(cipher: AesGcmCipher, postgres: JdbcSelectOne with JdbcListTables) =
-    this(cipher, Map(PostgresCode -> postgres, MysqlCode -> MysqlJdbcTester))
+    this(cipher, Map(PostgresCode -> postgres, MysqlCode -> MysqlJdbcTester), new SnowflakeJdbcTester())
 
   def this() =
     this(
       ConnectorSecret.cipher(),
-      Map(PostgresCode -> PostgresJdbcTester, MysqlCode -> MysqlJdbcTester)
+      Map(PostgresCode -> PostgresJdbcTester, MysqlCode -> MysqlJdbcTester),
+      new SnowflakeJdbcTester()
     )
 
   private def clientFor(code: String): JdbcSelectOne with JdbcListTables =
@@ -335,15 +372,12 @@ class ConnectorResource(
     if (!SupportedCodes.contains(code)) {
       throw new BadRequestException("Unsupported connector type")
     }
-    val host = requireNonEmpty(request.host, "host")
-    val port = parsePort(request.port, defaultPortFor(code))
-    val database = requireNonEmpty(request.database, "database")
-    val username = requireNonEmpty(request.username, "username")
     if (request.password == null) {
       throw new BadRequestException("password is required")
     }
-    val schema = optionalTrimmed(request.schema)
-    val config = configObject(host, port, database, username, schema)
+    val config =
+      if (code == SnowflakeCode) snowflakeConfigFromCreate(request)
+      else jdbcConfigFromCreate(request, code)
     val secretEnc = cipher.encrypt(request.password)
 
     val created = withTransaction(context) { ctx =>
@@ -387,19 +421,24 @@ class ConnectorResource(
     }
     val code = record.get(DcCode)
     val config = publicConfig(jsonbData(record.get(CredConfig)))
-    val host = config.getOrElse("host", "").toString
-    val port = parsePort(config.getOrElse("port", defaultPortFor(code)), defaultPortFor(code))
-    val database = config.getOrElse("database", "").toString
-    val username = config.getOrElse("username", "").toString
-    val schema = config
-      .get("schema")
-      .map(_.toString)
-      .flatMap(value => optionalTrimmed(Some(value)))
-      .getOrElse(if (code == MysqlCode) database else "public")
     val password = cipher.decrypt(record.get(CredSecretEnc))
-    val url = jdbcUrl(code, host, port, database)
     try {
-      val names = clientFor(code).listTables(url, username, password, schema)
+      val names =
+        if (code == SnowflakeCode) {
+          snowflakeTester.listTables(snowflakeSessionFrom(config, password))
+        } else {
+          val host = config.getOrElse("host", "").toString
+          val port = parsePort(config.getOrElse("port", defaultPortFor(code)), defaultPortFor(code))
+          val database = config.getOrElse("database", "").toString
+          val username = config.getOrElse("username", "").toString
+          val schema = config
+            .get("schema")
+            .map(_.toString)
+            .flatMap(value => optionalTrimmed(Some(value)))
+            .getOrElse(if (code == MysqlCode) database else "public")
+          val url = jdbcUrl(code, host, port, database)
+          clientFor(code).listTables(url, username, password, schema)
+        }
       assertNoSecret(names, password)
       names
     } catch {
@@ -420,14 +459,18 @@ class ConnectorResource(
       val record = ownedRecord(ctx, user.getUid, id)
       val code = record.get(DcCode)
       val config = publicConfig(jsonbData(record.get(CredConfig)))
-      val host = config.getOrElse("host", "").toString
-      val port = parsePort(config.getOrElse("port", defaultPortFor(code)), defaultPortFor(code))
-      val database = config.getOrElse("database", "").toString
-      val username = config.getOrElse("username", "").toString
       val password = cipher.decrypt(record.get(CredSecretEnc))
-      val url = jdbcUrl(code, host, port, database)
       try {
-        clientFor(code).selectOne(url, username, password)
+        if (code == SnowflakeCode) {
+          snowflakeTester.selectOne(snowflakeSessionFrom(config, password))
+        } else {
+          val host = config.getOrElse("host", "").toString
+          val port = parsePort(config.getOrElse("port", defaultPortFor(code)), defaultPortFor(code))
+          val database = config.getOrElse("database", "").toString
+          val username = config.getOrElse("username", "").toString
+          val url = jdbcUrl(code, host, port, database)
+          clientFor(code).selectOne(url, username, password)
+        }
         ctx
           .update(ConnectionCred)
           .set(CredStatus, "active")
@@ -475,24 +518,10 @@ class ConnectorResource(
       val record = ownedRecord(ctx, user.getUid, id)
       val current = publicConfig(jsonbData(record.get(CredConfig)))
       val nextName = optionalTrimmed(request.name).getOrElse(record.get(CredName))
-      val host = request.host.map(requireNonEmpty(_, "host")).getOrElse {
-        current.getOrElse("host", "").toString
-      }
       val code = record.get(DcCode)
-      val port = request.port
-        .map(parsePort(_, defaultPortFor(code)))
-        .getOrElse(parsePort(current.getOrElse("port", defaultPortFor(code)), defaultPortFor(code)))
-      val database = request.database.map(requireNonEmpty(_, "database")).getOrElse {
-        current.getOrElse("database", "").toString
-      }
-      val username = request.username.map(requireNonEmpty(_, "username")).getOrElse {
-        current.getOrElse("username", "").toString
-      }
-      val schema = request.schema match {
-        case Some(s) => optionalTrimmed(Some(s))
-        case None    => current.get("schema").map(_.toString).flatMap(v => optionalTrimmed(Some(v)))
-      }
-      val config = configObject(host, port, database, username, schema)
+      val config =
+        if (code == SnowflakeCode) snowflakeConfigFromPatch(request, current)
+        else jdbcConfigFromPatch(request, current, code)
       var update = ctx
         .update(ConnectionCred)
         .set(CredName, nextName)
@@ -530,6 +559,92 @@ class ConnectorResource(
         .execute()
     }
   }
+
+  private def jdbcConfigFromCreate(request: CreateConnectorRequest, code: String): ObjectNode = {
+    val host = requireNonEmpty(request.host, "host")
+    val port = parsePort(request.port, defaultPortFor(code))
+    val database = requireNonEmpty(request.database, "database")
+    val username = requireNonEmpty(request.username, "username")
+    val schema = optionalTrimmed(request.schema)
+    configObject(host, port, database, username, schema)
+  }
+
+  private def snowflakeConfigFromCreate(request: CreateConnectorRequest): ObjectNode = {
+    val account = requireNonEmpty(request.account, "account")
+    val warehouse = requireNonEmpty(request.warehouse, "warehouse")
+    val database = requireNonEmpty(request.database, "database")
+    val username = requireNonEmpty(request.username, "username")
+    val schema = optionalTrimmed(request.schema).orElse(Some("PUBLIC"))
+    val role = optionalTrimmed(request.role)
+    snowflakeConfigObject(account, warehouse, database, username, schema, role)
+  }
+
+  private def jdbcConfigFromPatch(
+      request: PatchConnectorRequest,
+      current: Map[String, Any],
+      code: String
+  ): ObjectNode = {
+    val host = request.host.map(requireNonEmpty(_, "host")).getOrElse {
+      current.getOrElse("host", "").toString
+    }
+    val port = request.port
+      .map(parsePort(_, defaultPortFor(code)))
+      .getOrElse(parsePort(current.getOrElse("port", defaultPortFor(code)), defaultPortFor(code)))
+    val database = request.database.map(requireNonEmpty(_, "database")).getOrElse {
+      current.getOrElse("database", "").toString
+    }
+    val username = request.username.map(requireNonEmpty(_, "username")).getOrElse {
+      current.getOrElse("username", "").toString
+    }
+    val schema = request.schema match {
+      case Some(s) => optionalTrimmed(Some(s))
+      case None    => current.get("schema").map(_.toString).flatMap(v => optionalTrimmed(Some(v)))
+    }
+    configObject(host, port, database, username, schema)
+  }
+
+  private def snowflakeConfigFromPatch(
+      request: PatchConnectorRequest,
+      current: Map[String, Any]
+  ): ObjectNode = {
+    val account = request.account.map(requireNonEmpty(_, "account")).getOrElse {
+      current.getOrElse("account", "").toString
+    }
+    val warehouse = request.warehouse.map(requireNonEmpty(_, "warehouse")).getOrElse {
+      current.getOrElse("warehouse", "").toString
+    }
+    val database = request.database.map(requireNonEmpty(_, "database")).getOrElse {
+      current.getOrElse("database", "").toString
+    }
+    val username = request.username.map(requireNonEmpty(_, "username")).getOrElse {
+      current.getOrElse("username", "").toString
+    }
+    val schema = request.schema match {
+      case Some(s) => optionalTrimmed(Some(s)).orElse(Some("PUBLIC"))
+      case None =>
+        current.get("schema").map(_.toString).flatMap(v => optionalTrimmed(Some(v))).orElse(Some("PUBLIC"))
+    }
+    val role = request.role match {
+      case Some(r) => optionalTrimmed(Some(r))
+      case None    => current.get("role").map(_.toString).flatMap(v => optionalTrimmed(Some(v)))
+    }
+    snowflakeConfigObject(account, warehouse, database, username, schema, role)
+  }
+
+  private def snowflakeSessionFrom(config: Map[String, Any], password: String): SnowflakeSession =
+    SnowflakeSession(
+      account = config.getOrElse("account", "").toString,
+      username = config.getOrElse("username", "").toString,
+      password = password,
+      warehouse = config.getOrElse("warehouse", "").toString,
+      database = config.getOrElse("database", "").toString,
+      schema = config
+        .get("schema")
+        .map(_.toString)
+        .flatMap(value => optionalTrimmed(Some(value)))
+        .getOrElse("PUBLIC"),
+      role = config.get("role").map(_.toString).flatMap(value => optionalTrimmed(Some(value)))
+    )
 
   private def enabledConnectorId(ctx: DSLContext, code: String): Integer = {
     val id = ctx

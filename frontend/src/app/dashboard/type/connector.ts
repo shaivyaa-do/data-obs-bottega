@@ -88,12 +88,15 @@ export interface SavedConnectorResponse {
 export interface CreateConnectorRequest {
   name: string;
   connectorCode: string;
-  host: string;
-  port: number | string;
-  database: string;
-  username: string;
+  host?: string;
+  port?: number | string;
+  database?: string;
+  username?: string;
   schema?: string;
   password: string;
+  account?: string;
+  warehouse?: string;
+  role?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -104,6 +107,9 @@ export interface UpdateConnectorRequest {
   username?: string;
   schema?: string;
   password?: string;
+  account?: string;
+  warehouse?: string;
+  role?: string;
 }
 
 const SECRET_CONFIG_KEYS = new Set(["password", "secret", "secret_enc"]);

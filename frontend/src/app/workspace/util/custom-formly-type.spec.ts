@@ -91,10 +91,14 @@ describe("customFormlyFieldType", () => {
       "postgres-connection"
     );
     expect(customFormlyFieldType({ key: "connectionId", operatorType: "MySQLSource" })).toBe("mysql-connection");
+    expect(customFormlyFieldType({ key: "connectionId", operatorType: "SnowflakeSource" })).toBe(
+      "snowflake-connection"
+    );
   });
 
   it("maps PostgreSQL Source table to the saved-connection table dropdown", () => {
     expect(customFormlyFieldType({ key: "table", operatorType: "PostgreSQLSource" })).toBe("postgres-table");
     expect(customFormlyFieldType({ key: "table", operatorType: "MySQLSource" })).toBe("mysql-table");
+    expect(customFormlyFieldType({ key: "table", operatorType: "SnowflakeSource" })).toBe("snowflake-table");
   });
 });

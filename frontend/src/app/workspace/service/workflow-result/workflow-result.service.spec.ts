@@ -88,6 +88,49 @@ describe("WorkflowResultService", () => {
     expect(clearedCount).toBe(1);
   });
 
+  it("getResultOperatorIds is empty until a result lands, then lists each operator once", () => {
+    expect(service.getResultOperatorIds()).toEqual([]);
+
+    const ws = TestBed.inject(WorkflowWebsocketService);
+    pushWsEvent(ws, {
+      type: "WebResultUpdateEvent",
+      updates: { pagOp: paginationUpdate(1), dataOp: snapshotUpdate([]) },
+      tableStats: {},
+    });
+
+    expect(service.getResultOperatorIds()).toEqual(["pagOp", "dataOp"]);
+  });
+
+  it("getResultOperatorIds drops operators after clearResults", () => {
+    const ws = TestBed.inject(WorkflowWebsocketService);
+    pushWsEvent(ws, {
+      type: "WebResultUpdateEvent",
+      updates: { pagOp: paginationUpdate(1) },
+      tableStats: {},
+    });
+    expect(service.getResultOperatorIds()).toEqual(["pagOp"]);
+
+    service.clearResults();
+    expect(service.getResultOperatorIds()).toEqual([]);
+  });
+
+  it("getResultOperatorIds ignores a cleared (undefined) update and does not duplicate an operator that switches modes", () => {
+    const ws = TestBed.inject(WorkflowWebsocketService);
+    pushWsEvent(ws, {
+      type: "WebResultUpdateEvent",
+      updates: { clearedOp: undefined, op: snapshotUpdate([{ a: 1 }]) },
+      tableStats: {},
+    });
+    expect(service.getResultOperatorIds()).toEqual(["op"]);
+
+    pushWsEvent(ws, {
+      type: "WebResultUpdateEvent",
+      updates: { op: paginationUpdate(3) },
+      tableStats: {},
+    });
+    expect(service.getResultOperatorIds()).toEqual(["op"]);
+  });
+
   it("routes pagination updates to a paginated service and data updates to a result service", () => {
     const ws = TestBed.inject(WorkflowWebsocketService);
     const updateEvents: Record<string, unknown>[] = [];

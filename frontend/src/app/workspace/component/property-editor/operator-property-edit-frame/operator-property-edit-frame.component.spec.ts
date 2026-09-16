@@ -1877,6 +1877,30 @@ describe("OperatorPropertyEditFrameComponent", () => {
     expect(hidePassword()).toBe(true);
   });
 
+  it("maps Snowflake Source connectionId to snowflake-connection and hides JDBC fields", () => {
+    component.currentOperatorSchema = {
+      operatorType: "SnowflakeSource",
+      operatorVersion: "v",
+      additionalMetadata: mockScanSourceSchema.additionalMetadata,
+      jsonSchema: { type: "object", properties: {} },
+    };
+    component.formData = { connectionId: "11", table: "ORDERS" };
+    component.setFormlyFormBinding({
+      type: "object",
+      properties: {
+        connectionId: { type: "string" },
+        table: { type: "string" },
+        account: { type: "string" },
+        password: { type: "string" },
+      },
+    });
+    expect(getField("connectionId")?.type).toBe("snowflake-connection");
+    const hideAccount = (getField("account")?.expressions as Record<string, Function>)["hide"];
+    expect(hideAccount()).toBe(true);
+    const hidePassword = (getField("password")?.expressions as Record<string, Function>)["hide"];
+    expect(hidePassword()).toBe(true);
+  });
+
     it("maps a field described as 'Input your code here' to the codearea field type", () => {
       component.setFormlyFormBinding({
         type: "object",

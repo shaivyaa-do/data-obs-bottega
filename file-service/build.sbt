@@ -91,4 +91,5 @@ libraryDependencies ++= Seq(
   "org.bitbucket.b_c" % "jose4j" % "0.9.6",
   "org.playframework" %% "play-json" % "3.1.0-M1",
   "com.mysql" % "mysql-connector-j" % "8.4.0",
+  "net.snowflake" % "snowflake-jdbc" % "3.23.2",
 )

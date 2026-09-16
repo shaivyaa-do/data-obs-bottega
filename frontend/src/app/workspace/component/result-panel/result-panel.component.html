@@ -56,10 +56,12 @@
   cdkDrag
   cdkDragBoundary="texera-workspace"
   nz-resizable
+  [class.expanded]="isExpanded"
+  [cdkDragDisabled]="isExpanded"
   [nzMinWidth]="300"
   [nzMinHeight]="180"
   [nzMaxWidth]="window.innerWidth"
-  [nzMaxHeight]="window.innerHeight * 0.9"
+  [nzMaxHeight]="isExpanded ? window.innerHeight : window.innerHeight * 0.9"
   [style.width.px]="width"
   [style.height.px]="height"
   (nzResize)="onResize($event)"
@@ -74,10 +76,35 @@
       cdkDragHandle>
       Result Panel{{operatorTitle ? ': ' + operatorTitle : ''}}
     </h4>
+    <nz-select
+      *ngIf="resultOperatorOptions.length > 0"
+      class="result-operator-select"
+      nzSize="small"
+      nzShowSearch
+      nzPlaceHolder="Select operator"
+      [nzDropdownMatchSelectWidth]="false"
+      [ngModel]="currentOperatorId"
+      (ngModelChange)="selectResultOperator($event)">
+      <nz-option
+        *ngFor="let option of resultOperatorOptions"
+        [nzValue]="option.operatorId"
+        [nzLabel]="option.name"></nz-option>
+    </nz-select>
     <ul
       nz-menu
       id="panel-button"
       [ngClass]="{'shadow':  !width}">
+      <button
+        nz-button
+        nzType="text"
+        class="expand-panel-button"
+        (click)="toggleExpand()"
+        *ngIf="width"
+        nz-tooltip="{{ isExpanded ? 'Exit full screen' : 'Expand results' }}">
+        <span
+          nz-icon
+          [nzType]="isExpanded ? 'compress' : 'expand'"></span>
+      </button>
       <button
         nz-button
         nzType="text"
@@ -131,6 +158,6 @@
     </nz-tabs>
   </div>
   <nz-resize-handles
-    *ngIf="width"
+    *ngIf="width && !isExpanded"
     [nzDirections]="isPanelDocked() ? ['right'] : ['right', 'bottom', 'bottomRight']"></nz-resize-handles>
 </div>

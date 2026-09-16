@@ -40,10 +40,9 @@ import {
 import { isDefined } from "../../../../common/util/predicate";
 import { customFormlyFieldType, NON_FORM_FIELD_TYPES } from "../../../util/custom-formly-type";
 import {
+  isJdbcSourceOperatorType,
   isLegacyPostgresSource,
-  MYSQL_SOURCE_OPERATOR_TYPE,
-  POSTGRES_JDBC_PROPERTY_KEYS,
-  POSTGRES_SOURCE_OPERATOR_TYPE,
+  jdbcPropertyKeys,
   sanitizePostgresSourceProperties,
 } from "../../../util/postgres-source-properties";
 import { ExecutionState, OperatorState, OperatorStatistics } from "src/app/workspace/types/execute-workflow.interface";
@@ -794,10 +793,9 @@ export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, On
         this.listeningToChange = false;
         this.typeInferenceOnLambdaFunction(formData);
         const operatorType = this.currentOperatorSchema?.operatorType;
-        const properties =
-          operatorType === POSTGRES_SOURCE_OPERATOR_TYPE || operatorType === MYSQL_SOURCE_OPERATOR_TYPE
-            ? sanitizePostgresSourceProperties(formData as Record<string, unknown>)
-            : cloneDeep(formData);
+        const properties = isJdbcSourceOperatorType(operatorType)
+          ? sanitizePostgresSourceProperties(formData as Record<string, unknown>)
+          : cloneDeep(formData);
         this.workflowActionService.setOperatorProperty(this.currentOperatorId, properties);
         this.listeningToChange = true;
       }
@@ -933,10 +931,9 @@ export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, On
       }
 
       if (
-        (this.currentOperatorSchema?.operatorType === POSTGRES_SOURCE_OPERATOR_TYPE ||
-          this.currentOperatorSchema?.operatorType === MYSQL_SOURCE_OPERATOR_TYPE) &&
+        isJdbcSourceOperatorType(this.currentOperatorSchema?.operatorType) &&
         typeof mappedField.key === "string" &&
-        (POSTGRES_JDBC_PROPERTY_KEYS as readonly string[]).includes(mappedField.key)
+        jdbcPropertyKeys(this.currentOperatorSchema?.operatorType).includes(mappedField.key)
       ) {
         mappedField.props = { ...mappedField.props, required: false };
         mappedField.expressions = {

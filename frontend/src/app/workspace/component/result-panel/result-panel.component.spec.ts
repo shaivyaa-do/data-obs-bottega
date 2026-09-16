@@ -169,6 +169,55 @@ describe("ResultPanelComponent", () => {
       expect(component.width).toBe(0);
     });
 
+    it("expandPanel opens a collapsed panel and grows it to the window height", () => {
+      const resizeSpy = vi.spyOn(resizeService, "changePanelSize");
+      component.width = 0;
+      component.height = 32.5;
+
+      component.expandPanel();
+
+      expect(component.isExpanded).toBe(true);
+      expect(component.width).toBe(DEFAULT_WIDTH);
+      expect(component.height).toBe(window.innerHeight);
+      expect(resizeSpy).toHaveBeenCalledWith(DEFAULT_WIDTH, window.innerHeight);
+    });
+
+    it("collapseExpand restores the height from before expand", () => {
+      component.openPanel();
+      component.height = 480;
+      component.expandPanel();
+      expect(component.isExpanded).toBe(true);
+
+      component.collapseExpand();
+
+      expect(component.isExpanded).toBe(false);
+      expect(component.height).toBe(480);
+      expect(component.width).toBe(DEFAULT_WIDTH);
+    });
+
+    it("toggleExpand expands then compresses", () => {
+      component.openPanel();
+      expect(component.isExpanded).toBe(false);
+
+      component.toggleExpand();
+      expect(component.isExpanded).toBe(true);
+      expect(component.height).toBe(window.innerHeight);
+
+      component.toggleExpand();
+      expect(component.isExpanded).toBe(false);
+      expect(component.height).toBe(DEFAULT_HEIGHT);
+    });
+
+    it("closePanel also leaves expanded mode", () => {
+      component.openPanel();
+      component.expandPanel();
+
+      component.closePanel();
+
+      expect(component.isExpanded).toBe(false);
+      expect(component.width).toBe(0);
+    });
+
     it("isPanelDocked is true only when the drag position matches the return position", () => {
       component.returnPosition = { x: 5, y: 7 };
       component.dragPosition = { x: 5, y: 7 };
@@ -188,6 +237,61 @@ describe("ResultPanelComponent", () => {
       component.clearResultPanel();
 
       expect(component.frameComponentConfigs.size).toBe(0);
+    });
+  });
+
+  describe("operator result dropdown", () => {
+    it("refreshResultOperatorOptions lists operators that have results and keeps the current operator", () => {
+      workflowActionService.addOperator(
+        { ...mockResultPredicate, operatorID: "sink-a", customDisplayName: "score_lights" },
+        mockPoint
+      );
+      workflowActionService.addOperator(
+        { ...mockScanPredicate, operatorID: "src-a", customDisplayName: "meters" },
+        { x: 200, y: 200 }
+      );
+      vi.spyOn(workflowResultService, "getResultOperatorIds").mockReturnValue(["sink-a"]);
+      component.currentOperatorId = "src-a";
+
+      component.refreshResultOperatorOptions();
+
+      expect(component.resultOperatorOptions).toEqual([
+        { operatorId: "sink-a", name: "score_lights" },
+        { operatorId: "src-a", name: "meters" },
+      ]);
+    });
+
+    it("refreshResultOperatorOptions skips result ids that are no longer on the graph", () => {
+      vi.spyOn(workflowResultService, "getResultOperatorIds").mockReturnValue(["gone"]);
+
+      component.refreshResultOperatorOptions();
+
+      expect(component.resultOperatorOptions).toEqual([]);
+    });
+
+    it("selectResultOperator highlights the chosen operator so its results render", () => {
+      const source = { ...mockScanPredicate, operatorID: "src-select" };
+      const sink = { ...mockResultPredicate, operatorID: "sink-select" };
+      workflowActionService.addOperator(source, mockPoint);
+      workflowActionService.addOperator(sink, { x: 200, y: 200 });
+      workflowActionService.getJointGraphWrapper().highlightOperators(source.operatorID);
+      const highlightSpy = vi.spyOn(workflowActionService.getJointGraphWrapper(), "highlightOperators");
+      const unhighlightSpy = vi.spyOn(workflowActionService.getJointGraphWrapper(), "unhighlightOperators");
+
+      component.selectResultOperator(sink.operatorID);
+
+      expect(unhighlightSpy).toHaveBeenCalledWith(source.operatorID);
+      expect(highlightSpy).toHaveBeenCalledWith(sink.operatorID);
+    });
+
+    it("selectResultOperator is a no-op for empty or already-selected ids", () => {
+      component.currentOperatorId = "3";
+      const highlightSpy = vi.spyOn(workflowActionService.getJointGraphWrapper(), "highlightOperators");
+
+      component.selectResultOperator("");
+      component.selectResultOperator("3");
+
+      expect(highlightSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -701,7 +805,7 @@ describe("ResultPanelComponent", () => {
       expect(closeSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).not.toHaveBeenCalled();
 
-      fire("#panel-button button", "click", new MouseEvent("click")); // reset-position
+      fire("#panel-button button[title='Dock / reset']", "click", new MouseEvent("click")); // reset-position
       expect(resetSpy).toHaveBeenCalledTimes(1);
       expect(closeSpy).toHaveBeenCalledTimes(1);
 
@@ -856,6 +960,45 @@ describe("ResultPanelComponent", () => {
 
       const closeButton = fixture.debugElement.query(By.css("#result-buttons li[nz-menu-item]"));
       expect(closeButton.injector.get(NzTooltipDirective).directiveTitle).toBe("Close Result Panel");
+    });
+
+    it("renders an expand control that toggles fullscreen results", () => {
+      component.width = DEFAULT_WIDTH;
+      fixture.detectChanges();
+      const expandSpy = vi.spyOn(component, "toggleExpand").mockImplementation(() => {});
+
+      fire("button.expand-panel-button", "click", new MouseEvent("click"));
+
+      expect(expandSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("marks the result container as expanded while fullscreen", () => {
+      component.width = DEFAULT_WIDTH;
+      component.isExpanded = true;
+      fixture.detectChanges();
+
+      const container = fixture.debugElement.query(By.css("#result-container")).nativeElement as HTMLElement;
+      expect(container.classList.contains("expanded")).toBe(true);
+      const expandButton = fixture.debugElement.query(By.css("button.expand-panel-button"));
+      expect(expandButton.injector.get(NzTooltipDirective).directiveTitle).toBe("Exit full screen");
+    });
+
+    it("lists operators with results in the header dropdown", () => {
+      workflowActionService.addOperator(
+        { ...mockResultPredicate, operatorID: "sink-tpl", customDisplayName: "score_lights" },
+        mockPoint
+      );
+      workflowActionService.addOperator(
+        { ...mockScanPredicate, operatorID: "src-tpl", customDisplayName: "meters" },
+        { x: 200, y: 200 }
+      );
+      vi.spyOn(workflowResultService, "getResultOperatorIds").mockReturnValue(["sink-tpl", "src-tpl"]);
+      component.width = DEFAULT_WIDTH;
+      component.refreshResultOperatorOptions();
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("nz-select.result-operator-select"))).toBeTruthy();
+      expect(component.resultOperatorOptions.map(option => option.name)).toEqual(["score_lights", "meters"]);
     });
 
     it("routes the container's drag and resize outputs to the component handlers", () => {

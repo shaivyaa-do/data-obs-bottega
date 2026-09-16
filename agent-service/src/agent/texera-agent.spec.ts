@@ -859,7 +859,9 @@ describe("delegate mode", () => {
     },
   };
 
-  test("refreshes the workflow once, on the first turn only", async () => {
+  test("refreshes the workflow from the backend on every turn", async () => {
+    // Manual canvas edits land in the DB between turns; each sendMessage must re-pull
+    // so the agent analyzes the workflow the user currently has, not a stale in-memory copy.
     dispatch(okExec);
     const model = textModel("ok", 1, 1);
     const agent = makeAgentWith(model);
@@ -875,7 +877,10 @@ describe("delegate mode", () => {
     ).toEqual(["op-1"]);
     expect(agent.getAllSteps()[0].beforeWorkflowContent?.operators.length).toBe(1);
     await agent.sendMessage("two");
-    expect(retrieves()).toBe(1);
+    expect(retrieves()).toBe(2);
+    expect(agent.getAllSteps().find(s => s.role === "user" && s.content === "two")?.beforeWorkflowContent?.operators.length).toBe(
+      1
+    );
   });
 
   test("a failed refresh is swallowed", async () => {

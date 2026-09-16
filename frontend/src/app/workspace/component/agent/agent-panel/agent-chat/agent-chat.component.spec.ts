@@ -108,8 +108,12 @@ describe("AgentChatComponent", () => {
   let component: AgentChatComponent;
   let agentService: MockAgentService;
   let reloadWorkflow: ReturnType<typeof vi.fn>;
+  let canvasOperators: { operatorID: string }[];
   let notification: Record<"success" | "error" | "warning" | "info", ReturnType<typeof vi.fn>>;
-  let persist: { setWorkflowPersistFlag: ReturnType<typeof vi.fn> };
+  let persist: {
+    setWorkflowPersistFlag: ReturnType<typeof vi.fn>;
+    persistWorkflow: ReturnType<typeof vi.fn>;
+  };
   let createObjectURL: ReturnType<typeof vi.fn>;
   let revokeObjectURL: ReturnType<typeof vi.fn>;
   let scrollIntoViewMock: ReturnType<typeof vi.fn>;
@@ -136,7 +140,11 @@ describe("AgentChatComponent", () => {
     agentService = new MockAgentService();
     reloadWorkflow = vi.fn();
     notification = { success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() };
-    persist = { setWorkflowPersistFlag: vi.fn() };
+    persist = {
+      setWorkflowPersistFlag: vi.fn(),
+      persistWorkflow: vi.fn().mockReturnValue(of({ wid: 1, name: "wf", content: { operators: [] } })),
+    };
+    canvasOperators = [];
 
     await TestBed.configureTestingModule({
       // MarkdownModule.forRoot() backs the <markdown> elements in the chat
@@ -147,7 +155,14 @@ describe("AgentChatComponent", () => {
         // so the real service is required to render the system-info modal.
         NzModalService,
         { provide: AgentService, useValue: agentService },
-        { provide: WorkflowActionService, useValue: { reloadWorkflow } },
+        {
+          provide: WorkflowActionService,
+          useValue: {
+            reloadWorkflow,
+            getWorkflow: () => ({ wid: 1, name: "wf", content: { operators: canvasOperators } }),
+            getTexeraGraph: () => ({ getAllOperators: () => canvasOperators }),
+          },
+        },
         { provide: NotificationService, useValue: notification },
         { provide: WorkflowPersistService, useValue: persist },
         ...commonTestProviders,
@@ -337,8 +352,13 @@ describe("AgentChatComponent", () => {
       expect(reloadWorkflow).toHaveBeenCalledTimes(1);
 
       // Content change goes through.
-      const wfB = { ...wfA, content: { operators: [] } } as unknown as Workflow;
+      const wfB = { ...wfA, content: { operators: [{ operatorID: "op-2" }] } } as unknown as Workflow;
       agentService.workflowSubject.next(wfB);
+      expect(reloadWorkflow).toHaveBeenCalledTimes(2);
+
+      // An empty agent snapshot must not wipe operators already on the canvas.
+      canvasOperators = [{ operatorID: "op-2" }];
+      agentService.workflowSubject.next({ ...wfA, content: { operators: [] } } as unknown as Workflow);
       expect(reloadWorkflow).toHaveBeenCalledTimes(2);
 
       // Deactivating stops the subscription; later emissions do not reload.
@@ -374,8 +394,17 @@ describe("AgentChatComponent", () => {
       createComponent();
       component.currentMessage = "  hello world  ";
       component.sendMessage();
+      expect(persist.persistWorkflow).toHaveBeenCalled();
       expect(agentService.sendMessage).toHaveBeenCalledWith(AGENT_ID, "hello world");
       expect(component.currentMessage).toBe("");
+    });
+
+    it("still sends when canvas persist fails so chat is not blocked", () => {
+      createComponent();
+      persist.persistWorkflow.mockReturnValueOnce(throwError(() => new Error("persist failed")));
+      component.currentMessage = "hello";
+      component.sendMessage();
+      expect(agentService.sendMessage).toHaveBeenCalledWith(AGENT_ID, "hello");
     });
 
     it("Enter sends the message and prevents the default newline", () => {

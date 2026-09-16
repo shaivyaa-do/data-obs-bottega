@@ -58,6 +58,8 @@ import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
 import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzTabsComponent, NzTabComponent } from "ng-zorro-antd/tabs";
+import { NzSelectComponent, NzOptionComponent } from "ng-zorro-antd/select";
+import { FormsModule } from "@angular/forms";
 
 export const DEFAULT_WIDTH = 800;
 export const DEFAULT_HEIGHT = 350;
@@ -90,6 +92,9 @@ export const DEFAULT_HEIGHT = 350;
     NgComponentOutlet,
     NzResizeHandlesComponent,
     KeyValuePipe,
+    NzSelectComponent,
+    NzOptionComponent,
+    FormsModule,
   ],
 })
 export class ResultPanelComponent implements OnInit, OnDestroy {
@@ -103,6 +108,9 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
   operatorTitle = "";
   dragPosition = { x: 0, y: 0 };
   returnPosition = { x: 0, y: 0 };
+  isExpanded = false;
+  resultOperatorOptions: { operatorId: string; name: string }[] = [];
+  private heightBeforeExpand = DEFAULT_HEIGHT;
 
   // the highlighted operator ID for display result table / visualization / breakpoint
   currentOperatorId?: string | undefined;
@@ -229,6 +237,7 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
         this.clearResultPanel();
         this.currentOperatorId = undefined;
         this.operatorTitle = "";
+        this.refreshResultOperatorOptions();
         this.changeDetectorRef.detectChanges();
       });
   }
@@ -296,6 +305,7 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
         this.displayConsole(this.currentOperatorId, isPythonUdf(operator));
       }
     }
+    this.refreshResultOperatorOptions();
   }
 
   clearResultPanel(): void {
@@ -387,8 +397,72 @@ export class ResultPanelComponent implements OnInit, OnDestroy {
   }
 
   closePanel() {
+    this.isExpanded = false;
     this.height = 32.5;
     this.width = 0;
+  }
+
+  expandPanel() {
+    if (!this.width) {
+      this.openPanel();
+    }
+    if (!this.isExpanded) {
+      this.heightBeforeExpand = this.height;
+    }
+    this.isExpanded = true;
+    this.width = DEFAULT_WIDTH;
+    this.height = this.window.innerHeight;
+    this.resizeService.changePanelSize(this.width, this.height);
+  }
+
+  collapseExpand() {
+    if (!this.isExpanded) {
+      return;
+    }
+    this.isExpanded = false;
+    this.width = DEFAULT_WIDTH;
+    this.height = this.heightBeforeExpand || DEFAULT_HEIGHT;
+    this.resizeService.changePanelSize(this.width, this.height);
+  }
+
+  toggleExpand() {
+    if (this.isExpanded) {
+      this.collapseExpand();
+    } else {
+      this.expandPanel();
+    }
+  }
+
+  refreshResultOperatorOptions(): void {
+    const graph = this.workflowActionService.getTexeraGraph();
+    const ids: string[] = [];
+    for (const operatorId of this.workflowResultService.getResultOperatorIds()) {
+      if (graph.hasOperator(operatorId)) {
+        ids.push(operatorId);
+      }
+    }
+    if (
+      this.currentOperatorId &&
+      graph.hasOperator(this.currentOperatorId) &&
+      !ids.includes(this.currentOperatorId)
+    ) {
+      ids.push(this.currentOperatorId);
+    }
+    this.resultOperatorOptions = ids.map(operatorId => {
+      const operator = graph.getOperator(operatorId);
+      return { operatorId, name: operator.customDisplayName || operator.operatorType };
+    });
+  }
+
+  selectResultOperator(operatorId: string): void {
+    if (!operatorId || operatorId === this.currentOperatorId) {
+      return;
+    }
+    const highlighted = this.workflowActionService.getJointGraphWrapper().getCurrentHighlightedOperatorIDs();
+    if (highlighted.length > 0) {
+      this.workflowActionService.getJointGraphWrapper().unhighlightOperators(...highlighted);
+    }
+    this.workflowActionService.getJointGraphWrapper().highlightOperators(operatorId);
   }
 
   resetPanelPosition() {

@@ -33,12 +33,21 @@ import org.apache.texera.service.resource.ConnectorResource.{
   PatchConnectorRequest,
   SavedConnectorResponse
 }
-import org.apache.texera.service.util.{JdbcListTables, JdbcSelectOne, PostgresJdbcTester}
+import org.apache.texera.service.util.{
+  JdbcListTables,
+  JdbcSelectOne,
+  PostgresJdbcTester,
+  SnowflakeJdbcTester,
+  SnowflakeSelectOne,
+  SnowflakeSession
+}
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+
+import java.sql.SQLException
 
 import scala.jdk.CollectionConverters._
 import scala.util.Using
@@ -121,6 +130,28 @@ class ConnectorResourceSpec
   ): CreateConnectorRequest =
     CreateConnectorRequest(name, code, host, port, database, username, schema, password)
 
+  private def snowflakeRequest(
+      name: String = "lab-sf",
+      account: String = "xy12345.us-east-1",
+      warehouse: String = "COMPUTE_WH",
+      database: String = "ANALYTICS",
+      schema: Option[String] = Some("PUBLIC"),
+      role: Option[String] = Some("SYSADMIN"),
+      username: String = "analyst",
+      password: String = secretPassword
+  ): CreateConnectorRequest =
+    CreateConnectorRequest(
+      name = name,
+      connectorCode = "snowflake",
+      database = database,
+      username = username,
+      schema = schema,
+      password = password,
+      account = account,
+      warehouse = warehouse,
+      role = role
+    )
+
   private def jsonOf(value: Any): String = mapper.writeValueAsString(value)
 
   private def assertPublic(row: SavedConnectorResponse, password: String): Unit = {
@@ -169,13 +200,16 @@ class ConnectorResourceSpec
     }
   }
 
-  "GET /types" should "return the enabled postgres and mysql connectors and their fields_schema" in {
+  "GET /types" should "return the enabled postgres, mysql, and snowflake connectors and their fields_schema" in {
     val types = resource.listTypes(ownerSession)
-    types.map(_.code) shouldBe Seq("mysql", "postgres")
-    types.map(_.displayName) shouldBe Seq("MySQL", "PostgreSQL")
+    types.map(_.code) shouldBe Seq("mysql", "postgres", "snowflake")
+    types.map(_.displayName) shouldBe Seq("MySQL", "PostgreSQL", "Snowflake")
     val mysql = types.find(_.code == "mysql").get
     mysql.fieldsSchema.get("fields").isArray shouldBe true
     mysql.fieldsSchema.toString should include("\"default\":\"3306\"")
+    val snowflake = types.find(_.code == "snowflake").get
+    snowflake.fieldsSchema.toString should include("\"name\":\"account\"")
+    snowflake.fieldsSchema.toString should include("\"default\":\"PUBLIC\"")
     jsonOf(types) should not include secretPassword
   }
 
@@ -189,7 +223,7 @@ class ConnectorResourceSpec
       .where(DSL.field(DSL.name(Schema, "data_connector", "code"), classOf[String]).eq("postgres"))
       .execute()
     try {
-      resource.listTypes(ownerSession).map(_.code) shouldBe Seq("mysql")
+      resource.listTypes(ownerSession).map(_.code) shouldBe Seq("mysql", "snowflake")
     } finally {
       getDSLContext
         .update(DataConnector)
@@ -241,9 +275,33 @@ class ConnectorResourceSpec
     assertPublic(created, secretPassword)
   }
 
+  it should "accept a snowflake connectorCode and store account fields without the password" in {
+    val created = resource.createConnector(snowflakeRequest(), ownerSession)
+    created.connectorCode shouldBe "snowflake"
+    created.connectorDisplayName shouldBe "Snowflake"
+    created.config("account") shouldBe "xy12345.us-east-1"
+    created.config("warehouse") shouldBe "COMPUTE_WH"
+    created.config("database") shouldBe "ANALYTICS"
+    created.config("schema") shouldBe "PUBLIC"
+    created.config("role") shouldBe "SYSADMIN"
+    created.config.get("host") shouldBe None
+    created.config.get("port") shouldBe None
+    assertPublic(created, secretPassword)
+    val (configJson, secretEnc) = dbConfigAndSecret(created.id)
+    configJson should not include secretPassword
+    configJson should not include "password"
+    cipher.decrypt(secretEnc) shouldBe secretPassword
+  }
+
+  it should "reject a snowflake create that is missing account" in {
+    intercept[BadRequestException] {
+      resource.createConnector(snowflakeRequest(account = "  "), ownerSession)
+    }.getMessage should include("account")
+  }
+
   it should "reject an unsupported connectorCode" in {
     val thrown = intercept[BadRequestException] {
-      resource.createConnector(createRequest(code = "snowflake"), ownerSession)
+      resource.createConnector(createRequest(code = "asterix"), ownerSession)
     }
     thrown.getMessage should include("Unsupported")
   }
@@ -466,5 +524,65 @@ class ConnectorResourceSpec
     val tables = mysqlResource.listTables(created.id, ownerSession)
     tables shouldBe Seq("orders")
     recording.lastSchema shouldBe uniqueDbName
+  }
+
+  "POST /connectors/{id}/test for snowflake" should
+    "call SnowflakeJdbcTester with account properties and never put the password on the URL" in {
+    val recording = new SnowflakeSelectOne {
+      var last: SnowflakeSession = _
+      override def selectOne(session: SnowflakeSession): Unit = last = session
+      override def listTables(session: SnowflakeSession): Seq[String] = {
+        last = session
+        Seq("BUILDINGS")
+      }
+    }
+    val snowflakeResource = new ConnectorResource(
+      cipher,
+      Map("postgres" -> PostgresJdbcTester),
+      recording
+    )
+    val created = snowflakeResource.createConnector(snowflakeRequest(), ownerSession)
+    val tested = snowflakeResource.testConnector(created.id, ownerSession)
+    tested.status shouldBe "active"
+    tested.lastError shouldBe None
+    tested.lastTestedAt shouldBe defined
+    auditActions(created.id) should contain("test")
+    recording.last.account shouldBe "xy12345.us-east-1"
+    recording.last.warehouse shouldBe "COMPUTE_WH"
+    recording.last.database shouldBe "ANALYTICS"
+    recording.last.schema shouldBe "PUBLIC"
+    recording.last.role shouldBe Some("SYSADMIN")
+    recording.last.username shouldBe "analyst"
+    recording.last.password shouldBe secretPassword
+    SnowflakeJdbcTester.buildJdbcUrl(recording.last.account) should not include secretPassword
+
+    val tables = snowflakeResource.listTables(created.id, ownerSession)
+    tables shouldBe Seq("BUILDINGS")
+  }
+
+  it should "return 400 with the MFA message, status=error, and audit test_fail without the password" in {
+    val failing = new SnowflakeSelectOne {
+      override def selectOne(session: SnowflakeSession): Unit =
+        throw new SQLException(SnowflakeJdbcTester.MfaMessage)
+      override def listTables(session: SnowflakeSession): Seq[String] = Seq.empty
+    }
+    val snowflakeResource = new ConnectorResource(
+      cipher,
+      Map("postgres" -> PostgresJdbcTester),
+      failing
+    )
+    val created = snowflakeResource.createConnector(snowflakeRequest(), ownerSession)
+    val thrown = intercept[BadRequestException] {
+      snowflakeResource.testConnector(created.id, ownerSession)
+    }
+    thrown.getMessage shouldBe SnowflakeJdbcTester.MfaMessage
+    thrown.getMessage should not include secretPassword
+    Option(thrown.getCause) shouldBe None
+    val listed = snowflakeResource.listConnectors(ownerSession).head
+    listed.status shouldBe "error"
+    listed.lastError.get shouldBe SnowflakeJdbcTester.MfaMessage
+    listed.lastError.get should not include secretPassword
+    auditActions(created.id) should contain("test_fail")
+    auditJson(created.id) should not include secretPassword
   }
 }

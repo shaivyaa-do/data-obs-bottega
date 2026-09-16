@@ -53,6 +53,13 @@ model_list:
       api_key: "os.environ/GROQ_API_KEY"
       configurable_clientside_auth_params: ["api_key"]
 
+  # NVIDIA NIM free tier — https://build.nvidia.com/settings/api-keys
+  - model_name: nvidia-nemotron-3-nano-omni
+    litellm_params:
+      model: nvidia_nim/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
+      api_key: "os.environ/NVIDIA_API_KEY"
+      configurable_clientside_auth_params: ["api_key"]
+
   # OpenRouter Free Models Router — picks any available :free model.
   # LiteLLM needs the doubled prefix so the API receives `openrouter/free`.
   # https://openrouter.ai/keys

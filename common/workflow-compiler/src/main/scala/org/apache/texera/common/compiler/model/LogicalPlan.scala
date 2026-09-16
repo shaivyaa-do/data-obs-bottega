@@ -26,8 +26,10 @@ import org.apache.texera.amber.operator.LogicalOp
 import org.apache.texera.amber.operator.source.scan.ScanSourceOpDesc
 import org.apache.texera.amber.operator.source.sql.mysql.MySQLSourceOpDesc
 import org.apache.texera.amber.operator.source.sql.postgresql.PostgreSQLSourceOpDesc
+import org.apache.texera.amber.operator.source.sql.snowflake.SnowflakeSourceOpDesc
 import org.apache.texera.common.compiler.mysql.MysqlConnectionLookup
 import org.apache.texera.common.compiler.postgres.PostgresConnectionLookup
+import org.apache.texera.common.compiler.snowflake.SnowflakeConnectionLookup
 import org.jgrapht.graph.DirectedAcyclicGraph
 import org.jgrapht.util.SupplierUtil
 
@@ -204,6 +206,48 @@ case class LogicalPlan(
           case Success(_) =>
           case Failure(err) =>
             logger.error("Error resolving MySQL connection", err)
+            errorList match {
+              case Some(errList) =>
+                errList.append((operator.operatorIdentifier, err))
+              case None =>
+                throw err
+            }
+        }
+      case _ =>
+    }
+  }
+
+  /**
+    * Fills JDBC fields on each Snowflake Source that stores a `connectionId` by looking up
+    * `connection_cred` for the current user. Mutates operators in memory only — the saved
+    * workflow.content keeps connectionId + table, not the password.
+    */
+  def resolveSnowflakeConnections(
+      uid: Option[Int],
+      errorList: Option[ArrayBuffer[(OperatorIdentity, Throwable)]],
+      lookup: Option[SnowflakeConnectionLookup] = None
+  ): Unit = {
+    operators.foreach {
+      case operator: SnowflakeSourceOpDesc if operator.hasConnectionId =>
+        val resolver = lookup.getOrElse(SnowflakeConnectionLookup.default)
+        Try {
+          val userId = uid.getOrElse(
+            throw new IllegalArgumentException(SnowflakeSourceOpDesc.AddConnectionMessage)
+          )
+          val creds = resolver.resolve(userId, operator.connectionId)
+          operator.applyJdbcCredentials(
+            creds.account,
+            creds.warehouse,
+            creds.database,
+            creds.schema,
+            creds.role,
+            creds.username,
+            creds.password
+          )
+        } match {
+          case Success(_) =>
+          case Failure(err) =>
+            logger.error("Error resolving Snowflake connection", err)
             errorList match {
               case Some(errList) =>
                 errList.append((operator.operatorIdentifier, err))

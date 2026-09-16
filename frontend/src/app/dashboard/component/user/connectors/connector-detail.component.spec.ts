@@ -116,4 +116,21 @@ describe("ConnectorDetailComponent", () => {
       queryParams: { connection_id: "7", connector_code: "postgres" },
     });
   });
+
+  it("shows a snowflake connection as live query without host or password", async () => {
+    const { fixture } = await render(
+      saved({
+        name: "lab-sf",
+        connectorCode: "snowflake",
+        connectorDisplayName: "Snowflake",
+        config: { account: "xy12345", warehouse: "COMPUTE_WH", database: "ANALYTICS", username: "analyst" },
+      })
+    );
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("lab-sf");
+    expect(text).toContain("Snowflake");
+    expect(text).toContain("Live query in workflows");
+    expect(text).not.toMatch(/Published as dataset/i);
+    expect(JSON.stringify(fixture.componentInstance.connection)).not.toMatch(/password/i);
+  });
 });

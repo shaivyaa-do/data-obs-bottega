@@ -476,13 +476,13 @@ describe("AgentPanelComponent", () => {
       expect(component.activeAgentId).toBeNull();
     });
 
-    it("skips the bind request when the agent is already on the current workflow", () => {
+    it("rebinds when the agent is already on the current workflow so agent memory reloads", () => {
       agentService.agentList = [makeDelegateAgent("bound", CURRENT_WID)];
       createComponent();
 
       component.onTabSelectChange(0);
 
-      expect(agentService.bindAgentToWorkflow).not.toHaveBeenCalled();
+      expect(agentService.bindAgentToWorkflow).toHaveBeenCalledWith("bound", CURRENT_WID);
       expect(agentService.activateAgent).toHaveBeenCalledWith("bound");
       expect(component.selectedTabIndex).toBe(0);
     });

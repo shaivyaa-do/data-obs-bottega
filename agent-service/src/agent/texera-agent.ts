@@ -400,12 +400,9 @@ export class TexeraAgent {
   }
 
   async refreshWorkflowFromBackend(): Promise<void> {
-    // HEAD at a real step means the workflow is determined by that step's snapshot;
-    // only reload from backend when HEAD is the initial sentinel.
-    if (this.head !== INITIAL_STEP_ID) {
-      return;
-    }
-
+    // Always pull the latest saved workflow before a user turn. Manual canvas edits
+    // (and edits from a previous agent turn that were persisted) live in the DB; the
+    // agent's in-memory copy is often empty or stale after reopen / prior chat history.
     if (!this.delegateConfig?.workflowId || !this.delegateConfig?.userToken) {
       return;
     }

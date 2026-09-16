@@ -230,31 +230,35 @@ export class ConnectorWizardComponent implements OnChanges {
   }
 
   private createBody(): CreateConnectorRequest {
-    const schema = (this.values["schema"] ?? "").trim();
     return {
       name: this.displayName.trim(),
       connectorCode: this.app.code,
-      host: (this.values["host"] ?? "").trim(),
-      port: (this.values["port"] ?? "").trim() || this.fieldDefault("port") || "5432",
-      database: (this.values["database"] ?? "").trim(),
-      username: (this.values["username"] ?? "").trim(),
-      schema: schema || undefined,
       password: this.values["password"] ?? "",
+      ...this.nonSecretFieldValues(),
     };
   }
 
   private patchBody(): UpdateConnectorRequest {
-    const schema = (this.values["schema"] ?? "").trim();
     const password = this.values["password"] ?? "";
     return {
       name: this.displayName.trim(),
-      host: (this.values["host"] ?? "").trim(),
-      port: (this.values["port"] ?? "").trim() || this.fieldDefault("port") || "5432",
-      database: (this.values["database"] ?? "").trim(),
-      username: (this.values["username"] ?? "").trim(),
-      schema: schema || undefined,
+      ...this.nonSecretFieldValues(),
       password: password.trim() ? password : undefined,
     };
+  }
+
+  private nonSecretFieldValues(): Record<string, string> {
+    const next: Record<string, string> = {};
+    for (const field of this.credentialFields) {
+      if (field.secret || field.name === "password") {
+        continue;
+      }
+      const value = (this.values[field.name] ?? "").trim() || this.fieldDefault(field.name);
+      if (value) {
+        next[field.name] = value;
+      }
+    }
+    return next;
   }
 
   private fieldDefault(name: string): string {

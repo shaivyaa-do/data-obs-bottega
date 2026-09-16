@@ -97,4 +97,16 @@ describe("PostgresConnectionSelectComponent", () => {
     );
     expect(component.connections.map(c => c.name)).toEqual(["mysql-prod"]);
   });
+
+  it("lists active snowflake connections when connectorCode is snowflake", async () => {
+    const component = await render(
+      [
+        saved(),
+        saved({ id: "11", name: "lab-sf", connectorCode: "snowflake" }),
+        saved({ id: "12", name: "sf-down", connectorCode: "snowflake", status: "error" }),
+      ],
+      { connectorCode: "snowflake" }
+    );
+    expect(component.connections.map(c => c.name)).toEqual(["lab-sf"]);
+  });
 });

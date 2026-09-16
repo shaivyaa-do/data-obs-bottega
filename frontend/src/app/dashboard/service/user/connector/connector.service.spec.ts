@@ -264,6 +264,68 @@ describe("connector catalog", () => {
     ]);
   });
 
+  it("enables Snowflake from GET /types without hardcoding Available", () => {
+    const snowflakeType: ConnectorType = {
+      id: 3,
+      code: "snowflake",
+      displayName: "Snowflake",
+      fieldsSchema: {
+        fields: [
+          { name: "account", label: "Account", type: "string", required: true },
+          { name: "warehouse", label: "Warehouse", type: "string", required: true },
+          { name: "database", label: "Database", type: "string", required: true },
+          { name: "schema", label: "Schema", type: "string", required: false, default: "PUBLIC" },
+          { name: "role", label: "Role", type: "string", required: false },
+          { name: "username", label: "Username", type: "string", required: true },
+          { name: "password", label: "Password", type: "password", required: true, secret: true },
+        ],
+      },
+    };
+    const merged = mergeConnectorApps([POSTGRES_TYPE, snowflakeType]);
+    expect(merged.find(app => app.id === "snowflake")?.available).toBe(true);
+    expect(merged.find(app => app.id === "mysql")?.available).toBe(false);
+    expect(merged.find(app => app.id === "snowflake")?.fieldsSchema?.fields.map(field => field.name)).toEqual([
+      "account",
+      "warehouse",
+      "database",
+      "schema",
+      "role",
+      "username",
+      "password",
+    ]);
+  });
+
+  it("enables Snowflake from GET /types without hardcoding Available", () => {
+    const snowflakeType: ConnectorType = {
+      id: 3,
+      code: "snowflake",
+      displayName: "Snowflake",
+      fieldsSchema: {
+        fields: [
+          { name: "account", label: "Account", type: "string", required: true },
+          { name: "warehouse", label: "Warehouse", type: "string", required: true },
+          { name: "database", label: "Database", type: "string", required: true },
+          { name: "schema", label: "Schema", type: "string", required: false, default: "PUBLIC" },
+          { name: "role", label: "Role", type: "string", required: false },
+          { name: "username", label: "Username", type: "string", required: true },
+          { name: "password", label: "Password", type: "password", required: true, secret: true },
+        ],
+      },
+    };
+    const merged = mergeConnectorApps([POSTGRES_TYPE, snowflakeType]);
+    expect(merged.find(app => app.id === "snowflake")?.available).toBe(true);
+    expect(merged.find(app => app.id === "mysql")?.available).toBe(false);
+    expect(merged.find(app => app.id === "snowflake")?.fieldsSchema?.fields.map(field => field.name)).toEqual([
+      "account",
+      "warehouse",
+      "database",
+      "schema",
+      "role",
+      "username",
+      "password",
+    ]);
+  });
+
   it("strips secrets when mapping an API connector", () => {
     const mapped = mapSavedConnector(
       apiRow({

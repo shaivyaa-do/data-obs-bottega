@@ -262,14 +262,14 @@ export class AgentPanelComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Rebind the agent to the current workflow if needed, then open its websocket.
-   * Bind failures do not activate: tools would otherwise edit the wrong workflow.
+   * Bind the agent to the open workflow (reloading its in-memory copy from the DB),
+   * then open its websocket. Always re-bind when a workflow is open so a prior chat
+   * or empty agent state cannot wipe the user's canvas. Bind failures do not activate.
    */
   private attachAndActivate(agent: AgentInfo, index: number): void {
     const currentWid = this.workflowActionService.getWorkflowMetadata().wid;
-    const alreadyOnCurrent = currentWid !== undefined && agent.delegate?.workflowId === currentWid;
 
-    if (currentWid && !alreadyOnCurrent) {
+    if (currentWid) {
       this.attachingAgentId = agent.id;
       this.agentService
         .bindAgentToWorkflow(agent.id, currentWid)

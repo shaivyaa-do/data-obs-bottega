@@ -128,6 +128,7 @@ libraryDependencies ++= Seq(
   "com.github.tototoshi" %% "scala-csv" % "1.3.10",       // csv parser
   "com.konghq" % "unirest-java" % "3.14.2",
   "com.mysql" % "mysql-connector-j" % "8.4.0",
+  "net.snowflake" % "snowflake-jdbc" % "3.23.2",
   "commons-io" % "commons-io" % "2.15.1",
   "org.apache.commons" % "commons-compress" % "1.27.1",
   "org.tukaani" % "xz" % "1.9",
