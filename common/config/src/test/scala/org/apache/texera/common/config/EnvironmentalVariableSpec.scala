@@ -62,6 +62,7 @@ class EnvironmentalVariableSpec extends AnyFlatSpec with Matchers {
     EnvironmentalVariable.ENV_JAVA_OPTS shouldBe "JAVA_OPTS"
     EnvironmentalVariable.ENV_AUTH_JWT_SECRET shouldBe "AUTH_JWT_SECRET"
     EnvironmentalVariable.ENV_JDBC_URL shouldBe "STORAGE_JDBC_URL"
+    EnvironmentalVariable.ENV_CONNECTOR_SECRET_KEY shouldBe "CONNECTOR_SECRET_KEY"
     EnvironmentalVariable.ENV_S3_ENDPOINT shouldBe "STORAGE_S3_ENDPOINT"
     EnvironmentalVariable.ENV_CACHE_ENABLED shouldBe "CACHE_ENABLED"
   }

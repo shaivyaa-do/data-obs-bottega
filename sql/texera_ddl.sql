@@ -82,6 +82,10 @@ DROP TABLE IF EXISTS computing_unit_user_access CASCADE;
 DROP TABLE IF EXISTS notebook CASCADE;
 DROP TABLE IF EXISTS workflow_notebook_mapping CASCADE;
 DROP TABLE IF EXISTS user_jupyter CASCADE;
+DROP TABLE IF EXISTS user_agent CASCADE;
+DROP TABLE IF EXISTS connection_audit CASCADE;
+DROP TABLE IF EXISTS connection_cred CASCADE;
+DROP TABLE IF EXISTS data_connector CASCADE;
 DROP TABLE IF EXISTS virtual_environments CASCADE;
 
 -- ============================================
@@ -689,6 +693,113 @@ CREATE TABLE IF NOT EXISTS user_jupyter
     created_at   TIMESTAMPTZ  NOT NULL DEFAULT now(),
     FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
 );
+
+-- Configured Texera agents. The agent-service hydrates these rows into memory on
+-- GET /agents after a restart. Provider API keys are never stored: LLM calls go
+-- through the LiteLLM gateway with the listing user's JWT.
+CREATE TABLE IF NOT EXISTS user_agent
+(
+    agent_id           VARCHAR(64)  NOT NULL PRIMARY KEY,
+    uid                INT          NOT NULL,
+    name               VARCHAR(256) NOT NULL,
+    model_type         VARCHAR(128) NOT NULL,
+    settings           JSONB        NOT NULL DEFAULT '{}'::jsonb,
+    workflow_id        INT,
+    computing_unit_id  INT,
+    created_at         TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_agent_uid ON user_agent (uid);
+
+-- Catalog of JDBC connector types (not a user's login). Passwords never live here.
+-- User-saved connections go in connection_cred; PostgreSQL Source will take a
+-- connection_id in a follow-up so workflow.content does not store secrets.
+CREATE TABLE IF NOT EXISTS data_connector
+(
+    id                SERIAL PRIMARY KEY,
+    code              VARCHAR(64)  NOT NULL UNIQUE,
+    display_name      VARCHAR(128) NOT NULL,
+    fields_schema     JSONB        NOT NULL,
+    jdbc_url_template TEXT         NOT NULL,
+    driver_class      VARCHAR(256),
+    is_enabled        BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at        TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+-- One row = one user's saved connection. config is non-secrets only;
+-- the password is encrypted in secret_enc and is never copied into config.
+CREATE TABLE IF NOT EXISTS connection_cred
+(
+    id             SERIAL PRIMARY KEY,
+    connector_id   INT          NOT NULL,
+    uid            INT          NOT NULL,
+    name           VARCHAR(128) NOT NULL,
+    status         VARCHAR(32)  NOT NULL DEFAULT 'active',
+    config         JSONB        NOT NULL,
+    secret_enc     BYTEA        NOT NULL,
+    last_tested_at TIMESTAMPTZ,
+    last_error     TEXT,
+    created_at     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE (uid, name),
+    FOREIGN KEY (connector_id) REFERENCES data_connector(id),
+    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS connection_audit
+(
+    id            SERIAL PRIMARY KEY,
+    connection_id INT,
+    uid           INT,
+    action        VARCHAR(64) NOT NULL,
+    detail        JSONB,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    FOREIGN KEY (connection_id) REFERENCES connection_cred(id) ON DELETE SET NULL,
+    FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_connection_cred_uid ON connection_cred (uid);
+CREATE INDEX IF NOT EXISTS idx_connection_audit_connection_id ON connection_audit (connection_id);
+CREATE INDEX IF NOT EXISTS idx_connection_audit_created_at ON connection_audit (created_at);
+
+INSERT INTO data_connector (code, display_name, fields_schema, jdbc_url_template, driver_class)
+VALUES (
+    'postgres',
+    'PostgreSQL',
+    '{
+      "fields": [
+        {"name":"host","label":"Host","type":"string","required":true},
+        {"name":"port","label":"Port","type":"string","required":true,"default":"5432"},
+        {"name":"database","label":"Database","type":"string","required":true},
+        {"name":"username","label":"Username","type":"string","required":true},
+        {"name":"password","label":"Password","type":"password","required":true,"secret":true},
+        {"name":"schema","label":"Schema","type":"string","required":false,"default":"public"}
+      ]
+    }'::jsonb,
+    'jdbc:postgresql://{host}:{port}/{database}',
+    'org.postgresql.Driver'
+)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO data_connector (code, display_name, fields_schema, jdbc_url_template, driver_class)
+VALUES (
+    'mysql',
+    'MySQL',
+    '{
+      "fields": [
+        {"name":"host","label":"Host","type":"string","required":true},
+        {"name":"port","label":"Port","type":"string","required":true,"default":"3306"},
+        {"name":"database","label":"Database","type":"string","required":true},
+        {"name":"username","label":"Username","type":"string","required":true},
+        {"name":"password","label":"Password","type":"password","required":true,"secret":true},
+        {"name":"schema","label":"Schema","type":"string","required":false}
+      ]
+    }'::jsonb,
+    'jdbc:mysql://{host}:{port}/{database}?autoReconnect=true&useSSL=true',
+    'com.mysql.cj.jdbc.Driver'
+)
+ON CONFLICT (code) DO NOTHING;
 
 -- START Fulltext search index creation (DO NOT EDIT THIS LINE)
 CREATE EXTENSION IF NOT EXISTS pgroonga;

@@ -105,6 +105,8 @@ import { AgentRegistrationComponent } from "./workspace/component/agent/agent-pa
 import { HuggingFaceImageUploadComponent } from "./workspace/component/hugging-face-image-upload/hugging-face-image-upload.component";
 import { HuggingFaceComponent } from "./workspace/component/hugging-face/hugging-face.component";
 import { HuggingFaceAudioUploadComponent } from "./workspace/component/hugging-face-audio-upload/hugging-face-audio-upload.component";
+import { PostgresConnectionSelectComponent } from "./workspace/component/postgres-connection-select/postgres-connection-select.component";
+import { PostgresTableSelectComponent } from "./workspace/component/postgres-table-select/postgres-table-select.component";
 import { DatasetFileSelectorComponent } from "./workspace/component/dataset-file-selector/dataset-file-selector.component";
 import { DatasetVersionSelectorComponent } from "./workspace/component/dataset-version-selector/dataset-version-selector.component";
 import { DatasetSelectionModalComponent } from "./workspace/component/dataset-selection-modal/dataset-selection-modal.component";
@@ -323,6 +325,8 @@ registerLocaleData(en);
     HuggingFaceComponent,
     HuggingFaceAudioUploadComponent,
     HuggingFaceImageUploadComponent,
+    PostgresConnectionSelectComponent,
+    PostgresTableSelectComponent,
     DatasetFileSelectorComponent,
     DatasetVersionSelectorComponent,
     DatasetSelectionModalComponent,

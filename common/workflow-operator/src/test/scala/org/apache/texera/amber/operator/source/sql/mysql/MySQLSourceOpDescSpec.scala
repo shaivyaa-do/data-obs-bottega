@@ -30,11 +30,6 @@ import org.apache.texera.amber.util.JSONUtils.objectMapper
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.annotation.nowarn
-
-// MySQLSourceOpDesc is @deprecated (no longer executable) but retained so legacy
-// workflows still deserialize; the coverage below pins that backward-compatible contract.
-@nowarn("cat=deprecation")
 class MySQLSourceOpDescSpec extends AnyFlatSpec with Matchers {
 
   "MySQLSourceOpDesc.operatorInfo" should
@@ -60,9 +55,27 @@ class MySQLSourceOpDescSpec extends AnyFlatSpec with Matchers {
     d.interval shouldBe 0L
   }
 
-  "MySQLSourceOpDesc.sourceSchema" should "prompt for connection details before a connection is configured" in {
+  "MySQLSourceOpDesc.sourceSchema" should "prompt to add a saved connection before JDBC fields are filled" in {
     val ex = intercept[IllegalArgumentException]((new MySQLSourceOpDesc).sourceSchema())
-    ex.getMessage should include("host")
+    ex.getMessage shouldBe MySQLSourceOpDesc.AddConnectionMessage
+  }
+
+  "MySQLSourceOpDesc" should "round-trip connectionId and table without a password" in {
+    val d = new MySQLSourceOpDesc
+    d.connectionId = "8"
+    d.table = "orders"
+    val json = objectMapper.writeValueAsString(d)
+    json should include("\"operatorType\":\"MySQLSource\"")
+    json should include("\"connectionId\":\"8\"")
+    json should include("\"table\":\"orders\"")
+    json should not include "password"
+    val restored = objectMapper.readValue(json, classOf[LogicalOp])
+    restored shouldBe a[MySQLSourceOpDesc]
+    val r = restored.asInstanceOf[MySQLSourceOpDesc]
+    r.connectionId shouldBe "8"
+    r.table shouldBe "orders"
+    r.password shouldBe null
+    r.host shouldBe null
   }
 
   "MySQLSourceOpDesc.getPhysicalOp" should

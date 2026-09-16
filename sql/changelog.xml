@@ -154,6 +154,21 @@
         <sqlFile path="sql/updates/48.sql"/>
     </changeSet>
 
+    <!-- Persist configured agents in the same database as workflows/datasets/CUs -->
+    <changeSet id="49" author="shaivyaasharma">
+        <sqlFile path="sql/updates/49.sql"/>
+    </changeSet>
+
+    <!-- Saved JDBC connections in texera_db (passwords never in workflow.content) -->
+    <changeSet id="50" author="shaivyaasharma">
+        <sqlFile path="sql/updates/50.sql"/>
+    </changeSet>
+
+    <!-- Enable saved MySQL connections in data_connector -->
+    <changeSet id="51" author="shaivyaasharma">
+        <sqlFile path="sql/updates/51.sql"/>
+    </changeSet>
+
     <!-- example changeSet
     <changeSet id="1" author="author">
         <sqlFile path="sql/updates/1.sql"/>

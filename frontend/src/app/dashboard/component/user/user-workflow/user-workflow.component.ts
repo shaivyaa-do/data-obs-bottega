@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { AfterViewInit, Component, OnDestroy, ViewChild } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { firstValueFrom, from, lastValueFrom, Observable, of } from "rxjs";
 import {
@@ -41,6 +41,13 @@ import { map, switchMap, tap } from "rxjs/operators";
 import { DashboardWorkflow } from "../../../type/dashboard-workflow.interface";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { USER_AGENT, USER_WORKSPACE } from "../../../../app-routing.constant";
+import {
+  CONNECTION_ID_QUERY_PARAM,
+  CONNECTOR_CODE_QUERY_PARAM,
+  MYSQL_SOURCE_OPERATOR_TYPE,
+  POSTGRES_SOURCE_OPERATOR_TYPE,
+  workflowContentWithJdbcSource,
+} from "../../../../workspace/util/postgres-source-properties";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import {
   MappingContent,
@@ -173,6 +180,7 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
     private notificationService: NotificationService,
     private modalService: NzModalService,
     private router: Router,
+    private route: ActivatedRoute,
     private downloadService: DownloadService,
     private searchService: SearchService,
     private config: GuiConfigService,
@@ -216,6 +224,11 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
       .userChanged()
       .pipe(untilDestroyed(this))
       .subscribe(() => this.search());
+    const connectionId = this.route.snapshot.queryParamMap.get(CONNECTION_ID_QUERY_PARAM);
+    if (connectionId) {
+      const code = this.route.snapshot.queryParamMap.get(CONNECTOR_CODE_QUERY_PARAM);
+      this.createWorkflowWithSavedConnection(connectionId, code);
+    }
   }
 
   ngOnDestroy(): void {
@@ -285,6 +298,32 @@ export class UserWorkflowComponent implements AfterViewInit, OnDestroy {
       .subscribe({
         next: (wid: number | undefined) => {
           // Use the wid here for navigation
+          this.router.navigate([USER_WORKSPACE, wid]).then(null);
+        },
+        error: (err: unknown) => this.notificationService.error("Workflow creation failed"),
+      });
+  }
+
+  private createWorkflowWithSavedConnection(connectionId: string, connectorCode: string | null): void {
+    const operatorType =
+      connectorCode === "mysql" ? MYSQL_SOURCE_OPERATOR_TYPE : POSTGRES_SOURCE_OPERATOR_TYPE;
+    const content = workflowContentWithJdbcSource(connectionId, {
+      dataTransferBatchSize: this.config.env.defaultDataTransferBatchSize,
+      executionMode: this.config.env.defaultExecutionMode,
+    }, operatorType);
+    this.workflowPersistService
+      .createWorkflow(content, DEFAULT_WORKFLOW_NAME)
+      .pipe(
+        tap(createdWorkflow => {
+          if (!createdWorkflow.workflow.wid) {
+            throw new Error("Workflow creation failed.");
+          }
+        }),
+        map(createdWorkflow => createdWorkflow.workflow.wid),
+        untilDestroyed(this)
+      )
+      .subscribe({
+        next: (wid: number | undefined) => {
           this.router.navigate([USER_WORKSPACE, wid]).then(null);
         },
         error: (err: unknown) => this.notificationService.error("Workflow creation failed"),

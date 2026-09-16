@@ -39,14 +39,17 @@ class WorkflowContextSpec extends AnyFlatSpec with Matchers {
     ctx.workflowId shouldBe WorkflowContext.DEFAULT_WORKFLOW_ID
     ctx.executionId shouldBe WorkflowContext.DEFAULT_EXECUTION_ID
     ctx.workflowSettings shouldBe WorkflowContext.DEFAULT_WORKFLOW_SETTINGS
+    ctx.userId shouldBe None
   }
 
   "WorkflowContext fields" should "be reassignable through their var accessors" in {
     val ctx = new WorkflowContext()
     ctx.workflowId = WorkflowIdentity(42L)
     ctx.executionId = ExecutionIdentity(7L)
+    ctx.userId = Some(9)
     ctx.workflowId shouldBe WorkflowIdentity(42L)
     ctx.executionId shouldBe ExecutionIdentity(7L)
+    ctx.userId shouldBe Some(9)
   }
 
   "WorkflowContext constructor" should "accept overridden defaults at construction time" in {

@@ -118,8 +118,13 @@
               </li>
               <li
                 nz-menu-item
-                (click)="disconnect(connector, $event)">
-                Disconnect
+                nzDanger
+                nz-popconfirm
+                nzPopconfirmTitle="Delete this connector?"
+                nzPopconfirmPlacement="bottomRight"
+                (nzOnConfirm)="removeConnector(connector)"
+                (click)="$event.stopPropagation()">
+                Delete
               </li>
             </ul>
           </nz-dropdown-menu>
@@ -129,7 +134,7 @@
           nzSize="small"
           class="use-in-workflow"
           type="button"
-          (click)="useInWorkflow($event)">
+          (click)="useInWorkflow(connector, $event)">
           <i
             nz-icon
             nzType="play-circle"
@@ -147,6 +152,7 @@
   (click)="closeModal()">
   <div
     class="connector-modal"
+    [class.connector-modal-wizard]="modalPhase === 'wizard'"
     role="dialog"
     aria-modal="true"
     [attr.aria-labelledby]="modalPhase === 'picker' ? 'choose-app-title' : 'connect-wizard-title'"

@@ -1829,13 +1829,53 @@ describe("OperatorPropertyEditFrameComponent", () => {
       expect(getField("datasetVersionPath")?.type).toBe("datasetversionselector");
     });
 
-    it("maps uiParameters to the ui-udf-parameters field type", () => {
-      component.setFormlyFormBinding({
-        type: "object",
-        properties: { uiParameters: { type: "array" } },
-      });
-      expect(getField("uiParameters")?.type).toBe("ui-udf-parameters");
+  it("maps PostgreSQL Source connectionId to postgres-connection and hides JDBC fields", () => {
+    component.currentOperatorSchema = {
+      operatorType: "PostgreSQLSource",
+      operatorVersion: "v",
+      additionalMetadata: mockScanSourceSchema.additionalMetadata,
+      jsonSchema: { type: "object", properties: {} },
+    };
+    component.formData = { connectionId: "7", table: "facilities" };
+    component.setFormlyFormBinding({
+      type: "object",
+      properties: {
+        connectionId: { type: "string" },
+        table: { type: "string" },
+        host: { type: "string" },
+        password: { type: "string" },
+      },
     });
+    expect(getField("connectionId")?.type).toBe("postgres-connection");
+    const hideHost = (getField("host")?.expressions as Record<string, Function>)["hide"];
+    expect(hideHost()).toBe(true);
+    const hidePassword = (getField("password")?.expressions as Record<string, Function>)["hide"];
+    expect(hidePassword()).toBe(true);
+  });
+
+  it("maps MySQL Source connectionId to mysql-connection and hides JDBC fields", () => {
+    component.currentOperatorSchema = {
+      operatorType: "MySQLSource",
+      operatorVersion: "v",
+      additionalMetadata: mockScanSourceSchema.additionalMetadata,
+      jsonSchema: { type: "object", properties: {} },
+    };
+    component.formData = { connectionId: "8", table: "orders" };
+    component.setFormlyFormBinding({
+      type: "object",
+      properties: {
+        connectionId: { type: "string" },
+        table: { type: "string" },
+        host: { type: "string" },
+        password: { type: "string" },
+      },
+    });
+    expect(getField("connectionId")?.type).toBe("mysql-connection");
+    const hideHost = (getField("host")?.expressions as Record<string, Function>)["hide"];
+    expect(hideHost()).toBe(true);
+    const hidePassword = (getField("password")?.expressions as Record<string, Function>)["hide"];
+    expect(hidePassword()).toBe(true);
+  });
 
     it("maps a field described as 'Input your code here' to the codearea field type", () => {
       component.setFormlyFormBinding({

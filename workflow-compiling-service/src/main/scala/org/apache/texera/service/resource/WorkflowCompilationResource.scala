@@ -21,9 +21,11 @@ package org.apache.texera.service.resource
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.typesafe.scalalogging.LazyLogging
+import io.dropwizard.auth.Auth
 import jakarta.annotation.security.RolesAllowed
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.{Consumes, POST, Path, Produces}
+import org.apache.texera.auth.SessionUser
 import org.apache.texera.common.compiler.{CompilationErrorHandling, WorkflowCompiler}
 import org.apache.texera.common.compiler.model.LogicalPlanPojo
 import org.apache.texera.amber.core.tuple.Attribute
@@ -31,6 +33,8 @@ import org.apache.texera.amber.core.virtualidentity.WorkflowIdentity
 import org.apache.texera.amber.core.workflow.{PhysicalPlan, WorkflowContext}
 import org.apache.texera.amber.core.workflowruntimestate.WorkflowFatalError
 import org.apache.texera.amber.util.serde.PortIdentityKeySerializer
+
+import java.util.Optional
 
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
@@ -63,10 +67,14 @@ class WorkflowCompilationResource extends LazyLogging {
   @POST
   @Path("")
   def compileWorkflow(
-      logicalPlanPojo: LogicalPlanPojo
+      logicalPlanPojo: LogicalPlanPojo,
+      @Auth user: Optional[SessionUser]
   ): WorkflowCompilationResponse = {
     // a placeholder workflow context, as compiling a workflow doesn't require a wid from the frontend
     val context = new WorkflowContext(workflowId = WorkflowIdentity(0))
+    if (user != null && user.isPresent) {
+      context.userId = Option(user.get.getUid).map(_.intValue())
+    }
 
     // Compile the pojo using WorkflowCompiler; the editing path must never
     // throw, so pass Lenient explicitly (mirrors amber passing Strict)

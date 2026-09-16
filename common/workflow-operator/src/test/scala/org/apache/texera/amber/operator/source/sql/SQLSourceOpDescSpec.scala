@@ -121,8 +121,8 @@ class SQLSourceOpDescSpec extends AnyFlatSpec with Matchers with MockFactory {
   }
 
   it should "map each JDBC data type to its Texera attribute type" in {
-    // All 19 keys of the match, not a sample of them. JaCoCo folds the lookupswitch's
-    // 19 cases into its 8 distinct jump targets, so this list moves coverage by
+    // All 20 keys of the match, not a sample of them. JaCoCo folds the lookupswitch's
+    // cases into 8 distinct jump targets, so this list moves coverage by
     // exactly zero -- it is bought purely so that moving a key between arms fails.
     attributeTypeFor(Types.TINYINT) shouldBe AttributeType.INTEGER
     attributeTypeFor(Types.SMALLINT) shouldBe AttributeType.INTEGER
@@ -131,6 +131,7 @@ class SQLSourceOpDescSpec extends AnyFlatSpec with Matchers with MockFactory {
     attributeTypeFor(Types.REAL) shouldBe AttributeType.DOUBLE
     attributeTypeFor(Types.DOUBLE) shouldBe AttributeType.DOUBLE
     attributeTypeFor(Types.NUMERIC) shouldBe AttributeType.DOUBLE
+    attributeTypeFor(Types.DECIMAL) shouldBe AttributeType.DOUBLE
     attributeTypeFor(Types.BIT) shouldBe AttributeType.BOOLEAN
     attributeTypeFor(Types.BOOLEAN) shouldBe AttributeType.BOOLEAN
     attributeTypeFor(Types.BINARY) shouldBe AttributeType.BINARY

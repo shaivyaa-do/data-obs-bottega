@@ -259,6 +259,10 @@
   padding: 20px 24px 24px;
 }
 
+.connector-modal-wizard {
+  width: min(560px, 100%);
+}
+
 .modal-header {
   display: flex;
   align-items: center;

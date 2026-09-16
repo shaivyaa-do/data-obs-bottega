@@ -27,18 +27,23 @@ import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
 import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
+import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { NotificationService } from "../../../../common/service/notification/notification.service";
 import { formatRelativeTime } from "../../../../common/util/format.util";
 import { CONNECTORS, USER_WORKFLOW } from "../../../../app-routing.constant";
 import {
+  CONNECTION_ID_QUERY_PARAM,
+  CONNECTOR_CODE_QUERY_PARAM,
+} from "../../../../workspace/util/postgres-source-properties";
+import {
   connectedToast,
   ConnectorApp,
   destinationSummary,
-  isActiveStatus,
   SavedConnector,
+  statusLabel as connectorStatusLabel,
 } from "../../../type/connector";
-import { ConnectorService } from "../../../service/user/connector/connector.service";
-import { appById, CONNECTOR_APPS } from "../../../service/user/connector/mock-connectors";
+import { ConnectorService, connectorErrorMessage } from "../../../service/user/connector/connector.service";
+import { CONNECTOR_APPS, mergeConnectorApps } from "../../../service/user/connector/mock-connectors";
 import { ConnectorWizardComponent } from "./connector-wizard.component";
 
 @UntilDestroy()
@@ -57,12 +62,12 @@ import { ConnectorWizardComponent } from "./connector-wizard.component";
     NzDropdownMenuComponent,
     NzMenuDirective,
     NzMenuItemComponent,
+    NzPopconfirmDirective,
     ConnectorWizardComponent,
   ],
 })
 export class ConnectorsComponent implements OnInit {
-  readonly apps = CONNECTOR_APPS;
-  readonly appById = appById;
+  apps: ConnectorApp[] = CONNECTOR_APPS.map(app => ({ ...app }));
   readonly destinationSummary = destinationSummary;
   connectors: SavedConnector[] = [];
   testingId: string | null = null;
@@ -88,11 +93,11 @@ export class ConnectorsComponent implements OnInit {
   }
 
   get visibleConnectors(): SavedConnector[] {
-    return this.connectors.filter(connector => isActiveStatus(connector.status));
+    return this.connectors;
   }
 
   get showEmptyState(): boolean {
-    return this.visibleConnectors.length === 0;
+    return this.connectors.length === 0;
   }
 
   openAddModal(): void {
@@ -107,6 +112,7 @@ export class ConnectorsComponent implements OnInit {
     this.selectedApp = null;
     this.editing = null;
     this.modalPhase = "picker";
+    this.refresh();
   }
 
   pickApp(app: ConnectorApp): void {
@@ -129,8 +135,8 @@ export class ConnectorsComponent implements OnInit {
 
   edit(connector: SavedConnector, event?: Event): void {
     event?.stopPropagation();
-    const app = appById(connector.appId);
-    if (!app) {
+    const app = this.apps.find(item => item.code === connector.connectorCode);
+    if (!app?.available) {
       return;
     }
     this.editing = connector;
@@ -139,54 +145,57 @@ export class ConnectorsComponent implements OnInit {
     this.modalOpen = true;
   }
 
-  useInWorkflow(event?: Event): void {
+  useInWorkflow(connector: SavedConnector, event?: Event): void {
     event?.stopPropagation();
-    this.router.navigate([USER_WORKFLOW]);
+    this.router.navigate([USER_WORKFLOW], {
+      queryParams: {
+        [CONNECTION_ID_QUERY_PARAM]: connector.id,
+        [CONNECTOR_CODE_QUERY_PARAM]: connector.connectorCode,
+      },
+    });
   }
 
   testAgain(connector: SavedConnector, event?: Event): void {
     event?.stopPropagation();
     this.testingId = connector.id;
     this.connectorService
-      .testConnector({
-        name: connector.name,
-        appId: connector.appId,
-        config: connector.config,
-        connectorId: connector.id,
-      })
+      .testConnector(connector.id)
       .pipe(untilDestroyed(this))
       .subscribe({
         next: result => {
           this.testingId = null;
-          if (result.ok) {
-            this.notification.success(result.message);
+          if (result.status === "active") {
+            this.notification.success("Connected.");
           } else {
-            this.notification.error(result.message);
+            this.notification.error(result.lastError || "Test failed.");
           }
           this.refresh();
         },
-        error: () => {
+        error: (err: unknown) => {
           this.testingId = null;
-          this.notification.error("Test failed.");
+          this.notification.error(connectorErrorMessage(err));
+          this.refresh();
         },
       });
   }
 
-  disconnect(connector: SavedConnector, event?: Event): void {
+  removeConnector(connector: SavedConnector, event?: Event): void {
     event?.stopPropagation();
     this.connectorService
-      .disconnectConnector(connector.id)
+      .deleteConnector(connector.id)
       .pipe(untilDestroyed(this))
-      .subscribe(() => this.refresh());
+      .subscribe({
+        next: () => this.refresh(),
+        error: (err: unknown) => this.notification.error(connectorErrorMessage(err)),
+      });
   }
 
   onSaved(connector: SavedConnector): void {
-    const app = this.selectedApp ?? appById(connector.appId);
+    const app = this.selectedApp ?? this.apps.find(item => item.code === connector.connectorCode);
     if (app && !this.editing) {
       this.notification.success(connectedToast(app, connector.name));
     }
     this.closeModal();
-    this.refresh();
   }
 
   formatWhen(iso: string | null): string {
@@ -200,29 +209,43 @@ export class ConnectorsComponent implements OnInit {
     if (this.testingId === connector.id) {
       return "Testing";
     }
-    if (isActiveStatus(connector.status)) {
-      return "Active";
-    }
-    if (connector.status === "error") {
-      return "Error";
-    }
-    return "Inactive";
+    return connectorStatusLabel(connector.status);
   }
 
   appName(connector: SavedConnector): string {
-    return appById(connector.appId)?.name ?? connector.appId;
+    return (
+      connector.connectorDisplayName ||
+      this.apps.find(app => app.code === connector.connectorCode)?.name ||
+      connector.connectorCode
+    );
   }
 
   appIcon(connector: SavedConnector): string {
-    return appById(connector.appId)?.icon ?? "database";
+    return this.apps.find(app => app.code === connector.connectorCode)?.icon ?? "database";
   }
 
   private refresh(): void {
     this.connectorService
       .listConnectors()
       .pipe(untilDestroyed(this))
-      .subscribe(connectors => {
-        this.connectors = connectors;
+      .subscribe({
+        next: connectors => {
+          this.connectors = connectors;
+        },
+        error: (err: unknown) => {
+          this.connectors = [];
+        },
+      });
+    this.connectorService
+      .listConnectorTypes()
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: types => {
+          this.apps = mergeConnectorApps(types);
+        },
+        error: (err: unknown) => {
+          this.apps = mergeConnectorApps([]);
+        },
       });
   }
 }

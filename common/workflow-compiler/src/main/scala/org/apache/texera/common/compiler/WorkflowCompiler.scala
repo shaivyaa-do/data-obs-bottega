@@ -252,6 +252,10 @@ class WorkflowCompiler(
     // 2. resolve the file name in each scan source operator
     logicalPlan.resolveScanSourceOpFileName(errorList)
 
+    // 2b. fill JDBC fields on PostgreSQL Source ops from saved connection_cred
+    logicalPlan.resolvePostgresConnections(context.userId, errorList)
+    logicalPlan.resolveMysqlConnections(context.userId, errorList)
+
     // 3. expand the logical plan to the physical plan, and get the output ports that need storage
     val (physicalPlan, outputPortsNeedingStorage) =
       expandLogicalPlan(logicalPlan, logicalPlanPojo.opsToViewResult, errorList)

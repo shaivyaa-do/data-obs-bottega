@@ -24,6 +24,10 @@ import org.apache.texera.amber.core.storage.FileResolver
 import org.apache.texera.amber.core.virtualidentity.OperatorIdentity
 import org.apache.texera.amber.operator.LogicalOp
 import org.apache.texera.amber.operator.source.scan.ScanSourceOpDesc
+import org.apache.texera.amber.operator.source.sql.mysql.MySQLSourceOpDesc
+import org.apache.texera.amber.operator.source.sql.postgresql.PostgreSQLSourceOpDesc
+import org.apache.texera.common.compiler.mysql.MysqlConnectionLookup
+import org.apache.texera.common.compiler.postgres.PostgresConnectionLookup
 import org.jgrapht.graph.DirectedAcyclicGraph
 import org.jgrapht.util.SupplierUtil
 
@@ -124,6 +128,90 @@ case class LogicalPlan(
         }
 
       case _ => // Skip non-ScanSourceOpDesc operators
+    }
+  }
+
+  /**
+    * Fills JDBC fields on each PostgreSQL Source that stores a `connectionId` by looking up
+    * `connection_cred` for the current user. Mutates operators in memory only — the saved
+    * workflow.content keeps connectionId + table, not the password.
+    *
+    * @param uid       current user; missing uid fails any op that has a connectionId
+    * @param errorList if given, errors are appended; otherwise the first error is thrown
+    * @param lookup    injectable so unit tests do not need texera_db
+    */
+  def resolvePostgresConnections(
+      uid: Option[Int],
+      errorList: Option[ArrayBuffer[(OperatorIdentity, Throwable)]],
+      lookup: Option[PostgresConnectionLookup] = None
+  ): Unit = {
+    operators.foreach {
+      case operator: PostgreSQLSourceOpDesc if operator.hasConnectionId =>
+        val resolver = lookup.getOrElse(PostgresConnectionLookup.default)
+        Try {
+          val userId = uid.getOrElse(
+            throw new IllegalArgumentException(PostgreSQLSourceOpDesc.AddConnectionMessage)
+          )
+          val creds = resolver.resolve(userId, operator.connectionId)
+          operator.applyJdbcCredentials(
+            creds.host,
+            creds.port,
+            creds.database,
+            creds.username,
+            creds.password
+          )
+        } match {
+          case Success(_) =>
+          case Failure(err) =>
+            logger.error("Error resolving PostgreSQL connection", err)
+            errorList match {
+              case Some(errList) =>
+                errList.append((operator.operatorIdentifier, err))
+              case None =>
+                throw err
+            }
+        }
+      case _ =>
+    }
+  }
+
+  /**
+    * Fills JDBC fields on each MySQL Source that stores a `connectionId` by looking up
+    * `connection_cred` for the current user. Mutates operators in memory only — the saved
+    * workflow.content keeps connectionId + table, not the password.
+    */
+  def resolveMysqlConnections(
+      uid: Option[Int],
+      errorList: Option[ArrayBuffer[(OperatorIdentity, Throwable)]],
+      lookup: Option[MysqlConnectionLookup] = None
+  ): Unit = {
+    operators.foreach {
+      case operator: MySQLSourceOpDesc if operator.hasConnectionId =>
+        val resolver = lookup.getOrElse(MysqlConnectionLookup.default)
+        Try {
+          val userId = uid.getOrElse(
+            throw new IllegalArgumentException(MySQLSourceOpDesc.AddConnectionMessage)
+          )
+          val creds = resolver.resolve(userId, operator.connectionId)
+          operator.applyJdbcCredentials(
+            creds.host,
+            creds.port,
+            creds.database,
+            creds.username,
+            creds.password
+          )
+        } match {
+          case Success(_) =>
+          case Failure(err) =>
+            logger.error("Error resolving MySQL connection", err)
+            errorList match {
+              case Some(errList) =>
+                errList.append((operator.operatorIdentifier, err))
+              case None =>
+                throw err
+            }
+        }
+      case _ =>
     }
   }
 }

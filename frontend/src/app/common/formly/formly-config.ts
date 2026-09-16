@@ -33,6 +33,8 @@ import { DatasetVersionSelectorComponent } from "../../workspace/component/datas
 import { HuggingFaceImageUploadComponent } from "../../workspace/component/hugging-face-image-upload/hugging-face-image-upload.component";
 import { HuggingFaceComponent } from "../../workspace/component/hugging-face/hugging-face.component";
 import { HuggingFaceAudioUploadComponent } from "../../workspace/component/hugging-face-audio-upload/hugging-face-audio-upload.component";
+import { PostgresConnectionSelectComponent } from "../../workspace/component/postgres-connection-select/postgres-connection-select.component";
+import { PostgresTableSelectComponent } from "../../workspace/component/postgres-table-select/postgres-table-select.component";
 
 /**
  * Configuration for using Json Schema with Formly.
@@ -89,6 +91,21 @@ export const TEXERA_FORMLY_CONFIG = {
     { name: "huggingface-image-upload", component: HuggingFaceImageUploadComponent, wrappers: ["form-field"] },
     { name: "repeat-section-dnd", component: FormlyRepeatDndComponent },
     { name: "ui-udf-parameters", component: UiUdfParametersComponent, wrappers: ["form-field"] },
+    { name: "postgres-connection", component: PostgresConnectionSelectComponent, wrappers: ["form-field"] },
+    {
+      name: "mysql-connection",
+      component: PostgresConnectionSelectComponent,
+      wrappers: ["form-field"],
+      defaultOptions: {
+        props: {
+          connectorCode: "mysql",
+          placeholder: "Select a MySQL connection",
+          addConnectionLead: "Add a MySQL connection under",
+        },
+      },
+    },
+    { name: "postgres-table", component: PostgresTableSelectComponent, wrappers: ["form-field"] },
+    { name: "mysql-table", component: PostgresTableSelectComponent, wrappers: ["form-field"] },
   ],
   wrappers: [
     { name: "preset-wrapper", component: PresetWrapperComponent },

@@ -19,6 +19,7 @@
 
 .disable-drag-drop {
   color: grey;
+  cursor: not-allowed;
 }
 
 .operator-label {
@@ -27,6 +28,7 @@
   line-height: 30px;
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0);
+  cursor: pointer;
   transition:
     border-color 0.3s,
     color 0.3s;

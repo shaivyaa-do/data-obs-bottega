@@ -68,7 +68,7 @@ import { ModalOptions, NzModalRef, NzModalService } from "ng-zorro-antd/modal";
 import { NzButtonModule } from "ng-zorro-antd/button";
 import { DownloadService } from "../../../service/user/download/download.service";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { USER_AGENT, USER_WORKSPACE } from "../../../../app-routing.constant";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
 import { MockGuiConfigService } from "../../../../common/service/gui-config.service.mock";
@@ -313,6 +313,49 @@ describe("SavedWorkflowSectionComponent", () => {
 
       expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 99]);
       expect(USER_WORKSPACE).toBe("/user/workflow");
+    });
+  });
+
+  describe("connection_id query param", () => {
+    it("opens a new workflow with PostgreSQL Source pre-filled from the connector", () => {
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 42 } }));
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const route = TestBed.inject(ActivatedRoute);
+      vi.spyOn(route.snapshot.queryParamMap, "get").mockReturnValue("7");
+
+      component.ngAfterViewInit();
+
+      expect(persist.createWorkflow).toHaveBeenCalledTimes(1);
+      const content = persist.createWorkflow.mock.calls[0][0];
+      expect(content.operators[0].operatorType).toBe("PostgreSQLSource");
+      expect(content.operators[0].operatorProperties).toEqual({ connectionId: "7" });
+      expect(content.operators[0].operatorProperties).not.toHaveProperty("password");
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 42]);
+    });
+
+    it("opens a new workflow with MySQL Source when connector_code is mysql", () => {
+      const persist = TestBed.inject(WorkflowPersistService) as any;
+      persist.createWorkflow = vi.fn().mockReturnValue(of({ workflow: { wid: 43 } }));
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const route = TestBed.inject(ActivatedRoute);
+      vi.spyOn(route.snapshot.queryParamMap, "get").mockImplementation((key: string) => {
+        if (key === "connection_id") {
+          return "8";
+        }
+        if (key === "connector_code") {
+          return "mysql";
+        }
+        return null;
+      });
+
+      component.ngAfterViewInit();
+
+      const content = persist.createWorkflow.mock.calls[0][0];
+      expect(content.operators[0].operatorType).toBe("MySQLSource");
+      expect(content.operators[0].operatorProperties).toEqual({ connectionId: "8" });
+      expect(content.operators[0].operatorProperties).not.toHaveProperty("password");
+      expect(navigateSpy).toHaveBeenCalledWith([USER_WORKSPACE, 43]);
     });
   });
 

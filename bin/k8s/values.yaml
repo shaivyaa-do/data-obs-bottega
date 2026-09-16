@@ -412,6 +412,9 @@ texeraEnvVars:
   - name: AUTH_JWT_SECRET
     # Development-only default (256-bit HS256 secret). Production environments MUST override this with a different, securely generated secret.
     value: "a7f3c8e9b14d2e6f5a0b9c3d8e1f4a6b2c5d7e9f0a3b6c8d1e4f7a9b2c5d8e1f"
+  - name: CONNECTOR_SECRET_KEY
+    # AES-GCM key for connection_cred.secret_enc. Production MUST override this.
+    value: "texera-local-dev-connector-secret"
 
 yWebsocketServer:
   name: y-websocket-server

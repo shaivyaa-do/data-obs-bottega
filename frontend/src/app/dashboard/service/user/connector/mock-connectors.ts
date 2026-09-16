@@ -16,61 +16,61 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- * Product-shell fixtures. No warehouse secrets belong here — use env
- * placeholders such as $POSTGRES_PASSWORD when filling the wizard.
+ * Marketing catalog for the Choose an app grid. Availability is set from
+ * GET /api/connectors/types — never from this hardcoded list.
  */
 
-import {
-  ConnectorApp,
-  ConnectorAppId,
-  PostgresMysqlConfig,
-  RemoteTable,
-  SavedConnector,
-} from "../../../type/connector";
+import { ConnectorApp, ConnectorAppId, ConnectorType } from "../../../type/connector";
 
 export const CONNECTOR_APPS: ConnectorApp[] = [
   {
     id: "postgresql",
+    code: "postgres",
     name: "PostgreSQL",
     shortName: "Postgres",
     description: "Query a Postgres warehouse or operational database.",
-    available: true,
+    available: false,
     icon: "database",
   },
   {
     id: "mysql",
+    code: "mysql",
     name: "MySQL",
     shortName: "MySQL",
     description: "Query a MySQL or compatible database.",
-    available: true,
+    available: false,
     icon: "database",
   },
   {
     id: "snowflake",
+    code: "snowflake",
     name: "Snowflake",
     shortName: "Snowflake",
     description: "Query Snowflake databases and schemas over JDBC.",
-    available: true,
+    available: false,
     icon: "cloud",
   },
   {
     id: "databricks",
+    code: "databricks",
     name: "Databricks",
     shortName: "Databricks",
     description: "Connect a Databricks SQL warehouse by workspace URL.",
-    available: true,
+    available: false,
     icon: "thunderbolt",
   },
   {
     id: "s3",
+    code: "s3",
     name: "Amazon S3",
     shortName: "S3",
     description: "Browse objects in an S3 bucket by prefix.",
-    available: true,
+    available: false,
     icon: "folder",
   },
   {
     id: "bigquery",
+    code: "bigquery",
     name: "BigQuery",
     shortName: "BigQuery",
     description: "Google BigQuery datasets.",
@@ -79,6 +79,7 @@ export const CONNECTOR_APPS: ConnectorApp[] = [
   },
   {
     id: "redshift",
+    code: "redshift",
     name: "Redshift",
     shortName: "Redshift",
     description: "Amazon Redshift clusters.",
@@ -87,6 +88,7 @@ export const CONNECTOR_APPS: ConnectorApp[] = [
   },
   {
     id: "salesforce",
+    code: "salesforce",
     name: "Salesforce",
     shortName: "Salesforce",
     description: "Salesforce objects and reports.",
@@ -95,88 +97,31 @@ export const CONNECTOR_APPS: ConnectorApp[] = [
   },
 ];
 
-export const AVAILABLE_CONNECTOR_IDS = CONNECTOR_APPS.filter(app => app.available).map(app => app.id);
-
-export const MOCK_REMOTE_TABLES: RemoteTable[] = [
-  { name: "hourly_kwh", schema: "public", enabled: false },
-  { name: "buildings", schema: "public", enabled: false },
-  { name: "meter_readings", schema: "public", enabled: false },
-  { name: "occupancy", schema: "public", enabled: false },
-  { name: "weather_hourly", schema: "public", enabled: false },
-  { name: "equipment", schema: "public", enabled: false },
-];
-
-export const MOCK_DISCOVERED_DATABASES = ["facilities"];
-export const MOCK_DISCOVERED_SCHEMAS = ["public"];
-
-const SEED_CONFIG: PostgresMysqlConfig = {
-  host: "db.facilities.internal",
-  port: 5432,
-  database: "facilities",
-  username: "analyst",
-  ssl: true,
-  schema: "public",
-  defaultTable: "hourly_kwh",
-};
-
-export const SEED_CONNECTORS: SavedConnector[] = [
-  {
-    id: "facilities-prod",
-    name: "facilities-prod",
-    description: "Campus energy meters",
-    environment: "prod",
-    appId: "postgresql",
-    status: "active",
-    lastTestedAt: "2026-09-01T12:00:00.000Z",
-    createdBy: "admin",
-    createdAt: "2026-08-20T09:00:00.000Z",
-    destination: {
-      mode: "dataset",
-      datasetName: "hourly_kwh",
-      folder: "energy",
-      selectOrTable: "public.hourly_kwh",
-      rowLimit: 10000,
-    },
-    tables: [
-      { name: "hourly_kwh", schema: "public", enabled: true },
-      { name: "buildings", schema: "public", enabled: true },
-    ],
-    config: SEED_CONFIG,
-    hasSecret: true,
-    logs: [
-      {
-        at: "2026-09-01T12:00:00.000Z",
-        kind: "test",
-        ok: true,
-        message: "Connected.",
-      },
-      {
-        at: "2026-09-01T12:01:00.000Z",
-        kind: "ingest",
-        ok: true,
-        message: "Published sample to energy / hourly_kwh.",
-      },
-    ],
-  },
-];
-
-export function cloneSeedConnectors(): SavedConnector[] {
-  return structuredClone(SEED_CONNECTORS);
-}
-
 export function appById(id: ConnectorAppId): ConnectorApp | undefined {
   return CONNECTOR_APPS.find(app => app.id === id);
 }
 
-export function hostOrAccountFromConfig(config: SavedConnector["config"]): string {
-  if ("host" in config) {
-    return config.host;
-  }
-  if ("account" in config) {
-    return config.account;
-  }
-  if ("workspaceUrl" in config) {
-    return config.workspaceUrl;
-  }
-  return config.bucket;
+export function appByCode(code: string): ConnectorApp | undefined {
+  return CONNECTOR_APPS.find(app => app.code === code);
+}
+
+export function mergeConnectorApps(types: ConnectorType[]): ConnectorApp[] {
+  const byCode = new Map(types.map(type => [type.code, type]));
+  return CONNECTOR_APPS.map(app => {
+    const type = byCode.get(app.code);
+    if (!type) {
+      return { ...app, available: false };
+    }
+    return {
+      ...app,
+      available: true,
+      name: type.displayName || app.name,
+      fieldsSchema: type.fieldsSchema,
+    };
+  });
+}
+
+export function hostFromConfig(config: Record<string, unknown>): string {
+  const host = config["host"];
+  return typeof host === "string" ? host : "";
 }

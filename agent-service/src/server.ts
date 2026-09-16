@@ -29,6 +29,10 @@ import { retrieveWorkflow } from "./api/workflow-api";
 import { WorkflowSystemMetadata } from "./agent/util/workflow-system-metadata";
 import { env } from "./config/env";
 import { createLogger } from "./logger";
+import type { AgentPersistence, PersistedAgentRecord } from "./persistence/agent-record";
+import { MemoryAgentPersistence } from "./persistence/memory-agent-persistence";
+import { nextAgentId, parseAgentSeq } from "./persistence/agent-id";
+import { sanitizePersistedSettings } from "./persistence/user-agent-row";
 
 const log = createLogger("Server");
 const wsLog = createLogger("WS");
@@ -48,14 +52,108 @@ import type { OperatorResultSummary } from "./types/execution";
 
 const agentStore = new Map<string, TexeraAgent>();
 let agentCounter = 0;
+const memoryPersistence = new MemoryAgentPersistence();
+let persistence: AgentPersistence = memoryPersistence;
+let persistenceBackend: "memory" | "postgres" = "memory";
+
+async function allocateAgentId(): Promise<string> {
+  const { agentId, counter } = nextAgentId(agentCounter, await persistence.maxAgentSeq());
+  agentCounter = counter;
+  return agentId;
+}
+
+function persistableRecord(agentId: string, agent: TexeraAgent): PersistedAgentRecord | undefined {
+  const info = getAgentInfo(agentId, agent);
+  const uid = info.delegate?.userInfo?.uid;
+  if (uid == null) {
+    return undefined;
+  }
+  return {
+    agentId,
+    uid,
+    name: info.name,
+    modelType: info.modelType,
+    settings: sanitizePersistedSettings(info.settings),
+    workflowId: info.delegate?.workflowId,
+    computingUnitId: info.delegate?.computingUnitId,
+    createdAt: info.createdAt instanceof Date ? info.createdAt.toISOString() : String(info.createdAt),
+  };
+}
+
+async function persistAgent(agentId: string, agent: TexeraAgent): Promise<void> {
+  const record = persistableRecord(agentId, agent);
+  if (!record) {
+    log.warn({ agentId }, "skip persist: agent has no owning uid");
+    return;
+  }
+  await persistence.save(record);
+}
+
+async function restoreRecord(
+  record: PersistedAgentRecord,
+  user: { uid: number; name: string; email: string; role: string },
+  userToken: string
+): Promise<void> {
+  if (agentStore.has(record.agentId)) {
+    return;
+  }
+  const { agent } = await createAgentInstance(
+    record.modelType,
+    {
+      userToken,
+      userInfo: user,
+      workflowId: record.workflowId,
+      computingUnitId: record.computingUnitId,
+    },
+    record.name,
+    undefined,
+    record.agentId,
+    new Date(record.createdAt)
+  );
+  if (record.settings) {
+    agent.updateSettings({
+      maxOperatorResultCharLimit: record.settings.maxOperatorResultCharLimit,
+      maxOperatorResultCellCharLimit: record.settings.maxOperatorResultCellCharLimit,
+      operatorResultSerializationMode: record.settings.operatorResultSerializationMode
+        ? (record.settings.operatorResultSerializationMode as OperatorResultSerializationMode)
+        : undefined,
+      toolTimeoutMs: record.settings.toolTimeoutSeconds ? record.settings.toolTimeoutSeconds * 1000 : undefined,
+      executionTimeoutMs: record.settings.executionTimeoutMinutes
+        ? record.settings.executionTimeoutMinutes * 60000
+        : undefined,
+      disabledTools: record.settings.disabledTools ? new Set(record.settings.disabledTools) : undefined,
+      maxSteps: record.settings.maxSteps,
+      allowedOperatorTypes: record.settings.allowedOperatorTypes,
+    });
+  }
+}
+
+async function restorePersistedAgents(
+  user: { uid: number; name: string; email: string; role: string },
+  userToken: string
+): Promise<void> {
+  const records = await persistence.listByUid(user.uid);
+  for (const record of records) {
+    try {
+      await restoreRecord(record, user, userToken);
+    } catch (error) {
+      log.warn({ agentId: record.agentId, err: error }, "failed to restore persisted agent");
+    }
+  }
+}
 
 async function createAgentInstance(
   modelType: string,
   delegateConfig: AgentDelegateConfig,
   customName?: string,
-  providerApiKey?: string
+  providerApiKey?: string,
+  existingId?: string,
+  createdAt?: Date
 ): Promise<{ agentId: string; agent: TexeraAgent }> {
-  const agentId = `agent-${++agentCounter}`;
+  const agentId = existingId ?? (await allocateAgentId());
+  if (existingId) {
+    agentCounter = Math.max(agentCounter, parseAgentSeq(existingId));
+  }
   const config = getBackendConfig();
 
   const openai = createOpenAI(
@@ -69,9 +167,17 @@ async function createAgentInstance(
     modelType,
     agentId,
     agentName: customName || "Bob",
+    createdAt,
   });
 
   await agent.initialize();
+
+  agent.setDelegateConfig({
+    userToken: delegateConfig.userToken,
+    userInfo: delegateConfig.userInfo,
+    workflowId: delegateConfig.workflowId,
+    computingUnitId: delegateConfig.computingUnitId,
+  });
 
   if (delegateConfig.workflowId) {
     try {
@@ -170,7 +276,16 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
     set.status = ERROR_STATUS[errorMessage] ?? 500;
     return { error: errorMessage || "Internal server error" };
   })
-  .get("/", () => {
+  .get("/", async ({ headers }) => {
+    const token = extractBearerToken(headers.authorization);
+    if (token && validateToken(token)) {
+      const user = extractUserFromToken(token);
+      await restorePersistedAgents(user, token);
+      const agents = Array.from(agentStore.entries())
+        .filter(([, agent]) => agent.getDelegateConfig()?.userInfo?.uid === user.uid)
+        .map(([id, agent]) => getAgentInfo(id, agent));
+      return { agents };
+    }
     const agentList = Array.from(agentStore.entries()).map(([id, agent]) => getAgentInfo(id, agent));
     return { agents: agentList };
   })
@@ -228,6 +343,8 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
         });
       }
 
+      await persistAgent(agentId, agent);
+
       return getAgentInfo(agentId, agent);
     },
     {
@@ -262,15 +379,17 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
     };
   })
 
-  .delete("/:id", ({ params: { id }, set }) => {
+  .delete("/:id", async ({ params: { id }, set }) => {
     const agent = agentStore.get(id);
-    if (!agent) {
+    if (agent) {
+      agent.destroy();
+      agentStore.delete(id);
+    }
+    const existed = await persistence.delete(id);
+    if (!agent && !existed) {
       set.status = 404;
       return { error: "Agent not found" };
     }
-
-    agent.destroy();
-    agentStore.delete(id);
     return { deleted: true };
   })
 
@@ -363,6 +482,7 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
         computingUnitId,
       });
       log.info({ agentId: id, workflowId }, "bound agent to workflow");
+      await persistAgent(id, agent);
       return getAgentInfo(id, agent);
     },
     {
@@ -375,7 +495,7 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
 
   .patch(
     "/:id/settings",
-    ({ params: { id }, body }) => {
+    async ({ params: { id }, body }) => {
       const agent = getAgent(id);
       const settings = body as UpdateAgentSettingsRequest;
 
@@ -401,6 +521,8 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
         maxSteps: settings.maxSteps,
         allowedOperatorTypes: settings.allowedOperatorTypes,
       });
+
+      await persistAgent(id, agent);
 
       const agentSettings = agent.getSettings();
       return {
@@ -593,6 +715,18 @@ export function buildApp() {
 export function _resetAgentStoreForTests(): void {
   agentStore.clear();
   agentCounter = 0;
+  void memoryPersistence.clear();
+  persistence = memoryPersistence;
+  persistenceBackend = "memory";
+}
+
+export function _resetRuntimeAgentsForTests(): void {
+  agentStore.clear();
+  agentCounter = 0;
+}
+
+export async function _getPersistedRecordForTests(agentId: string): Promise<PersistedAgentRecord | undefined> {
+  return persistence.get(agentId);
 }
 
 // Look up an agent instance by id. Used by tests to stub agent behavior (e.g.
@@ -638,10 +772,34 @@ function printStartupMessage(app: ReturnType<typeof buildApp>) {
   console.log(`  LLM_ENDPOINT: ${getBackendConfig().modelsEndpoint}`);
   console.log(`  WORKFLOW_COMPILING_SERVICE_ENDPOINT: ${getBackendConfig().compileEndpoint}`);
   console.log(`  TEXERA_DASHBOARD_SERVICE_ENDPOINT: ${getBackendConfig().apiEndpoint}`);
+  console.log(`  AGENT_PERSISTENCE: ${persistenceBackend}`);
   console.log("");
   console.log("Features:");
   console.log("  - Auto-persistence with debounce (500ms)");
   console.log(LINE);
+}
+
+async function initializeAgentPersistence() {
+  if (!env.STORAGE_JDBC_URL) {
+    log.info("agent persistence: in-memory (STORAGE_JDBC_URL not set)");
+    persistence = memoryPersistence;
+    persistenceBackend = "memory";
+    return;
+  }
+  try {
+    const { PostgresAgentPersistence } = await import("./persistence/postgres-agent-persistence");
+    persistence = await PostgresAgentPersistence.connect(
+      env.STORAGE_JDBC_URL,
+      env.STORAGE_JDBC_USERNAME,
+      env.STORAGE_JDBC_PASSWORD
+    );
+    persistenceBackend = "postgres";
+    log.info("agent persistence: postgres user_agent");
+  } catch (error) {
+    log.warn({ err: error }, "failed to connect postgres agent persistence; using memory");
+    persistence = memoryPersistence;
+    persistenceBackend = "memory";
+  }
 }
 
 async function initializeServices() {
@@ -656,6 +814,7 @@ async function initializeServices() {
 
 export async function start() {
   await initializeServices();
+  await initializeAgentPersistence();
   const app = buildApp().listen(env.PORT);
   printStartupMessage(app);
   return app;

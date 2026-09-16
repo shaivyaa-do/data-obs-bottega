@@ -22,41 +22,69 @@ import { By } from "@angular/platform-browser";
 import { convertToParamMap, ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { of } from "rxjs";
 import { ConnectorDetailComponent } from "./connector-detail.component";
 import { ConnectorService } from "../../../service/user/connector/connector.service";
 import { NotificationService } from "../../../../common/service/notification/notification.service";
 import { USER_WORKFLOW } from "../../../../app-routing.constant";
+import { SavedConnector } from "../../../type/connector";
+
+function saved(over: Partial<SavedConnector> = {}): SavedConnector {
+  return {
+    id: "7",
+    name: "lab-pg",
+    status: "active",
+    connectorCode: "postgres",
+    connectorDisplayName: "PostgreSQL",
+    config: { host: "127.0.0.1", port: 5432, database: "analytics", username: "analyst", schema: "public" },
+    lastTestedAt: "2026-09-16T10:00:00.000Z",
+    lastError: null,
+    ...over,
+  };
+}
 
 describe("ConnectorDetailComponent", () => {
-  async function render(id = "facilities-prod") {
+  async function render(connection: SavedConnector = saved()) {
     const navigate = vi.fn().mockResolvedValue(true);
+    const notification = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
     await TestBed.configureTestingModule({
       imports: [ConnectorDetailComponent, RouterTestingModule, NoopAnimationsModule],
       providers: [
-        ConnectorService,
-        { provide: NotificationService, useValue: { success: vi.fn(), error: vi.fn() } },
+        {
+          provide: ConnectorService,
+          useValue: {
+            getConnector: () => of(connection),
+            testConnector: vi.fn(() => of(connection)),
+            deleteConnector: vi.fn(() => of(undefined)),
+          },
+        },
+        { provide: NotificationService, useValue: notification },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id }) } },
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: connection.id }) } },
         },
         { provide: Router, useValue: { navigate } },
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(ConnectorDetailComponent);
     fixture.detectChanges();
-    return { fixture, navigate, component: fixture.componentInstance };
+    return { fixture, navigate, notification, component: fixture.componentInstance };
   }
 
-  it("shows read-only creds, destination, enabled tables, and logs", async () => {
+  it("shows name, type, status, last tested, and live-query destination without a password", async () => {
     const { fixture } = await render();
-    expect(fixture.nativeElement.textContent).toContain("facilities-prod");
-    expect(fixture.nativeElement.textContent).toContain("Published as dataset · energy / hourly_kwh");
-    expect(fixture.nativeElement.textContent).toContain("hourly_kwh");
-    expect(fixture.nativeElement.textContent).toContain("buildings");
-    expect(fixture.nativeElement.textContent).toContain("••••••••");
-    expect(JSON.stringify(fixture.componentInstance.connection)).not.toMatch(/\$POSTGRES_PASSWORD/);
-    expect(fixture.nativeElement.textContent).toContain("test");
-    expect(fixture.nativeElement.textContent).toContain("ingest");
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("lab-pg");
+    expect(text).toContain("PostgreSQL");
+    expect(text).toContain("Active");
+    expect(text).toContain("Live query in workflows");
+    expect(text).toContain("127.0.0.1");
+    expect(text).toContain("analytics");
+    expect(text).not.toMatch(/Published as dataset/i);
+    expect(text).not.toContain("hourly_kwh");
+    expect(text).not.toContain("••••••••");
+    expect(text).not.toMatch(/password/i);
+    expect(JSON.stringify(fixture.componentInstance.connection)).not.toMatch(/password/i);
   });
 
   it("puts an arrow-only back control on the far left and icons on the action buttons", async () => {
@@ -68,7 +96,7 @@ describe("ConnectorDetailComponent", () => {
     back.nativeElement.click();
     expect(navigate).toHaveBeenCalledWith(["/connectors"]);
 
-    const labels = ["Test again", "Disconnect", "Use in workflow"];
+    const labels = ["Test again", "Delete", "Use in workflow"];
     for (const label of labels) {
       const btn = fixture.debugElement
         .queryAll(By.css("button"))
@@ -84,6 +112,8 @@ describe("ConnectorDetailComponent", () => {
       .queryAll(By.css("button"))
       .find(btn => btn.nativeElement.textContent.includes("Use in workflow"))
       ?.nativeElement.click();
-    expect(navigate).toHaveBeenCalledWith([USER_WORKFLOW]);
+    expect(navigate).toHaveBeenCalledWith([USER_WORKFLOW], {
+      queryParams: { connection_id: "7", connector_code: "postgres" },
+    });
   });
 });

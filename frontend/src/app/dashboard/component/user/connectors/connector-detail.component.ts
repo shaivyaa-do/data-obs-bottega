@@ -26,19 +26,34 @@ import { NzButtonComponent } from "ng-zorro-antd/button";
 import { NzWaveDirective } from "ng-zorro-antd/core/wave";
 import { NzIconDirective } from "ng-zorro-antd/icon";
 import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
+import { NzPopconfirmDirective } from "ng-zorro-antd/popconfirm";
 import { NotificationService } from "../../../../common/service/notification/notification.service";
 import { formatRelativeTime } from "../../../../common/util/format.util";
 import { CONNECTORS, USER_WORKFLOW } from "../../../../app-routing.constant";
-import { destinationSummary, isActiveStatus, SavedConnector } from "../../../type/connector";
-import { ConnectorService } from "../../../service/user/connector/connector.service";
-import { appById } from "../../../service/user/connector/mock-connectors";
+import {
+  CONNECTION_ID_QUERY_PARAM,
+  CONNECTOR_CODE_QUERY_PARAM,
+} from "../../../../workspace/util/postgres-source-properties";
+import { destinationSummary, SavedConnector, statusLabel as connectorStatusLabel } from "../../../type/connector";
+import { ConnectorService, connectorErrorMessage } from "../../../service/user/connector/connector.service";
+
+const CONFIG_ORDER = ["host", "port", "database", "username", "schema"];
 
 @UntilDestroy()
 @Component({
   selector: "texera-connector-detail",
   templateUrl: "./connector-detail.component.html",
   styleUrls: ["./connector-detail.component.scss"],
-  imports: [NzCardComponent, NgIf, NgFor, NzButtonComponent, NzWaveDirective, NzIconDirective, NzTooltipDirective],
+  imports: [
+    NzCardComponent,
+    NgIf,
+    NgFor,
+    NzButtonComponent,
+    NzWaveDirective,
+    NzIconDirective,
+    NzTooltipDirective,
+    NzPopconfirmDirective,
+  ],
 })
 export class ConnectorDetailComponent implements OnInit {
   connection: SavedConnector | null = null;
@@ -61,30 +76,14 @@ export class ConnectorDetailComponent implements OnInit {
   }
 
   get typeLabel(): string {
-    if (!this.connection) {
-      return "";
-    }
-    return appById(this.connection.appId)?.name ?? this.connection.appId;
+    return this.connection?.connectorDisplayName ?? "";
   }
 
   statusLabel(): string {
     if (!this.connection) {
       return "";
     }
-    if (isActiveStatus(this.connection.status)) {
-      return "Active";
-    }
-    if (this.connection.status === "error") {
-      return "Error";
-    }
-    if (this.connection.status === "testing") {
-      return "Testing";
-    }
-    return "Inactive";
-  }
-
-  maskedSecret(): string {
-    return this.connection?.hasSecret ? "••••••••" : "—";
+    return connectorStatusLabel(this.connection.status);
   }
 
   credentialRows(): { label: string; value: string }[] {
@@ -92,45 +91,22 @@ export class ConnectorDetailComponent implements OnInit {
       return [];
     }
     const config = this.connection.config;
-    const rows: { label: string; value: string }[] = [
-      { label: "Password", value: this.maskedSecret() },
-    ];
-    if ("host" in config) {
-      return [
-        { label: "Host", value: config.host },
-        { label: "Port", value: String(config.port) },
-        { label: "Database", value: config.database },
-        { label: "Username", value: config.username },
-        { label: "SSL", value: config.ssl ? "On" : "Off" },
-        ...rows,
-      ];
+    const labels: Record<string, string> = {
+      host: "Host",
+      port: "Port",
+      database: "Database",
+      username: "Username",
+      schema: "Schema",
+    };
+    const rows: { label: string; value: string }[] = [];
+    for (const key of CONFIG_ORDER) {
+      const value = config[key];
+      if (value === undefined || value === null || value === "") {
+        continue;
+      }
+      rows.push({ label: labels[key] ?? key, value: String(value) });
     }
-    if ("account" in config) {
-      return [
-        { label: "Account", value: config.account },
-        { label: "Warehouse", value: config.warehouse },
-        { label: "Database", value: config.database },
-        { label: "Schema", value: config.schema },
-        { label: "Role", value: config.role },
-        { label: "User", value: config.user },
-        ...rows,
-      ];
-    }
-    if ("workspaceUrl" in config) {
-      return [
-        { label: "Workspace URL", value: config.workspaceUrl },
-        { label: "HTTP path", value: config.httpPath },
-        { label: "Catalog", value: config.catalog },
-        { label: "Schema", value: config.schema },
-        { label: "Token", value: this.maskedSecret() },
-      ];
-    }
-    return [
-      { label: "Bucket", value: config.bucket },
-      { label: "Region", value: config.region },
-      { label: "Access key", value: config.accessKey },
-      { label: "Secret", value: this.maskedSecret() },
-    ];
+    return rows;
   }
 
   lastTested(): string {
@@ -140,53 +116,49 @@ export class ConnectorDetailComponent implements OnInit {
     return formatRelativeTime(Date.parse(this.connection.lastTestedAt));
   }
 
-  enabledTables(): string[] {
-    return (this.connection?.tables ?? [])
-      .filter(table => table.enabled)
-      .map(table => (table.schema ? `${table.schema}.${table.name}` : table.name));
-  }
-
-  recentLogs() {
-    return (this.connection?.logs ?? []).slice(0, 5);
-  }
-
   testAgain(): void {
     if (!this.connection) {
       return;
     }
     this.connectorService
-      .testConnector({
-        name: this.connection.name,
-        appId: this.connection.appId,
-        config: this.connection.config,
-        connectorId: this.connection.id,
-      })
+      .testConnector(this.connection.id)
       .pipe(untilDestroyed(this))
       .subscribe({
         next: result => {
-          if (result.ok) {
-            this.notification.success(result.message);
+          this.connection = result;
+          if (result.status === "active") {
+            this.notification.success("Connected.");
           } else {
-            this.notification.error(result.message);
+            this.notification.error(result.lastError || "Test failed.");
           }
-          this.load(this.connection!.id);
         },
-        error: () => this.notification.error("Test failed."),
+        error: (err: unknown) => this.notification.error(connectorErrorMessage(err)),
       });
   }
 
-  disconnect(): void {
+  removeConnector(): void {
     if (!this.connection) {
       return;
     }
     this.connectorService
-      .disconnectConnector(this.connection.id)
+      .deleteConnector(this.connection.id)
       .pipe(untilDestroyed(this))
-      .subscribe(() => this.router.navigate([CONNECTORS]));
+      .subscribe({
+        next: () => this.router.navigate([CONNECTORS]),
+        error: (err: unknown) => this.notification.error(connectorErrorMessage(err)),
+      });
   }
 
   openInWorkflow(): void {
-    this.router.navigate([USER_WORKFLOW]);
+    if (!this.connection) {
+      return;
+    }
+    this.router.navigate([USER_WORKFLOW], {
+      queryParams: {
+        [CONNECTION_ID_QUERY_PARAM]: this.connection.id,
+        [CONNECTOR_CODE_QUERY_PARAM]: this.connection.connectorCode,
+      },
+    });
   }
 
   back(): void {
@@ -201,7 +173,7 @@ export class ConnectorDetailComponent implements OnInit {
         next: connection => {
           this.connection = connection;
         },
-        error: () => this.router.navigate([CONNECTORS]),
+        error: (err: unknown) => this.router.navigate([CONNECTORS]),
       });
   }
 }

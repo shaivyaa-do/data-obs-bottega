@@ -54,13 +54,16 @@
         </button>
         <button
           nz-button
+          nzDanger
           type="button"
-          (click)="disconnect()">
+          nz-popconfirm
+          nzPopconfirmTitle="Delete this connector?"
+          (nzOnConfirm)="removeConnector()">
           <i
             nz-icon
-            nzType="disconnect"
+            nzType="delete"
             nzTheme="outline"></i>
-          Disconnect
+          Delete
         </button>
         <button
           nz-button
@@ -90,16 +93,18 @@
           <dd>{{ statusLabel() }}</dd>
         </div>
         <div>
-          <dt>Environment</dt>
-          <dd>{{ connection.environment }}</dd>
-        </div>
-        <div>
           <dt>Last tested</dt>
           <dd>{{ lastTested() }}</dd>
         </div>
         <div class="span-2">
           <dt>Destination</dt>
           <dd>{{ destinationSummary(connection) }}</dd>
+        </div>
+        <div
+          class="span-2"
+          *ngIf="connection.lastError">
+          <dt>Last error</dt>
+          <dd>{{ connection.lastError }}</dd>
         </div>
       </dl>
     </section>
@@ -112,28 +117,6 @@
           <dd>{{ row.value }}</dd>
         </div>
       </dl>
-    </section>
-
-    <section class="detail-section">
-      <h3 class="section-heading">Tables enabled</h3>
-      <ul class="table-list">
-        <li *ngFor="let table of enabledTables()">{{ table }}</li>
-      </ul>
-    </section>
-
-    <section class="detail-section">
-      <h3 class="section-heading">Recent tests and publishes</h3>
-      <ul class="log-list">
-        <li *ngFor="let log of recentLogs()">
-          <span class="log-kind">{{ log.kind }}</span>
-          <span
-            [class.ok]="log.ok"
-            [class.err]="!log.ok">
-            {{ log.ok ? "ok" : "fail" }}
-          </span>
-          <span>{{ log.message }}</span>
-        </li>
-      </ul>
     </section>
   </div>
 </div>

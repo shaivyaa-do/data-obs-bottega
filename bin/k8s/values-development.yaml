@@ -381,6 +381,9 @@ texeraEnvVars:
     # same value, so this is a fixed shared string rather than a per-pod random one.
     # Production environments MUST override this with a securely generated secret.
     value: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  - name: CONNECTOR_SECRET_KEY
+    # AES-GCM key for connection_cred.secret_enc. Local-dev placeholder only.
+    value: "texera-local-dev-connector-secret"
 
 yWebsocketServer:
   name: y-websocket-server

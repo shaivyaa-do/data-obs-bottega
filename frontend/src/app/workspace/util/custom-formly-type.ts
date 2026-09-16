@@ -81,5 +81,14 @@ export function customFormlyFieldType(input: {
   if (operatorType === "Projection" && key === "attributes") {
     return "repeat-section-dnd";
   }
+  if (key === "connectionId" && operatorType === "PostgreSQLSource") {
+    return "postgres-connection";
+  }
+  if (key === "connectionId" && operatorType === "MySQLSource") {
+    return "mysql-connection";
+  }
+  if (key === "table" && (operatorType === "PostgreSQLSource" || operatorType === "MySQLSource")) {
+    return operatorType === "MySQLSource" ? "mysql-table" : "postgres-table";
+  }
   return undefined;
 }

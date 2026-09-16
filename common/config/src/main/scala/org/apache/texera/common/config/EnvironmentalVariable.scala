@@ -68,6 +68,9 @@ object EnvironmentalVariable {
   val ENV_JDBC_USERNAME = "STORAGE_JDBC_USERNAME"
   val ENV_JDBC_PASSWORD = "STORAGE_JDBC_PASSWORD"
 
+  // AES-GCM key for connection_cred.secret_enc. Required outside local development.
+  val ENV_CONNECTOR_SECRET_KEY = "CONNECTOR_SECRET_KEY"
+
   // Iceberg Catalog
   val ENV_ICEBERG_CATALOG_TYPE = "STORAGE_ICEBERG_CATALOG_TYPE"
   val ENV_ICEBERG_CATALOG_REST_URI = "STORAGE_ICEBERG_CATALOG_REST_URI"

@@ -19,10 +19,11 @@
 
 package org.apache.texera.amber.operator.source.sql.postgresql
 
-import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription}
+import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription, JsonPropertyOrder}
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
 import org.apache.texera.amber.core.executor.OpExecWithClassName
+import org.apache.texera.amber.core.tuple.Schema
 import org.apache.texera.amber.core.virtualidentity.{ExecutionIdentity, WorkflowIdentity}
 import org.apache.texera.amber.core.workflow.{OutputPort, PhysicalOp, SchemaPropagationFunc}
 import org.apache.texera.amber.operator.metadata.annotations.UIWidget
@@ -33,7 +34,18 @@ import org.apache.texera.amber.util.JSONUtils.objectMapper
 
 import java.sql.{Connection, SQLException}
 
+object PostgreSQLSourceOpDesc {
+  val AddConnectionMessage: String =
+    "Add a PostgreSQL connection under Connectors."
+}
+
+@JsonPropertyOrder(Array("connectionId", "table"))
 class PostgreSQLSourceOpDesc extends SQLSourceOpDesc {
+
+  @JsonProperty()
+  @JsonSchemaTitle("Connection")
+  @JsonPropertyDescription("Saved PostgreSQL connection from Connectors")
+  var connectionId: String = _
 
   @JsonProperty()
   @JsonSchemaTitle("Keywords to Search")
@@ -75,6 +87,38 @@ class PostgreSQLSourceOpDesc extends SQLSourceOpDesc {
 
   @throws[SQLException]
   override def establishConn: Connection = connect(host, port, database, username, password)
+
+  override def sourceSchema(): Schema = {
+    if (!hasResolvedJdbc) {
+      throw new IllegalArgumentException(PostgreSQLSourceOpDesc.AddConnectionMessage)
+    }
+    super.sourceSchema()
+  }
+
+  def hasConnectionId: Boolean =
+    connectionId != null && connectionId.trim.nonEmpty
+
+  def hasResolvedJdbc: Boolean =
+    nonEmpty(host) && nonEmpty(port) && nonEmpty(database) && nonEmpty(username) && nonEmpty(
+      password
+    )
+
+  def applyJdbcCredentials(
+      host: String,
+      port: String,
+      database: String,
+      username: String,
+      password: String
+  ): Unit = {
+    this.host = host
+    this.port = port
+    this.database = database
+    this.username = username
+    this.password = password
+  }
+
+  private def nonEmpty(value: String): Boolean =
+    value != null && value.trim.nonEmpty
 
   override protected def updatePort(): Unit =
     port = if (port.trim().equals("default")) "5432" else port

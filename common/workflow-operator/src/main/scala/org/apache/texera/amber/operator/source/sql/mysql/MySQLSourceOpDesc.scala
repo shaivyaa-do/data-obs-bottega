@@ -19,9 +19,14 @@
 
 package org.apache.texera.amber.operator.source.sql.mysql
 
+import com.fasterxml.jackson.annotation.{JsonProperty, JsonPropertyDescription, JsonPropertyOrder}
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.kjetland.jackson.jsonSchema.annotations.{JsonSchemaInject, JsonSchemaTitle}
 import org.apache.texera.amber.core.executor.OpExecWithClassName
+import org.apache.texera.amber.core.tuple.Schema
 import org.apache.texera.amber.core.virtualidentity.{ExecutionIdentity, WorkflowIdentity}
 import org.apache.texera.amber.core.workflow.{OutputPort, PhysicalOp, SchemaPropagationFunc}
+import org.apache.texera.amber.operator.metadata.annotations.UIWidget
 import org.apache.texera.amber.operator.metadata.{OperatorGroupConstants, OperatorInfo}
 import org.apache.texera.amber.operator.source.sql.SQLSourceOpDesc
 import org.apache.texera.amber.operator.source.sql.mysql.MySQLConnUtil.connect
@@ -29,8 +34,27 @@ import org.apache.texera.amber.util.JSONUtils.objectMapper
 
 import java.sql.{Connection, SQLException}
 
-@deprecated("MySQL source operator is no longer executable.", "1.1.0-incubating")
+object MySQLSourceOpDesc {
+  val AddConnectionMessage: String =
+    "Add a MySQL connection under Connectors."
+}
+
+@JsonPropertyOrder(Array("connectionId", "table"))
 class MySQLSourceOpDesc extends SQLSourceOpDesc {
+
+  @JsonProperty()
+  @JsonSchemaTitle("Connection")
+  @JsonPropertyDescription("Saved MySQL connection from Connectors")
+  var connectionId: String = _
+
+  @JsonProperty()
+  @JsonSchemaTitle("Keywords to Search")
+  @JsonDeserialize(contentAs = classOf[java.lang.String])
+  @JsonSchemaInject(json = UIWidget.UIWidgetTextArea)
+  @JsonPropertyDescription(
+    "E.g. '+MySQL -InnoDB' for boolean mode. See official MySQL documents for details."
+  )
+  override def getKeywords: Option[String] = super.getKeywords
 
   override def getPhysicalOp(
       workflowId: WorkflowIdentity,
@@ -64,6 +88,38 @@ class MySQLSourceOpDesc extends SQLSourceOpDesc {
   @throws[SQLException]
   override def establishConn: Connection = connect(host, port, database, username, password)
 
-  override def updatePort(): Unit = port = if (port.trim().equals("default")) "3306" else port
+  override def sourceSchema(): Schema = {
+    if (!hasResolvedJdbc) {
+      throw new IllegalArgumentException(MySQLSourceOpDesc.AddConnectionMessage)
+    }
+    super.sourceSchema()
+  }
 
+  def hasConnectionId: Boolean =
+    connectionId != null && connectionId.trim.nonEmpty
+
+  def hasResolvedJdbc: Boolean =
+    nonEmpty(host) && nonEmpty(port) && nonEmpty(database) && nonEmpty(username) && nonEmpty(
+      password
+    )
+
+  def applyJdbcCredentials(
+      host: String,
+      port: String,
+      database: String,
+      username: String,
+      password: String
+  ): Unit = {
+    this.host = host
+    this.port = port
+    this.database = database
+    this.username = username
+    this.password = password
+  }
+
+  private def nonEmpty(value: String): Boolean =
+    value != null && value.trim.nonEmpty
+
+  override protected def updatePort(): Unit =
+    port = if (port.trim().equals("default")) "3306" else port
 }

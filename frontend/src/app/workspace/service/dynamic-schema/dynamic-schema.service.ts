@@ -26,6 +26,7 @@ import { OperatorSchema } from "../../types/operator-schema.interface";
 import { OperatorPredicate } from "../../types/workflow-common.interface";
 import { OperatorMetadataService } from "../operator-metadata/operator-metadata.service";
 import { WorkflowActionService } from "../workflow-graph/model/workflow-action.service";
+import { adaptPostgresSourceSchema } from "../../util/postgres-source-properties";
 
 export type SchemaTransformer = (operator: OperatorPredicate, schema: OperatorSchema) => OperatorSchema;
 
@@ -60,6 +61,7 @@ export class DynamicSchemaService {
     private workflowActionService: WorkflowActionService,
     private operatorMetadataService: OperatorMetadataService
   ) {
+    this.registerInitialSchemaTransformer(adaptPostgresSourceSchema);
     // when an operator is added, add it to the dynamic schema map
     this.workflowActionService
       .getTexeraGraph()
@@ -121,15 +123,19 @@ export class DynamicSchemaService {
    * which has access to the propagated input attributes.
    */
   public setDynamicSchema(operatorID: string, dynamicSchema: OperatorSchema): void {
+    const operator = this.workflowActionService.getTexeraGraph().hasOperator(operatorID)
+      ? this.workflowActionService.getTexeraGraph().getOperator(operatorID)
+      : undefined;
+    const nextSchema = operator ? adaptPostgresSourceSchema(operator, dynamicSchema) : dynamicSchema;
     const currentDynamicSchema = this.dynamicSchemaMap.get(operatorID);
 
     // do nothing if old & new schema are the same
-    if (isEqual(currentDynamicSchema, dynamicSchema)) {
+    if (isEqual(currentDynamicSchema, nextSchema)) {
       return;
     }
 
     // set the new dynamic schema
-    this.dynamicSchemaMap.set(operatorID, dynamicSchema);
+    this.dynamicSchemaMap.set(operatorID, nextSchema);
     this.operatorDynamicSchemaChangedStream.next({ operatorID });
   }
 

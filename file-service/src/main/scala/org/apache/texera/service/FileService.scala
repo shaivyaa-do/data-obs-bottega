@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.LazyLogging
 import io.dropwizard.configuration.{EnvironmentVariableSubstitutor, SubstitutingSourceProvider}
 import io.dropwizard.core.Application
 import io.dropwizard.core.setup.{Bootstrap, Environment}
-import org.apache.texera.common.config.StorageConfig
+import org.apache.texera.common.config.{EnvironmentalVariable, StorageConfig}
 import org.apache.texera.common.util.RetryUtil
 import org.apache.texera.amber.core.storage.util.LakeFSStorageClient
 import org.apache.texera.auth.{AuthFeatures, RequestLoggingFilter, RoleAnnotationEnforcer}
@@ -33,12 +33,14 @@ import org.apache.texera.dao.SqlServer
 import org.apache.texera.service.`type`.LakeFSFileNode
 import org.apache.texera.service.`type`.serde.LakeFSFileNodeSerializer
 import org.apache.texera.service.resource.{
+  ConnectorResource,
   DatasetAccessResource,
   DatasetResource,
   HealthCheckResource,
   ModelAccessResource,
   ModelResource
 }
+import org.apache.texera.service.util.ConnectorSecret
 import org.apache.texera.service.util.S3StorageClient
 import org.apache.texera.service.util.S3ProxyServlet
 import org.apache.texera.service.util.LargeBinaryManager
@@ -67,6 +69,10 @@ class FileService extends Application[FileServiceConfiguration] with LazyLogging
   override def run(configuration: FileServiceConfiguration, environment: Environment): Unit = {
     // Serve backend at /api
     environment.jersey.setUrlPattern("/api/*")
+    ConnectorSecret.requireAtStartup(
+      StorageConfig.jdbcUrl,
+      EnvironmentalVariable.get(EnvironmentalVariable.ENV_CONNECTOR_SECRET_KEY)
+    )
     SqlServer.initConnection(
       StorageConfig.jdbcUrl,
       StorageConfig.jdbcUsername,
@@ -95,6 +101,7 @@ class FileService extends Application[FileServiceConfiguration] with LazyLogging
     environment.jersey.register(classOf[DatasetAccessResource])
     environment.jersey.register(classOf[ModelResource])
     environment.jersey.register(classOf[ModelAccessResource])
+    environment.jersey.register(classOf[ConnectorResource])
 
     // Register the read-only S3 proxy servlet for in-pod GeeseFS dataset mounts. GeeseFS
     // authenticates with the pod's per-user JWT (carried as its S3 access key) and issues

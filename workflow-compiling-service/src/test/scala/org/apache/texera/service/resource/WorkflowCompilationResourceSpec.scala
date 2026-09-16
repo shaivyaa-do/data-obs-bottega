@@ -20,9 +20,11 @@
 package org.apache.texera.service.resource
 
 import com.fasterxml.jackson.databind.node.ObjectNode
+import io.dropwizard.auth.AuthValueFactoryProvider
 import io.dropwizard.testing.junit5.ResourceExtension
 import jakarta.ws.rs.client.Entity
 import jakarta.ws.rs.core.{MediaType, Response}
+import org.apache.texera.auth.SessionUser
 import org.apache.texera.common.compiler.model.{LogicalLink, LogicalPlanPojo}
 import org.apache.texera.amber.core.workflow.PortIdentity
 import org.apache.texera.amber.operator.projection.{AttributeUnit, ProjectionOpDesc}
@@ -48,6 +50,7 @@ class WorkflowCompilationResourceSpec extends AnyFlatSpec with BeforeAndAfterAll
   private val resources: ResourceExtension = ResourceExtension
     .builder()
     .addResource(new WorkflowCompilationResource())
+    .addProvider(new AuthValueFactoryProvider.Binder(classOf[SessionUser]))
     .setMapper(objectMapper)
     .build()
 

@@ -17,163 +17,260 @@
  * under the License.
  */
 
-import { fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
 import { firstValueFrom } from "rxjs";
-import { ConnectorService, MOCK_TEST_CONNECTION_MS } from "./connector.service";
-import { CONNECTOR_APPS } from "./mock-connectors";
-import { CreateConnectorRequest, destinationSummary, PostgresMysqlConfig } from "../../../type/connector";
+import { AppSettings } from "../../../../common/app-setting";
+import {
+  ConnectorType,
+  CreateConnectorRequest,
+  destinationSummary,
+  mapSavedConnector,
+  SavedConnectorResponse,
+} from "../../../type/connector";
+import { CONNECTOR_APPS, mergeConnectorApps } from "./mock-connectors";
+import { CONNECTORS_BASE_URL, ConnectorService, ConnectorTestError } from "./connector.service";
 
-function postgresConfig(host = "db.example.com"): PostgresMysqlConfig {
+const API = `${AppSettings.getApiEndpoint()}/${CONNECTORS_BASE_URL}`;
+const SECRET = "super-secret-password";
+
+const POSTGRES_TYPE: ConnectorType = {
+  id: 1,
+  code: "postgres",
+  displayName: "PostgreSQL",
+  fieldsSchema: {
+    fields: [
+      { name: "host", label: "Host", type: "string", required: true },
+      { name: "port", label: "Port", type: "string", required: true, default: "5432" },
+      { name: "database", label: "Database", type: "string", required: true },
+      { name: "username", label: "Username", type: "string", required: true },
+      { name: "password", label: "Password", type: "password", required: true, secret: true },
+      { name: "schema", label: "Schema", type: "string", required: false, default: "public" },
+    ],
+  },
+};
+
+function apiRow(over: Partial<SavedConnectorResponse> = {}): SavedConnectorResponse {
   return {
-    host,
-    port: 5432,
-    database: "analytics",
-    username: "analyst",
-    ssl: true,
-    schema: "public",
+    id: 7,
+    name: "lab-pg",
+    status: "active",
+    connectorCode: "postgres",
+    connectorDisplayName: "PostgreSQL",
+    config: {
+      host: "127.0.0.1",
+      port: 5432,
+      database: "analytics",
+      username: "analyst",
+      schema: "public",
+    },
+    lastTestedAt: "2026-09-16T10:00:00Z",
+    lastError: null,
+    ...over,
   };
 }
 
 function createBody(over: Partial<CreateConnectorRequest> = {}): CreateConnectorRequest {
   return {
-    name: "lab-warehouse",
-    environment: "prod",
-    appId: "postgresql",
-    config: postgresConfig(),
-    destination: { mode: "live" },
+    name: "lab-pg",
+    connectorCode: "postgres",
+    host: "127.0.0.1",
+    port: 5432,
+    database: "analytics",
+    username: "analyst",
+    schema: "public",
+    password: SECRET,
     ...over,
   };
 }
 
 describe("ConnectorService", () => {
   let service: ConnectorService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [ConnectorService],
     });
     service = TestBed.inject(ConnectorService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it("seeds an Active Postgres named facilities-prod with hourly_kwh and buildings", async () => {
-    const connectors = await firstValueFrom(service.listConnectors());
-    expect(connectors).toHaveLength(1);
-    expect(connectors[0].id).toBe("facilities-prod");
-    expect(connectors[0].appId).toBe("postgresql");
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it("lists connectors from GET /api/connectors without a seed card or password", async () => {
+    const listed = firstValueFrom(service.listConnectors());
+    const req = httpMock.expectOne(API);
+    expect(req.request.method).toBe("GET");
+    req.flush([]);
+    expect(await listed).toEqual([]);
+
+    const withRow = firstValueFrom(service.listConnectors());
+    httpMock.expectOne(API).flush([
+      apiRow(),
+      apiRow({
+        id: 8,
+        name: "broken",
+        status: "error",
+        lastError: "Could not connect to PostgreSQL: boom",
+        lastTestedAt: null,
+        config: { host: "db.example", port: 5432, database: "x", username: "u", password: SECRET },
+      }),
+    ]);
+    const connectors = await withRow;
+    expect(connectors.map(connector => connector.name)).toEqual(["lab-pg", "broken"]);
+    expect(connectors[0].id).toBe("7");
+    expect(connectors[0].connectorDisplayName).toBe("PostgreSQL");
     expect(connectors[0].status).toBe("active");
-    expect(connectors[0].tables.map(table => table.name)).toEqual(["hourly_kwh", "buildings"]);
-    expect(destinationSummary(connectors[0])).toBe("Published as dataset · energy / hourly_kwh");
-    expect(connectors[0].hasSecret).toBe(true);
-    expect(JSON.stringify(connectors[0])).not.toMatch(/\$POSTGRES_PASSWORD|"password"\s*:/);
+    expect(connectors[1].status).toBe("error");
+    expect(connectors[1].lastError).toMatch(/boom/);
+    expect(JSON.stringify(connectors)).not.toContain(SECRET);
+    expect(JSON.stringify(connectors[1].config)).not.toMatch(/password/i);
+    expect(destinationSummary(connectors[0])).toBe("Live query in workflows");
+    expect(destinationSummary(connectors[0])).not.toMatch(/Published as dataset/i);
   });
 
-  it("fails a test when host is empty or the display name is fail", fakeAsync(() => {
-    let emptyHost: { ok: boolean } | undefined;
-    service.testConnector({ name: "ok", appId: "postgresql", config: postgresConfig("  ") }).subscribe(result => {
-      emptyHost = result;
-    });
-    tick(MOCK_TEST_CONNECTION_MS - 1);
-    expect(emptyHost).toBeUndefined();
-    tick(1);
-    expect(emptyHost?.ok).toBe(false);
-
-    let failName: { ok: boolean; message: string } | undefined;
-    service.testConnector({ name: "fail", appId: "postgresql", config: postgresConfig() }).subscribe(result => {
-      failName = result;
-    });
-    tick(MOCK_TEST_CONNECTION_MS);
-    expect(failName?.ok).toBe(false);
-    expect(failName?.message).toMatch(/failed/i);
-  }));
-
-  it("succeeds after the mock delay and returns discovered schemas and tables", fakeAsync(() => {
-    let result: { ok: boolean; tables: { name: string }[]; schemas: string[] } | undefined;
-    service.testConnector({ name: "lab", appId: "postgresql", config: postgresConfig() }).subscribe(value => {
-      result = value;
-    });
-    tick(MOCK_TEST_CONNECTION_MS - 1);
-    expect(result).toBeUndefined();
-    tick(1);
-    expect(result?.ok).toBe(true);
-    expect(result?.schemas).toContain("public");
-    expect(result?.tables.map(table => table.name)).toContain("hourly_kwh");
-  }));
-
-  it("saves a connector without echoing the secret", async () => {
-    const created = await firstValueFrom(
-      service.createConnector(
-        createBody({
-          secret: "$POSTGRES_PASSWORD",
-          enabledTables: ["hourly_kwh"],
-        })
-      )
-    );
-    expect(created.id).toBe("lab-warehouse");
-    expect(created.status).toBe("active");
-    expect(created.hasSecret).toBe(true);
-    expect(JSON.stringify(created)).not.toContain("$POSTGRES_PASSWORD");
-    expect(created.tables.find(table => table.name === "hourly_kwh")?.enabled).toBe(true);
+  it("loads types from GET /api/connectors/types", async () => {
+    const pending = firstValueFrom(service.listConnectorTypes());
+    const req = httpMock.expectOne(`${API}/types`);
+    expect(req.request.method).toBe("GET");
+    req.flush([POSTGRES_TYPE]);
+    expect(await pending).toEqual([POSTGRES_TYPE]);
   });
 
-  it("rejects coming-soon apps", async () => {
-    await expect(
-      firstValueFrom(
-        service.createConnector(
-          createBody({
-            name: "sales",
-            appId: "salesforce",
-          })
-        )
-      )
-    ).rejects.toThrow(/salesforce/i);
+  it("creates with password in the body and never echoes it", async () => {
+    const pending = firstValueFrom(service.createConnector(createBody()));
+    const req = httpMock.expectOne(API);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual(createBody());
+    expect(req.request.body.password).toBe(SECRET);
+    req.flush(apiRow({ lastTestedAt: null, lastError: null }));
+    const created = await pending;
+    expect(created.id).toBe("7");
+    expect(created.name).toBe("lab-pg");
+    expect(JSON.stringify(created)).not.toContain(SECRET);
+    expect(created.config["password"]).toBeUndefined();
   });
 
-  it("marks a connector inactive on disconnect instead of deleting it", async () => {
-    const updated = await firstValueFrom(service.disconnectConnector("facilities-prod"));
-    expect(updated.status).toBe("inactive");
-    const listed = await firstValueFrom(service.listConnectors());
-    expect(listed.map(connector => connector.id)).toContain("facilities-prod");
+  it("POSTs create then test and returns the tested connector", async () => {
+    const pending = firstValueFrom(service.createAndTest(createBody()));
+    const createReq = httpMock.expectOne(API);
+    expect(createReq.request.method).toBe("POST");
+    createReq.flush(apiRow({ status: "active", lastTestedAt: null }));
+    const testReq = httpMock.expectOne(`${API}/7/test`);
+    expect(testReq.request.method).toBe("POST");
+    testReq.flush(apiRow({ status: "active", lastTestedAt: "2026-09-16T10:01:00Z" }));
+    const saved = await pending;
+    expect(saved.status).toBe("active");
+    expect(saved.lastTestedAt).toBe("2026-09-16T10:01:00Z");
+    expect(JSON.stringify(saved)).not.toContain(SECRET);
   });
 
-  it("keeps the last five test and ingest logs", fakeAsync(() => {
-    service
-      .testConnector({
-        name: "facilities-prod",
-        appId: "postgresql",
-        config: postgresConfig("db.facilities.internal"),
-        connectorId: "facilities-prod",
-      })
-      .subscribe();
-    tick(MOCK_TEST_CONNECTION_MS);
-    let logs: { kind: string }[] | undefined;
-    service.getConnector("facilities-prod").subscribe(connector => {
-      logs = connector.logs;
-    });
-    expect(logs?.length).toBeLessThanOrEqual(5);
-    expect(logs?.[0].kind).toBe("test");
-  }));
+  it("stays failed when POST test returns last_error and does not emit Active", async () => {
+    const pending = firstValueFrom(service.createAndTest(createBody()));
+    httpMock.expectOne(API).flush(apiRow({ status: "active", lastTestedAt: null }));
+    httpMock
+      .expectOne(`${API}/7/test`)
+      .flush(
+        { code: 400, message: "Could not connect to PostgreSQL: FATAL: database does not exist" },
+        { status: 400, statusText: "Bad Request" }
+      );
+    try {
+      await pending;
+      throw new Error("expected createAndTest to fail");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ConnectorTestError);
+      const failure = err as ConnectorTestError;
+      expect(failure.message).toMatch(/Could not connect to PostgreSQL/);
+      expect(failure.connector.id).toBe("7");
+      expect(failure.connector.status).toBe("error");
+    }
+  });
 
-  it("records a publish ingest log", async () => {
-    const updated = await firstValueFrom(service.publishConnector("facilities-prod"));
-    expect(updated.logs[0].kind).toBe("ingest");
+  it("tests an existing connector by id", async () => {
+    const pending = firstValueFrom(service.testConnector("7"));
+    const req = httpMock.expectOne(`${API}/7/test`);
+    expect(req.request.method).toBe("POST");
+    req.flush(apiRow({ status: "error", lastError: "timeout" }));
+    const result = await pending;
+    expect(result.status).toBe("error");
+    expect(result.lastError).toBe("timeout");
+  });
+
+  it("removes the connector via DELETE /api/connectors/{id}", async () => {
+    const pending = firstValueFrom(service.deleteConnector("7"));
+    const req = httpMock.expectOne(`${API}/7`);
+    expect(req.request.method).toBe("DELETE");
+    req.flush(null);
+    await pending;
+  });
+
+  it("lists table names from GET /api/connectors/{id}/tables", async () => {
+    const pending = firstValueFrom(service.listTables("7"));
+    const req = httpMock.expectOne(`${API}/7/tables`);
+    expect(req.request.method).toBe("GET");
+    req.flush(["buildings", "hourly_kwh"]);
+    expect(await pending).toEqual(["buildings", "hourly_kwh"]);
+  });
+
+  it("returns an empty list when GET /tables is not a string array", async () => {
+    const pending = firstValueFrom(service.listTables("7"));
+    httpMock.expectOne(`${API}/7/tables`).flush({ tables: ["buildings"] });
+    expect(await pending).toEqual([]);
+  });
+
+  it("finds a connector from the list by id", async () => {
+    const pending = firstValueFrom(service.getConnector("7"));
+    httpMock.expectOne(API).flush([apiRow()]);
+    expect((await pending).name).toBe("lab-pg");
   });
 });
 
 describe("connector catalog", () => {
-  it("lists Available JDBC apps and Coming soon apps without Airbyte", () => {
-    expect(CONNECTOR_APPS.filter(app => app.available).map(app => app.id)).toEqual([
+  it("keeps the marketing grid but only enables types returned by the API", () => {
+    expect(CONNECTOR_APPS.map(app => app.id)).toEqual([
       "postgresql",
       "mysql",
       "snowflake",
       "databricks",
       "s3",
-    ]);
-    expect(CONNECTOR_APPS.filter(app => !app.available).map(app => app.id)).toEqual([
       "bigquery",
       "redshift",
       "salesforce",
     ]);
+    expect(CONNECTOR_APPS.every(app => app.available === false)).toBe(true);
     expect(CONNECTOR_APPS.map(app => app.id).join(" ")).not.toMatch(/airbyte|fivetran/i);
-    expect(CONNECTOR_APPS.every(app => Boolean(app.icon))).toBe(true);
+
+    const merged = mergeConnectorApps([POSTGRES_TYPE, { ...POSTGRES_TYPE, id: 2, code: "mysql", displayName: "MySQL" }]);
+    expect(merged.filter(app => app.available).map(app => app.id)).toEqual(["postgresql", "mysql"]);
+    expect(merged.find(app => app.id === "postgresql")?.fieldsSchema?.fields.map(field => field.name)).toEqual([
+      "host",
+      "port",
+      "database",
+      "username",
+      "password",
+      "schema",
+    ]);
+    expect(merged.filter(app => !app.available).map(app => app.id)).toEqual([
+      "snowflake",
+      "databricks",
+      "s3",
+      "bigquery",
+      "redshift",
+      "salesforce",
+    ]);
+  });
+
+  it("strips secrets when mapping an API connector", () => {
+    const mapped = mapSavedConnector(
+      apiRow({
+        config: { host: "h", password: SECRET, secret_enc: "abc" },
+      })
+    );
+    expect(mapped.config).toEqual({ host: "h" });
+    expect(JSON.stringify(mapped)).not.toContain(SECRET);
   });
 });

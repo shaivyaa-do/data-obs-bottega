@@ -38,5 +38,7 @@ class WorkflowContext(
     var cuid: Option[Int] = None,
     // The Lakekeeper catalog name this execution writes into; becomes the `/wh/<name>`
     // URI segment. None routes to the shared default warehouse.
-    var warehouse: Option[String] = None
+    var warehouse: Option[String] = None,
+    // Owner of the compile/run request. Used to resolve saved JDBC connections.
+    var userId: Option[Int] = None
 )

@@ -27,147 +27,145 @@ export type ConnectorAppId =
   | "redshift"
   | "salesforce";
 
-export type ConnectorStatus = "active" | "connected" | "inactive" | "error" | "testing";
+export type ConnectorStatus = "active" | "error" | "disabled" | "testing";
 
 export type DestinationMode = "live" | "dataset" | "both";
 
-export type ConnectorEnvironment = "prod" | "staging";
+export interface ConnectorFieldSchema {
+  name: string;
+  label: string;
+  type: string;
+  required?: boolean;
+  secret?: boolean;
+  default?: string;
+}
+
+export interface ConnectorFieldsSchema {
+  fields: ConnectorFieldSchema[];
+}
+
+export interface ConnectorType {
+  id: number;
+  code: string;
+  displayName: string;
+  fieldsSchema: ConnectorFieldsSchema;
+}
 
 export interface ConnectorApp {
   id: ConnectorAppId;
+  /** Backend `data_connector.code` (postgres), which may differ from the UI id (postgresql). */
+  code: string;
   name: string;
   shortName: string;
   description: string;
   available: boolean;
   icon: string;
+  fieldsSchema?: ConnectorFieldsSchema;
 }
-
-export interface RemoteTable {
-  name: string;
-  schema?: string;
-  enabled: boolean;
-}
-
-export interface DestinationConfig {
-  mode: DestinationMode;
-  datasetName?: string;
-  folder?: string;
-  selectOrTable?: string;
-  rowLimit?: number;
-}
-
-export interface ConnectorLog {
-  at: string;
-  kind: "test" | "ingest";
-  ok: boolean;
-  message: string;
-}
-
-export interface PostgresMysqlConfig {
-  host: string;
-  port: number;
-  database: string;
-  username: string;
-  ssl: boolean;
-  schema?: string;
-  defaultTable?: string;
-}
-
-export interface SnowflakeConfig {
-  account: string;
-  warehouse: string;
-  database: string;
-  schema: string;
-  role: string;
-  user: string;
-}
-
-export interface DatabricksConfig {
-  workspaceUrl: string;
-  httpPath: string;
-  catalog: string;
-  schema: string;
-}
-
-export interface S3Config {
-  bucket: string;
-  region: string;
-  accessKey: string;
-  prefix?: string;
-}
-
-export type ConnectionConfig = PostgresMysqlConfig | SnowflakeConfig | DatabricksConfig | S3Config;
 
 export interface SavedConnector {
   id: string;
   name: string;
-  description: string;
-  environment: ConnectorEnvironment;
-  appId: ConnectorAppId;
   status: ConnectorStatus;
+  connectorCode: string;
+  connectorDisplayName: string;
+  config: Record<string, unknown>;
   lastTestedAt: string | null;
-  createdBy: string;
-  createdAt: string;
-  destination: DestinationConfig;
-  tables: RemoteTable[];
-  config: ConnectionConfig;
-  hasSecret: boolean;
-  logs: ConnectorLog[];
+  lastError: string | null;
 }
 
-export interface TestConnectorRequest {
+export interface SavedConnectorResponse {
+  id: number;
   name: string;
-  appId: ConnectorAppId;
-  config: ConnectionConfig;
-  /** Never persisted on SavedConnector. */
-  secret?: string;
-  connectorId?: string;
-}
-
-export interface TestConnectorResult {
-  ok: boolean;
-  message: string;
-  tables: RemoteTable[];
-  databases: string[];
-  schemas: string[];
+  status: string;
+  connectorCode: string;
+  connectorDisplayName: string;
+  config?: Record<string, unknown> | null;
+  lastTestedAt?: string | null;
+  lastError?: string | null;
 }
 
 export interface CreateConnectorRequest {
   name: string;
-  description?: string;
-  environment: ConnectorEnvironment;
-  appId: ConnectorAppId;
-  config: ConnectionConfig;
-  secret?: string;
-  destination: DestinationConfig;
-  enabledTables?: string[];
+  connectorCode: string;
+  host: string;
+  port: number | string;
+  database: string;
+  username: string;
+  schema?: string;
+  password: string;
 }
 
 export interface UpdateConnectorRequest {
   name?: string;
-  description?: string;
-  environment?: ConnectorEnvironment;
-  config?: ConnectionConfig;
-  secret?: string;
-  destination?: DestinationConfig;
-  enabledTables?: string[];
-  status?: ConnectorStatus;
+  host?: string;
+  port?: number | string;
+  database?: string;
+  username?: string;
+  schema?: string;
+  password?: string;
 }
+
+const SECRET_CONFIG_KEYS = new Set(["password", "secret", "secret_enc"]);
 
 export function isActiveStatus(status: ConnectorStatus): boolean {
-  return status === "active" || status === "connected";
+  return status === "active";
 }
 
-export function destinationSummary(connector: SavedConnector): string {
-  if (connector.destination.mode === "live") {
-    return "Live query in workflows";
+export function statusLabel(status: ConnectorStatus): string {
+  if (status === "active") {
+    return "Active";
   }
-  const path = [connector.destination.folder, connector.destination.datasetName].filter(Boolean).join(" / ");
-  const published = path ? `Published as dataset · ${path}` : "Published as dataset";
-  if (connector.destination.mode === "both") {
-    return `Live query + ${published.charAt(0).toLowerCase()}${published.slice(1)}`;
+  if (status === "error") {
+    return "Error";
   }
-  return published;
+  if (status === "testing") {
+    return "Testing";
+  }
+  return "Disabled";
+}
+
+export function normalizeConnectorStatus(raw: string | null | undefined): ConnectorStatus {
+  const value = (raw ?? "").toLowerCase();
+  if (value === "active" || value === "connected") {
+    return "active";
+  }
+  if (value === "error") {
+    return "error";
+  }
+  if (value === "testing") {
+    return "testing";
+  }
+  return "disabled";
+}
+
+export function stripSecretConfig(config: Record<string, unknown> | null | undefined): Record<string, unknown> {
+  const next: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(config ?? {})) {
+    if (SECRET_CONFIG_KEYS.has(key.toLowerCase())) {
+      continue;
+    }
+    next[key] = value;
+  }
+  return next;
+}
+
+export function mapSavedConnector(raw: SavedConnectorResponse): SavedConnector {
+  return {
+    id: String(raw.id),
+    name: raw.name,
+    status: normalizeConnectorStatus(raw.status),
+    connectorCode: raw.connectorCode,
+    connectorDisplayName: raw.connectorDisplayName,
+    config: stripSecretConfig(raw.config),
+    lastTestedAt: raw.lastTestedAt ?? null,
+    lastError: raw.lastError ?? null,
+  };
+}
+
+/** v1 connections are live-query JDBC. Do not invent a published dataset line. */
+export function destinationSummary(_connector: SavedConnector): string {
+  return "Live query in workflows";
 }
 
 export function connectedToast(app: ConnectorApp, name: string): string {

@@ -33,6 +33,9 @@ const EnvSchema = z.object({
   WORKFLOW_COMPILING_SERVICE_ENDPOINT: z.string().url().default("http://localhost:9090"),
   WORKFLOW_EXECUTION_SERVICE_ENDPOINT: z.string().url().default("http://localhost:8085"),
   EXECUTION_ENDPOINT_TEMPLATE: z.string().optional(),
+  STORAGE_JDBC_URL: z.string().min(1).optional(),
+  STORAGE_JDBC_USERNAME: z.string().default("texera"),
+  STORAGE_JDBC_PASSWORD: z.string().default("password"),
 });
 
 export const env = EnvSchema.parse(process.env);

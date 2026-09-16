@@ -21,6 +21,7 @@ package org.apache.texera.service
 
 import org.apache.texera.auth.RoleAnnotationEnforcer
 import org.apache.texera.service.resource.{
+  ConnectorResource,
   DatasetAccessResource,
   DatasetResource,
   HealthCheckResource,
@@ -40,7 +41,8 @@ class FileServiceRunSpec extends AnyFlatSpec with Matchers {
         classOf[DatasetAccessResource],
         classOf[ModelResource],
         classOf[ModelAccessResource],
-        classOf[HealthCheckResource]
+        classOf[HealthCheckResource],
+        classOf[ConnectorResource]
       )
     ) shouldBe empty
   }

@@ -17,236 +17,132 @@
  * under the License.
  */
 
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, of, throwError } from "rxjs";
-import { delay, map } from "rxjs/operators";
+import { Observable, throwError } from "rxjs";
+import { catchError, map, switchMap } from "rxjs/operators";
+import { AppSettings } from "../../../../common/app-setting";
 import {
-  ConnectorLog,
+  ConnectorType,
   CreateConnectorRequest,
-  RemoteTable,
+  mapSavedConnector,
   SavedConnector,
-  TestConnectorRequest,
-  TestConnectorResult,
+  SavedConnectorResponse,
   UpdateConnectorRequest,
 } from "../../../type/connector";
-import {
-  AVAILABLE_CONNECTOR_IDS,
-  cloneSeedConnectors,
-  MOCK_DISCOVERED_DATABASES,
-  MOCK_DISCOVERED_SCHEMAS,
-  MOCK_REMOTE_TABLES,
-} from "./mock-connectors";
 
-/**
- * Product-shell connectors API. There is no warehouse backend yet — every
- * method is an in-memory stand-in for:
- *   GET    /connectors
- *   POST   /connectors
- *   POST   /connectors/:id/test
- *   GET    /connectors/:id/tables
- *   PATCH  /connectors/:id
- *   DELETE /connectors/:id
- *   POST   /connectors/:id/publish
- *
- * Secrets stay in `secretsById` and are never copied onto SavedConnector.
- */
-export const MOCK_TEST_CONNECTION_MS = 800;
+export const CONNECTORS_BASE_URL = "connectors";
+
+export class ConnectorTestError extends Error {
+  constructor(
+    message: string,
+    readonly connector: SavedConnector
+  ) {
+    super(message);
+    this.name = "ConnectorTestError";
+  }
+}
 
 @Injectable({
   providedIn: "root",
 })
 export class ConnectorService {
-  private connectors: SavedConnector[] = cloneSeedConnectors();
-  private secretsById = new Map<string, string>([["facilities-prod", "$POSTGRES_PASSWORD"]]);
+  constructor(private http: HttpClient) {}
+
+  listConnectorTypes(): Observable<ConnectorType[]> {
+    return this.http.get<ConnectorType[]>(this.url("types"));
+  }
 
   listConnectors(): Observable<SavedConnector[]> {
-    return of(this.snapshot());
+    return this.http.get<SavedConnectorResponse[]>(this.url()).pipe(map(rows => rows.map(mapSavedConnector)));
   }
 
   getConnector(id: string): Observable<SavedConnector> {
-    const found = this.connectors.find(connector => connector.id === id);
-    if (!found) {
-      return throwError(() => new Error(`Unknown connector "${id}"`));
-    }
-    return of(structuredClone(found));
-  }
-
-  createConnector(request: CreateConnectorRequest): Observable<SavedConnector> {
-    if (!AVAILABLE_CONNECTOR_IDS.includes(request.appId)) {
-      return throwError(() => new Error(`Cannot save connector type "${request.appId}"`));
-    }
-    const id = this.slug(request.name);
-    const tables = MOCK_REMOTE_TABLES.map(table => ({
-      ...table,
-      enabled: (request.enabledTables ?? []).includes(table.name),
-    }));
-    const saved: SavedConnector = {
-      id,
-      name: request.name.trim(),
-      description: request.description?.trim() ?? "",
-      environment: request.environment,
-      appId: request.appId,
-      status: "active",
-      lastTestedAt: new Date().toISOString(),
-      createdBy: "admin",
-      createdAt: new Date().toISOString(),
-      destination: structuredClone(request.destination),
-      tables,
-      config: structuredClone(request.config),
-      hasSecret: Boolean(request.secret),
-      logs: [
-        {
-          at: new Date().toISOString(),
-          kind: "test",
-          ok: true,
-          message: "Connected.",
-        },
-      ],
-    };
-    this.connectors = [...this.connectors.filter(connector => connector.id !== id), saved];
-    if (request.secret) {
-      this.secretsById.set(id, request.secret);
-    }
-    return of(structuredClone(saved));
-  }
-
-  testConnector(request: TestConnectorRequest): Observable<TestConnectorResult> {
-    return of(request).pipe(
-      delay(MOCK_TEST_CONNECTION_MS),
-      map(payload => this.evaluateTest(payload))
+    return this.listConnectors().pipe(
+      map(connectors => {
+        const found = connectors.find(connector => connector.id === id);
+        if (!found) {
+          throw new Error(`Unknown connector "${id}"`);
+        }
+        return found;
+      })
     );
   }
 
-  listTables(id: string): Observable<RemoteTable[]> {
-    return this.getConnector(id).pipe(map(connector => structuredClone(connector.tables)));
+  createConnector(request: CreateConnectorRequest): Observable<SavedConnector> {
+    return this.http.post<SavedConnectorResponse>(this.url(), request).pipe(map(mapSavedConnector));
   }
 
   updateConnector(id: string, patch: UpdateConnectorRequest): Observable<SavedConnector> {
-    const index = this.connectors.findIndex(connector => connector.id === id);
-    if (index === -1) {
-      return throwError(() => new Error(`Unknown connector "${id}"`));
-    }
-    const current = this.connectors[index];
-    const tables = patch.enabledTables
-      ? current.tables.map(table => ({ ...table, enabled: patch.enabledTables!.includes(table.name) }))
-      : current.tables;
-    const updated: SavedConnector = {
-      ...current,
-      name: patch.name?.trim() ?? current.name,
-      description: patch.description !== undefined ? patch.description.trim() : current.description,
-      environment: patch.environment ?? current.environment,
-      config: patch.config ? structuredClone(patch.config) : current.config,
-      destination: patch.destination ? structuredClone(patch.destination) : current.destination,
-      status: patch.status ?? current.status,
-      tables,
-      hasSecret: patch.secret ? true : current.hasSecret,
-    };
-    this.connectors = [...this.connectors.slice(0, index), updated, ...this.connectors.slice(index + 1)];
-    if (patch.secret) {
-      this.secretsById.set(id, patch.secret);
-    }
-    return of(structuredClone(updated));
+    return this.http.patch<SavedConnectorResponse>(this.url(id), patch).pipe(map(mapSavedConnector));
+  }
+
+  testConnector(id: string): Observable<SavedConnector> {
+    return this.http.post<SavedConnectorResponse>(this.url(id, "test"), {}).pipe(
+      map(mapSavedConnector),
+      catchError((err: unknown) => throwError(() => new Error(connectorErrorMessage(err))))
+    );
+  }
+
+  /**
+   * POST /connectors then POST /connectors/{id}/test.
+   * Test failure does not emit a successful (Active) connector.
+   */
+  createAndTest(request: CreateConnectorRequest): Observable<SavedConnector> {
+    return this.createConnector(request).pipe(
+      switchMap(created =>
+        this.testConnector(created.id).pipe(
+          catchError((err: unknown) => {
+            const message = err instanceof Error ? err.message : connectorErrorMessage(err);
+            return throwError(
+              () =>
+                new ConnectorTestError(message, {
+                  ...created,
+                  status: "error",
+                  lastError: message,
+                })
+            );
+          })
+        )
+      )
+    );
   }
 
   deleteConnector(id: string): Observable<void> {
-    this.connectors = this.connectors.filter(connector => connector.id !== id);
-    this.secretsById.delete(id);
-    return of(undefined);
+    return this.http.delete(this.url(id)).pipe(map(() => undefined));
   }
 
-  publishConnector(id: string): Observable<SavedConnector> {
-    return this.appendLog(id, {
-      at: new Date().toISOString(),
-      kind: "ingest",
-      ok: true,
-      message: "Published sample into the dataset catalog.",
-    });
-  }
-
-  disconnectConnector(id: string): Observable<SavedConnector> {
-    return this.updateConnector(id, { status: "inactive" });
-  }
-
-  private evaluateTest(request: TestConnectorRequest): TestConnectorResult {
-    const host = this.hostOf(request.config);
-    const failed = !host.trim() || request.name.trim().toLowerCase() === "fail";
-    const result: TestConnectorResult = failed
-      ? {
-          ok: false,
-          message: "Connection failed. Check host and display name.",
-          tables: [],
-          databases: [],
-          schemas: [],
+  listTables(id: string): Observable<string[]> {
+    return this.http.get<unknown>(this.url(id, "tables")).pipe(
+      map(body => {
+        if (!Array.isArray(body)) {
+          return [];
         }
-      : {
-          ok: true,
-          message: "Connected. Mock catalog only — no warehouse was contacted.",
-          tables: MOCK_REMOTE_TABLES.map(table => ({ ...table })),
-          databases: [...MOCK_DISCOVERED_DATABASES],
-          schemas: [...MOCK_DISCOVERED_SCHEMAS],
-        };
-    if (request.connectorId) {
-      const index = this.connectors.findIndex(connector => connector.id === request.connectorId);
-      if (index !== -1) {
-        const current = this.connectors[index];
-        const log: ConnectorLog = {
-          at: new Date().toISOString(),
-          kind: "test",
-          ok: !failed,
-          message: result.message,
-        };
-        const updated: SavedConnector = {
-          ...current,
-          status: failed ? "error" : "active",
-          lastTestedAt: log.at,
-          tables: failed
-            ? current.tables
-            : result.tables.map(table => ({
-                ...table,
-                enabled: current.tables.find(existing => existing.name === table.name)?.enabled ?? false,
-              })),
-          logs: [log, ...current.logs].slice(0, 5),
-        };
-        this.connectors = [...this.connectors.slice(0, index), updated, ...this.connectors.slice(index + 1)];
-      }
-    }
-    return result;
+        return body.filter((name): name is string => typeof name === "string" && name.trim() !== "");
+      })
+    );
   }
 
-  private appendLog(id: string, log: ConnectorLog): Observable<SavedConnector> {
-    const index = this.connectors.findIndex(connector => connector.id === id);
-    if (index === -1) {
-      return throwError(() => new Error(`Unknown connector "${id}"`));
-    }
-    const current = this.connectors[index];
-    const updated = { ...current, logs: [log, ...current.logs].slice(0, 5) };
-    this.connectors = [...this.connectors.slice(0, index), updated, ...this.connectors.slice(index + 1)];
-    return of(structuredClone(updated));
+  private url(...parts: string[]): string {
+    return [AppSettings.getApiEndpoint(), CONNECTORS_BASE_URL, ...parts].join("/");
   }
+}
 
-  private hostOf(config: SavedConnector["config"]): string {
-    if ("host" in config) {
-      return config.host;
+export function connectorErrorMessage(err: unknown): string {
+  if (err instanceof HttpErrorResponse) {
+    const body = err.error;
+    if (typeof body === "string" && body.trim()) {
+      return body;
     }
-    if ("account" in config) {
-      return config.account;
+    if (body && typeof body === "object" && typeof (body as { message?: unknown }).message === "string") {
+      return (body as { message: string }).message;
     }
-    if ("workspaceUrl" in config) {
-      return config.workspaceUrl;
+    if (err.message) {
+      return err.message;
     }
-    return config.bucket;
   }
-
-  private snapshot(): SavedConnector[] {
-    return structuredClone(this.connectors);
+  if (err instanceof Error && err.message) {
+    return err.message;
   }
-
-  private slug(name: string): string {
-    const base = name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    return base || `connector-${this.connectors.length + 1}`;
-  }
+  return "Request failed.";
 }

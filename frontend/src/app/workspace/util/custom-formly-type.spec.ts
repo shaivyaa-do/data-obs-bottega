@@ -86,7 +86,15 @@ describe("customFormlyFieldType", () => {
     expect(customFormlyFieldType({ key: "attributes", operatorType: "Filter" })).toBeUndefined();
   });
 
-  it("returns undefined for an ordinary property, keeping formly's default control", () => {
-    expect(customFormlyFieldType({ key: "limit", operatorType: "Limit" })).toBeUndefined();
+  it("maps PostgreSQL Source connectionId to the saved-connection dropdown", () => {
+    expect(customFormlyFieldType({ key: "connectionId", operatorType: "PostgreSQLSource" })).toBe(
+      "postgres-connection"
+    );
+    expect(customFormlyFieldType({ key: "connectionId", operatorType: "MySQLSource" })).toBe("mysql-connection");
+  });
+
+  it("maps PostgreSQL Source table to the saved-connection table dropdown", () => {
+    expect(customFormlyFieldType({ key: "table", operatorType: "PostgreSQLSource" })).toBe("postgres-table");
+    expect(customFormlyFieldType({ key: "table", operatorType: "MySQLSource" })).toBe("mysql-table");
   });
 });

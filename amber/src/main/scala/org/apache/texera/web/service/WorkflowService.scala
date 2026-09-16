@@ -233,6 +233,7 @@ class WorkflowService(
     )
 
     val workflowContext: WorkflowContext = createWorkflowContext()
+    workflowContext.userId = Some(uid.intValue())
     workflowContext.warehouse = WorkflowService.resolveLakekeeperWarehouseName(req.warehouseId, uid)
     var coordinatorConf = CoordinatorConfig.default
 

@@ -22,8 +22,10 @@
     cdkDrag
     (cdkDragStarted)="dragStarted()"
     (cdkDragDropped)="dragDropped($event.dropPoint)"
+    (click)="onClick($event)"
     [ngClass]="{'disable-drag-drop': !draggable}"
     class="operator-label"
+    role="button"
     title="{{ operator?.additionalMetadata?.operatorDescription }}">
     <span class="text"> {{ operator?.additionalMetadata?.userFriendlyName }} </span>
     <div

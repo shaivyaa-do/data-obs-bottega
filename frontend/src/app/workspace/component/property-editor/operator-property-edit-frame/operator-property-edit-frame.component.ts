@@ -39,6 +39,13 @@ import {
 } from "../../../types/custom-json-schema.interface";
 import { isDefined } from "../../../../common/util/predicate";
 import { customFormlyFieldType, NON_FORM_FIELD_TYPES } from "../../../util/custom-formly-type";
+import {
+  isLegacyPostgresSource,
+  MYSQL_SOURCE_OPERATOR_TYPE,
+  POSTGRES_JDBC_PROPERTY_KEYS,
+  POSTGRES_SOURCE_OPERATOR_TYPE,
+  sanitizePostgresSourceProperties,
+} from "../../../util/postgres-source-properties";
 import { ExecutionState, OperatorState, OperatorStatistics } from "src/app/workspace/types/execute-workflow.interface";
 import { DynamicSchemaService } from "../../../service/dynamic-schema/dynamic-schema.service";
 import { WorkflowCompilingService } from "../../../service/compile-workflow/workflow-compiling.service";
@@ -786,7 +793,12 @@ export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, On
       if (this.currentOperatorId) {
         this.listeningToChange = false;
         this.typeInferenceOnLambdaFunction(formData);
-        this.workflowActionService.setOperatorProperty(this.currentOperatorId, cloneDeep(formData));
+        const operatorType = this.currentOperatorSchema?.operatorType;
+        const properties =
+          operatorType === POSTGRES_SOURCE_OPERATOR_TYPE || operatorType === MYSQL_SOURCE_OPERATOR_TYPE
+            ? sanitizePostgresSourceProperties(formData as Record<string, unknown>)
+            : cloneDeep(formData);
+        this.workflowActionService.setOperatorProperty(this.currentOperatorId, properties);
         this.listeningToChange = true;
       }
     });
@@ -918,6 +930,19 @@ export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, On
       });
       if (customType) {
         mappedField.type = customType;
+      }
+
+      if (
+        (this.currentOperatorSchema?.operatorType === POSTGRES_SOURCE_OPERATOR_TYPE ||
+          this.currentOperatorSchema?.operatorType === MYSQL_SOURCE_OPERATOR_TYPE) &&
+        typeof mappedField.key === "string" &&
+        (POSTGRES_JDBC_PROPERTY_KEYS as readonly string[]).includes(mappedField.key)
+      ) {
+        mappedField.props = { ...mappedField.props, required: false };
+        mappedField.expressions = {
+          ...mappedField.expressions,
+          hide: () => !isLegacyPostgresSource(this.formData as Record<string, unknown>),
+        };
       }
 
       if (mappedField.key === "task" && this.currentOperatorSchema?.operatorType === "HuggingFace") {

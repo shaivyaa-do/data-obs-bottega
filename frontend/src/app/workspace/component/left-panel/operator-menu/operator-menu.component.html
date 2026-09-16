@@ -33,7 +33,9 @@
       [nzValue]="option"
       [nzLabel]="option.additionalMetadata.userFriendlyName"
       [nzDisabled]="! canModify">
-      <texera-operator-label [operator]="option"></texera-operator-label>
+      <texera-operator-label
+        [operator]="option"
+        [clickAddsToCanvas]="false"></texera-operator-label>
     </nz-auto-option>
   </nz-autocomplete>
 </div>

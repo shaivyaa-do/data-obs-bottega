@@ -183,7 +183,8 @@ abstract class SQLSourceOpDesc extends SourceOperatorDescriptor {
           case Types.FLOAT | // 6 Types.FLOAT
               Types.REAL | // 7 Types.REAL
               Types.DOUBLE | // 8 Types.DOUBLE
-              Types.NUMERIC => // 3 Types.NUMERIC
+              Types.NUMERIC | // 2 Types.NUMERIC
+              Types.DECIMAL => // 3 Types.DECIMAL
             AttributeType.DOUBLE
           case Types.BIT | // -7 Types.BIT
               Types.BOOLEAN => // 16 Types.BOOLEAN

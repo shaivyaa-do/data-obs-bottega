@@ -158,6 +158,14 @@ class AttributeTypeUtilsSpec extends AnyFunSuite {
     }
   }
 
+  test("parseField to DOUBLE accepts JDBC NUMERIC BigDecimal values") {
+    // PostgreSQL NUMERIC/DECIMAL arrives from JDBC as BigDecimal, and SQL sources
+    // map those columns to DOUBLE. Value 80 is the exact failure from buildings.
+    assert(parseField(new java.math.BigDecimal("80"), DOUBLE) == 80.0d)
+    assert(parseField(new java.math.BigDecimal("80.5"), DOUBLE) == 80.5d)
+    assert(parseField(java.lang.Float.valueOf(1.25f), DOUBLE) == 1.25d)
+  }
+
   test("parseField correctly parses to BOOLEAN") {
     assert(parseField("true", AttributeType.BOOLEAN) == true)
     assert(parseField("True", AttributeType.BOOLEAN) == true)

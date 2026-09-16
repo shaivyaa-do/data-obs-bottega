@@ -73,6 +73,51 @@ describe("OperatorLabelComponent", () => {
     expect(element.textContent?.trim()).toEqual(mockOperatorData.additionalMetadata.userFriendlyName);
   });
 
+  describe("click to add", () => {
+    it("places the operator on the canvas at the default point when the label is clicked", () => {
+      const workflowActionService = TestBed.inject(WorkflowActionService);
+      vi.spyOn(workflowActionService.getJointGraphWrapper(), "getMainJointPaper").mockReturnValue(undefined as never);
+      const addOperator = vi.spyOn(workflowActionService, "addOperator");
+
+      fixture.debugElement.query(By.css(".operator-label")).nativeElement.click();
+
+      expect(addOperator).toHaveBeenCalledTimes(1);
+      expect(addOperator.mock.calls[0][0].operatorType).toBe(mockOperatorData.operatorType);
+      expect(addOperator.mock.calls[0][1]).toEqual({ x: 400, y: 200 });
+    });
+
+    it("does not place an operator while the workflow is read-only", () => {
+      const addOperator = vi.spyOn(TestBed.inject(WorkflowActionService), "addOperator");
+      TestBed.inject(WorkflowActionService).disableWorkflowModification();
+      fixture.detectChanges();
+
+      fixture.debugElement.query(By.css(".operator-label")).nativeElement.click();
+
+      expect(addOperator).not.toHaveBeenCalled();
+    });
+
+    it("does not place an operator when click-to-add is disabled (search suggestions)", () => {
+      const addOperator = vi.spyOn(TestBed.inject(WorkflowActionService), "addOperator");
+      component.clickAddsToCanvas = false;
+      fixture.detectChanges();
+
+      fixture.debugElement.query(By.css(".operator-label")).nativeElement.click();
+
+      expect(addOperator).not.toHaveBeenCalled();
+    });
+
+    it("does not place a second operator from the leftover click after a drag", () => {
+      const addOperator = vi.spyOn(TestBed.inject(WorkflowActionService), "addOperator");
+      const cdkDrag = fixture.debugElement.query(By.directive(CdkDrag)).injector.get(CdkDrag);
+      vi.spyOn(TestBed.inject(DragDropService), "dragDropped").mockImplementation(() => {});
+
+      cdkDrag.dropped.emit({ dropPoint: { x: 137, y: 421 } } as unknown as CdkDragDrop<unknown>);
+      fixture.debugElement.query(By.css(".operator-label")).nativeElement.click();
+
+      expect(addOperator).not.toHaveBeenCalled();
+    });
+  });
+
   /**
    * Dragging a label onto the canvas is the whole point of this component, and both of its handlers
    * ran uncounted: the suite above only renders the label. These drive the two CdkDrag outputs the

@@ -27,18 +27,26 @@ import org.apache.texera.amber.operator.hashJoin.HashJoinOpDesc
 import org.apache.texera.amber.operator.keywordSearch.KeywordSearchOpDesc
 import org.apache.texera.amber.operator.source.scan.csv.CSVScanSourceOpDesc
 import org.apache.texera.amber.operator.source.scan.json.JSONLScanSourceOpDesc
+import org.apache.texera.amber.operator.source.sql.mysql.MySQLSourceOpDesc
+import org.apache.texera.amber.operator.source.sql.postgresql.PostgreSQLSourceOpDesc
 import org.apache.texera.amber.operator.split.SplitOpDesc
 import org.apache.texera.amber.operator.udf.python.DualInputPortsPythonUDFOpDescV2
 import org.apache.texera.amber.operator.udf.python.source.PythonUDFSourceOpDescV2
 import org.apache.texera.amber.operator.union.UnionOpDesc
 import org.apache.texera.amber.operator.{LogicalOp, TestOperators}
 import org.apache.texera.common.compiler.model.{LogicalLink, LogicalPlan, LogicalPlanPojo}
+import org.apache.texera.common.compiler.mysql.{MysqlConnectionLookup, MysqlJdbcCredentials}
+import org.apache.texera.common.compiler.postgres.{
+  PostgresConnectionLookup,
+  PostgresJdbcCredentials
+}
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
-class LogicalPlanSpec extends AnyFlatSpec {
+class LogicalPlanSpec extends AnyFlatSpec with Matchers {
 
   // ---------------------------------------------------------------------------
   // Fixtures
@@ -340,5 +348,171 @@ class LogicalPlanSpec extends AnyFlatSpec {
     val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
     plan.resolveScanSourceOpFileName(Some(errors))
     assert(errors.isEmpty)
+  }
+
+  // ---------------------------------------------------------------------------
+  // resolvePostgresConnections
+  // ---------------------------------------------------------------------------
+
+  private def postgresWithConnection(id: String = "7"): PostgreSQLSourceOpDesc = {
+    val op = new PostgreSQLSourceOpDesc
+    op.connectionId = id
+    op.table = "facilities"
+    op
+  }
+
+  private val stubCreds = PostgresJdbcCredentials(
+    host = "db.internal",
+    port = "5432",
+    database = "analytics",
+    username = "analyst",
+    password = "hunter2"
+  )
+
+  private def stubLookup(
+      credsById: Map[String, PostgresJdbcCredentials] = Map("7" -> stubCreds)
+  ): PostgresConnectionLookup =
+    (uid: Int, connectionId: String) => {
+      assert(uid == 9)
+      credsById.getOrElse(
+        connectionId,
+        throw new IllegalArgumentException(PostgresConnectionLookup.AddConnectionMessage)
+      )
+    }
+
+  "LogicalPlan.resolvePostgresConnections" should
+    "fill JDBC fields from the lookup without storing them on a missing connectionId" in {
+    val op = postgresWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    plan.resolvePostgresConnections(Some(9), Some(errors), Some(stubLookup()))
+    assert(errors.isEmpty)
+    op.host shouldBe "db.internal"
+    op.port shouldBe "5432"
+    op.database shouldBe "analytics"
+    op.username shouldBe "analyst"
+    op.password shouldBe "hunter2"
+    op.connectionId shouldBe "7"
+    op.table shouldBe "facilities"
+  }
+
+  it should "collect an error when the current user is missing" in {
+    val op = postgresWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    plan.resolvePostgresConnections(None, Some(errors), Some(stubLookup()))
+    assert(errors.size == 1)
+    assert(errors.head._1 == op.operatorIdentifier)
+    assert(errors.head._2.getMessage == PostgreSQLSourceOpDesc.AddConnectionMessage)
+    assert(op.password == null)
+  }
+
+  it should "rethrow when no errorList is provided" in {
+    val op = postgresWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    intercept[IllegalArgumentException] {
+      plan.resolvePostgresConnections(None, None, Some(stubLookup()))
+    }.getMessage shouldBe PostgreSQLSourceOpDesc.AddConnectionMessage
+  }
+
+  it should "leave a legacy PostgreSQL Source with host/password and no connectionId untouched" in {
+    val op = new PostgreSQLSourceOpDesc
+    op.host = "legacy.internal"
+    op.port = "5432"
+    op.database = "old"
+    op.username = "user"
+    op.password = "plaintext"
+    op.table = "t"
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    var lookedUp = false
+    val lookup: PostgresConnectionLookup = (_, _) => {
+      lookedUp = true
+      stubCreds
+    }
+    plan.resolvePostgresConnections(Some(9), Some(errors), Some(lookup))
+    assert(errors.isEmpty)
+    assert(!lookedUp)
+    op.host shouldBe "legacy.internal"
+    op.password shouldBe "plaintext"
+  }
+
+  // ---------------------------------------------------------------------------
+  // resolveMysqlConnections
+  // ---------------------------------------------------------------------------
+
+  private def mysqlWithConnection(id: String = "8"): MySQLSourceOpDesc = {
+    val op = new MySQLSourceOpDesc
+    op.connectionId = id
+    op.table = "orders"
+    op
+  }
+
+  private val mysqlStubCreds = MysqlJdbcCredentials(
+    host = "mysql.internal",
+    port = "3306",
+    database = "shop",
+    username = "reader",
+    password = "hunter2"
+  )
+
+  private def mysqlStubLookup(
+      credsById: Map[String, MysqlJdbcCredentials] = Map("8" -> mysqlStubCreds)
+  ): MysqlConnectionLookup =
+    (uid: Int, connectionId: String) => {
+      assert(uid == 9)
+      credsById.getOrElse(
+        connectionId,
+        throw new IllegalArgumentException(MysqlConnectionLookup.AddConnectionMessage)
+      )
+    }
+
+  "LogicalPlan.resolveMysqlConnections" should
+    "fill JDBC fields from the lookup without storing them on a missing connectionId" in {
+    val op = mysqlWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    plan.resolveMysqlConnections(Some(9), Some(errors), Some(mysqlStubLookup()))
+    assert(errors.isEmpty)
+    op.host shouldBe "mysql.internal"
+    op.port shouldBe "3306"
+    op.database shouldBe "shop"
+    op.username shouldBe "reader"
+    op.password shouldBe "hunter2"
+    op.connectionId shouldBe "8"
+    op.table shouldBe "orders"
+  }
+
+  it should "collect an error when the current user is missing" in {
+    val op = mysqlWithConnection()
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    plan.resolveMysqlConnections(None, Some(errors), Some(mysqlStubLookup()))
+    assert(errors.size == 1)
+    assert(errors.head._1 == op.operatorIdentifier)
+    assert(errors.head._2.getMessage == MySQLSourceOpDesc.AddConnectionMessage)
+    assert(op.password == null)
+  }
+
+  it should "leave a legacy MySQL Source with host/password and no connectionId untouched" in {
+    val op = new MySQLSourceOpDesc
+    op.host = "legacy.internal"
+    op.port = "3306"
+    op.database = "old"
+    op.username = "user"
+    op.password = "plaintext"
+    op.table = "t"
+    val plan = LogicalPlan(List(op), List.empty)
+    val errors = ArrayBuffer.empty[(OperatorIdentity, Throwable)]
+    var lookedUp = false
+    val lookup: MysqlConnectionLookup = (_, _) => {
+      lookedUp = true
+      mysqlStubCreds
+    }
+    plan.resolveMysqlConnections(Some(9), Some(errors), Some(lookup))
+    assert(errors.isEmpty)
+    assert(!lookedUp)
+    op.host shouldBe "legacy.internal"
+    op.password shouldBe "plaintext"
   }
 }

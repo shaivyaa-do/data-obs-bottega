@@ -684,6 +684,8 @@ _require_host_lan_ip() {
 export STORAGE_JDBC_URL="${STORAGE_JDBC_URL:-jdbc:postgresql://localhost:5432/texera_db?currentSchema=texera_db,public}"
 export STORAGE_JDBC_USERNAME="${STORAGE_JDBC_USERNAME:-texera}"
 export STORAGE_JDBC_PASSWORD="${STORAGE_JDBC_PASSWORD:-password}"
+# AES-GCM key for saved connector passwords. Override in non-dev deployments.
+export CONNECTOR_SECRET_KEY="${CONNECTOR_SECRET_KEY:-texera-local-dev-connector-secret}"
 # STORAGE_S3_ENDPOINT is set lazily by _require_host_lan_ip — only the
 # subcommands that actually touch MinIO (infra_up + cmd_up + cmd_auto)
 # trigger that detection, so `version` / `status` / `-i` work offline.

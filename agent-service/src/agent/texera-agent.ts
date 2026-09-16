@@ -60,6 +60,7 @@ export interface TexeraAgentConfig {
   agentId: string;
   agentName?: string;
   systemPrompt?: string;
+  createdAt?: Date;
 }
 
 export interface AgentMessageResult {
@@ -108,7 +109,7 @@ export class TexeraAgent {
   private delegateConfig?: {
     userToken: string;
     userInfo?: UserInfo;
-    workflowId: number;
+    workflowId?: number;
     workflowName?: string;
     computingUnitId?: number;
   };
@@ -129,7 +130,7 @@ export class TexeraAgent {
     this.agentId = config.agentId;
     this.agentName = config.agentName || `Agent-${config.agentId}`;
     this.modelType = config.modelType;
-    this.createdAt = new Date();
+    this.createdAt = config.createdAt ?? new Date();
     this.model = config.model;
     this.systemPrompt = config.systemPrompt || "";
     this.log = createLogger("TexeraAgent", { agentId: this.agentId });
@@ -180,7 +181,7 @@ export class TexeraAgent {
   }
 
   private buildExecutionConfig(): ExecutionConfig | undefined {
-    if (!this.delegateConfig) return undefined;
+    if (!this.delegateConfig?.userToken || this.delegateConfig.workflowId == null) return undefined;
     return {
       userToken: this.delegateConfig.userToken,
       workflowId: this.delegateConfig.workflowId,
@@ -201,7 +202,7 @@ export class TexeraAgent {
       }
     }
 
-    const getExecutionConfig = this.delegateConfig ? () => this.buildExecutionConfig()! : undefined;
+    const getExecutionConfig = this.buildExecutionConfig() ? () => this.buildExecutionConfig()! : undefined;
 
     const context: ToolContext = {
       metadataStore: this.metadataStore,
@@ -422,7 +423,7 @@ export class TexeraAgent {
   setDelegateConfig(config: {
     userToken: string;
     userInfo?: UserInfo;
-    workflowId: number;
+    workflowId?: number;
     workflowName?: string;
     computingUnitId?: number;
   }): void {
@@ -430,11 +431,13 @@ export class TexeraAgent {
 
     this.tools = this.createTools();
 
-    this.setupWorkflowChangeHandlers();
+    if (config.workflowId != null) {
+      this.setupWorkflowChangeHandlers();
+    }
   }
 
   getDelegateConfig():
-    | { userToken: string; userInfo?: UserInfo; workflowId: number; workflowName?: string; computingUnitId?: number }
+    | { userToken: string; userInfo?: UserInfo; workflowId?: number; workflowName?: string; computingUnitId?: number }
     | undefined {
     return this.delegateConfig;
   }

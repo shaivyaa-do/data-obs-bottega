@@ -55,9 +55,27 @@ class PostgreSQLSourceOpDescSpec extends AnyFlatSpec with Matchers {
     d.interval shouldBe 0L
   }
 
-  "PostgreSQLSourceOpDesc.sourceSchema" should "prompt for connection details before a connection is configured" in {
+  "PostgreSQLSourceOpDesc.sourceSchema" should "prompt to add a saved connection before JDBC fields are filled" in {
     val ex = intercept[IllegalArgumentException]((new PostgreSQLSourceOpDesc).sourceSchema())
-    ex.getMessage should include("host")
+    ex.getMessage shouldBe PostgreSQLSourceOpDesc.AddConnectionMessage
+  }
+
+  "PostgreSQLSourceOpDesc" should "round-trip connectionId and table without a password" in {
+    val d = new PostgreSQLSourceOpDesc
+    d.connectionId = "7"
+    d.table = "facilities"
+    val json = objectMapper.writeValueAsString(d)
+    json should include("\"operatorType\":\"PostgreSQLSource\"")
+    json should include("\"connectionId\":\"7\"")
+    json should include("\"table\":\"facilities\"")
+    json should not include "password"
+    val restored = objectMapper.readValue(json, classOf[LogicalOp])
+    restored shouldBe a[PostgreSQLSourceOpDesc]
+    val r = restored.asInstanceOf[PostgreSQLSourceOpDesc]
+    r.connectionId shouldBe "7"
+    r.table shouldBe "facilities"
+    r.password shouldBe null
+    r.host shouldBe null
   }
 
   "PostgreSQLSourceOpDesc.getPhysicalOp" should

@@ -40,12 +40,8 @@ import java.sql.{
 }
 import java.util.Properties
 import java.util.logging.Logger
-import scala.annotation.nowarn
 import scala.collection.mutable
 
-// MySQLSourceOpExec is @deprecated (no longer executable) but retained so legacy workflows keep
-// working; the coverage below pins the dialect-specific SQL it still produces.
-@nowarn("cat=deprecation")
 class MySQLSourceOpExecSpec
     extends AnyFlatSpec
     with Matchers

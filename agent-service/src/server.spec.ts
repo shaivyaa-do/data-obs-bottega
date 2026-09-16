@@ -18,19 +18,26 @@
  */
 
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { buildApp, start, _resetAgentStoreForTests, _getAgentForTests } from "./server";
+import {
+  buildApp,
+  start,
+  _resetAgentStoreForTests,
+  _resetRuntimeAgentsForTests,
+  _getAgentForTests,
+  _getPersistedRecordForTests,
+} from "./server";
 import { WorkflowSystemMetadata } from "./agent/util/workflow-system-metadata";
 import { env } from "./config/env";
 
 const API = env.API_PREFIX;
 const app = buildApp();
 
-function mintTestToken(): string {
+function mintTestToken(userId = 1): string {
   const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
   const payload = Buffer.from(
     JSON.stringify({
       sub: "tester",
-      userId: 1,
+      userId,
       email: "tester@example.com",
       role: "REGULAR",
       exp: Math.floor(Date.now() / 1000) + 3600,
@@ -109,6 +116,14 @@ function mockRetrieveWorkflow(result: "ok" | "fail" = "ok"): ReturnType<typeof s
 
 async function getJson(path: string): Promise<Response> {
   return app.handle(new Request(url(path)));
+}
+
+async function getJsonAuth(path: string, token: string | null = TOKEN): Promise<Response> {
+  return app.handle(
+    new Request(url(path), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+  );
 }
 
 async function del(path: string): Promise<Response> {
@@ -492,6 +507,73 @@ describe(`PATCH ${API}/agents/:id/delegate`, () => {
     expect(res.status).toBe(500);
     const body = await readJson<{ error: string }>(res);
     expect(body.error).toContain("Failed to retrieve workflow");
+  });
+});
+
+describe("agent persistence", () => {
+  test("survives a runtime store wipe and hydrates on authenticated GET", async () => {
+    const created = await readJson<{ id: string; name: string }>(
+      await createAgent({ name: "durable", settings: { maxSteps: 3 } })
+    );
+    _resetRuntimeAgentsForTests();
+
+    const unauthenticated = await readJson<{ agents: unknown[] }>(await getJson(`${API}/agents`));
+    expect(unauthenticated.agents).toEqual([]);
+
+    const listed = await readJson<{ agents: { id: string; name: string; settings?: { maxSteps?: number } }[] }>(
+      await getJsonAuth(`${API}/agents`)
+    );
+    expect(listed.agents).toHaveLength(1);
+    expect(listed.agents[0].id).toBe(created.id);
+    expect(listed.agents[0].name).toBe("durable");
+    expect(listed.agents[0].settings?.maxSteps).toBe(3);
+  });
+
+  test("does not show another user's persisted agents", async () => {
+    await createAgent({ name: "mine" });
+    const listed = await readJson<{ agents: { name: string }[] }>(
+      await getJsonAuth(`${API}/agents`, mintTestToken(2))
+    );
+    expect(listed.agents).toEqual([]);
+  });
+
+  test("delete removes the persisted row so a later hydrate is empty", async () => {
+    const created = await readJson<{ id: string }>(await createAgent({ name: "gone" }));
+    const delRes = await del(`${API}/agents/${created.id}`);
+    expect(delRes.status).toBe(200);
+
+    _resetRuntimeAgentsForTests();
+    const listed = await readJson<{ agents: unknown[] }>(await getJsonAuth(`${API}/agents`));
+    expect(listed.agents).toEqual([]);
+  });
+
+  test("never stores a provider API key", async () => {
+    const created = await readJson<{ id: string }>(await createAgent({ providerApiKey: "sk-ant-secret" }));
+    const record = await _getPersistedRecordForTests(created.id);
+    expect(record).toBeDefined();
+    expect(JSON.stringify(record)).not.toContain("sk-ant-secret");
+    expect(JSON.stringify(record)).not.toContain("providerApiKey");
+  });
+
+  test("allocates the next agent-N after a restart from the persisted max", async () => {
+    await createAgent();
+    await createAgent();
+    _resetRuntimeAgentsForTests();
+
+    const created = await readJson<{ id: string }>(await createAgent());
+    expect(created.id).toBe("agent-3");
+  });
+
+  test("persists settings updates", async () => {
+    const created = await readJson<{ id: string }>(await createAgent());
+    const patchRes = await patchJson(`${API}/agents/${created.id}/settings`, { maxSteps: 9 });
+    expect(patchRes.status).toBe(200);
+
+    _resetRuntimeAgentsForTests();
+    const listed = await readJson<{ agents: { settings?: { maxSteps?: number } }[] }>(
+      await getJsonAuth(`${API}/agents`)
+    );
+    expect(listed.agents[0].settings?.maxSteps).toBe(9);
   });
 });
 

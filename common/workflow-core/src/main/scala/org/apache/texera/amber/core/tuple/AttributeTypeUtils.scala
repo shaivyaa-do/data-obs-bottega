@@ -233,10 +233,10 @@ object AttributeTypeUtils extends Serializable {
     val attempt: Try[Double] = Try {
       fieldValue match {
         case str: String                => str.trim.toDouble
-        case int: Integer               => int.toDouble
-        case long: java.lang.Long       => long.toDouble
-        case double: java.lang.Double   => double
         case boolean: java.lang.Boolean => if (boolean) 1 else 0
+        // JDBC NUMERIC/DECIMAL (and FLOAT/REAL) arrive as Number subtypes
+        // (BigDecimal, Float, …). Integer/Long/Double are Numbers too.
+        case number: java.lang.Number => number.doubleValue()
         // Timestamp and Binary are considered to be illegal here.
         case _ =>
           throw new AttributeTypeException(
