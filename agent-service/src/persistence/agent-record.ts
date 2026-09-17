@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import type { AgentSettingsApi } from "../types/agent";
+import type { AgentSettingsApi, ReActStep } from "../types/agent";
+import type { PersistedChatSession } from "./chat-session";
 
 /** Durable agent metadata. Provider API keys are never stored. */
 export interface PersistedAgentRecord {
@@ -28,6 +29,12 @@ export interface PersistedAgentRecord {
   settings: AgentSettingsApi;
   workflowId?: number;
   computingUnitId?: number;
+  /** ReAct chat steps (excludes the sentinel initial step). */
+  chatHistory?: ReActStep[];
+  /** HEAD of the ReAct version tree after the last turn. */
+  chatHeadId?: string;
+  /** Archived chats the user can reopen (does not include the active transcript). */
+  chatSessions?: PersistedChatSession[];
   createdAt: string;
 }
 

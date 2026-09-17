@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,19 +17,16 @@
  * under the License.
  */
 
-:host {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 280px;
-  background: #ffffff;
-}
+\c texera_db
 
-#html-content {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 280px;
-  border: none;
-  background: #ffffff;
-}
+SET search_path TO texera_db;
+
+BEGIN;
+
+-- Durable agent chat (ReAct step tree). Survives agent-service restarts so the
+-- panel can restore conversation history when the agent is hydrated.
+ALTER TABLE user_agent
+    ADD COLUMN IF NOT EXISTS chat_history JSONB NOT NULL DEFAULT '[]'::jsonb,
+    ADD COLUMN IF NOT EXISTS chat_head_id VARCHAR(128);
+
+COMMIT;

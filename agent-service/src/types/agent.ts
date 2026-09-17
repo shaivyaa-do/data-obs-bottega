@@ -80,8 +80,11 @@ export interface AgentSettings {
 
 export const DEFAULT_AGENT_SETTINGS: Omit<AgentSettings, "systemPrompt"> = {
   disabledTools: new Set(),
-  maxOperatorResultCharLimit: 2000,
-  maxOperatorResultCellCharLimit: 2000,
+  // Match Amber's SyncExecutionResource hard cap so agent runs receive as much
+  // of each operator result as the engine will return (symmetric truncation only
+  // kicks in above this budget).
+  maxOperatorResultCharLimit: 100000,
+  maxOperatorResultCellCharLimit: 20000,
   operatorResultSerializationMode: OperatorResultSerializationMode.TSV,
   toolTimeoutMs: 240000,
   executionTimeoutMs: 240000,

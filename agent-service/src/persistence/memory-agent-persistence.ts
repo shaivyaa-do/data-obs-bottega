@@ -28,18 +28,34 @@ export class MemoryAgentPersistence implements AgentPersistence {
     this.records.set(record.agentId, {
       ...record,
       settings: sanitizePersistedSettings(record.settings),
+      chatHistory: record.chatHistory ? [...record.chatHistory] : undefined,
+      chatHeadId: record.chatHeadId,
+      chatSessions: record.chatSessions ? record.chatSessions.map(s => ({ ...s, steps: [...s.steps] })) : undefined,
     });
   }
 
   async get(agentId: string): Promise<PersistedAgentRecord | undefined> {
     const record = this.records.get(agentId);
-    return record ? { ...record, settings: { ...record.settings } } : undefined;
+    if (!record) {
+      return undefined;
+    }
+    return {
+      ...record,
+      settings: { ...record.settings },
+      chatHistory: record.chatHistory ? [...record.chatHistory] : undefined,
+      chatSessions: record.chatSessions ? record.chatSessions.map(s => ({ ...s, steps: [...s.steps] })) : undefined,
+    };
   }
 
   async listByUid(uid: number): Promise<PersistedAgentRecord[]> {
     return [...this.records.values()]
       .filter(record => record.uid === uid)
-      .map(record => ({ ...record, settings: { ...record.settings } }));
+      .map(record => ({
+        ...record,
+        settings: { ...record.settings },
+        chatHistory: record.chatHistory ? [...record.chatHistory] : undefined,
+        chatSessions: record.chatSessions ? record.chatSessions.map(s => ({ ...s, steps: [...s.steps] })) : undefined,
+      }));
   }
 
   async delete(agentId: string): Promise<boolean> {

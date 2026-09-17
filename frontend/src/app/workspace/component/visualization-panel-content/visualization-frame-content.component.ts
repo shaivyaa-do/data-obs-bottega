@@ -83,10 +83,17 @@ export class VisualizationFrameContentComponent implements AfterContentInit, OnC
     const doc = parser.parseFromString(Object(lastData)["html-content"], "text/html");
 
     doc.documentElement.style.height = "100%";
-    doc.body.style.height = "95%";
+    doc.documentElement.style.background = "#ffffff";
+    doc.body.style.height = "100%";
+    doc.body.style.margin = "0";
+    doc.body.style.background = "#ffffff";
+    doc.body.style.overflow = "hidden";
 
     const firstDiv = doc.body.querySelector("div");
-    if (firstDiv) firstDiv.style.height = "100%";
+    if (firstDiv) {
+      firstDiv.style.height = "100%";
+      firstDiv.style.width = "100%";
+    }
 
     const serializer = new XMLSerializer();
     const newHtmlString = serializer.serializeToString(doc);

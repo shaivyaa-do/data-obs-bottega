@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import type { AgentSettingsApi } from "../types/agent";
+import type { AgentSettingsApi, ReActStep } from "../types/agent";
 import type { PersistedAgentRecord } from "./agent-record";
+import type { PersistedChatSession } from "./chat-session";
 
 export interface UserAgentRow {
   agent_id: string;
@@ -28,6 +29,9 @@ export interface UserAgentRow {
   settings: AgentSettingsApi | string | null;
   workflow_id: number | null;
   computing_unit_id: number | null;
+  chat_history?: ReActStep[] | string | null;
+  chat_head_id?: string | null;
+  chat_sessions?: PersistedChatSession[] | string | null;
   created_at: Date | string;
 }
 
@@ -64,6 +68,54 @@ export function sanitizePersistedSettings(settings: AgentSettingsApi | undefined
   return sanitized;
 }
 
+export function parseChatHistory(raw: UserAgentRow["chat_history"]): ReActStep[] {
+  if (raw == null) {
+    return [];
+  }
+  let parsed: unknown = raw;
+  if (typeof raw === "string") {
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.filter(
+    (step): step is ReActStep =>
+      step != null &&
+      typeof step === "object" &&
+      typeof (step as ReActStep).id === "string" &&
+      typeof (step as ReActStep).role === "string"
+  );
+}
+
+export function parseChatSessions(raw: UserAgentRow["chat_sessions"]): PersistedChatSession[] {
+  if (raw == null) {
+    return [];
+  }
+  let parsed: unknown = raw;
+  if (typeof raw === "string") {
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.filter(
+    (session): session is PersistedChatSession =>
+      session != null &&
+      typeof session === "object" &&
+      typeof (session as PersistedChatSession).id === "string" &&
+      Array.isArray((session as PersistedChatSession).steps)
+  );
+}
+
 export function rowToRecord(row: UserAgentRow): PersistedAgentRecord {
   let settings: AgentSettingsApi = {};
   if (typeof row.settings === "string") {
@@ -76,6 +128,13 @@ export function rowToRecord(row: UserAgentRow): PersistedAgentRecord {
     settings = row.settings;
   }
 
+  const chatHistory = parseChatHistory(row.chat_history);
+  const chatSessions = parseChatSessions(row.chat_sessions);
+  const chatHeadId =
+    typeof row.chat_head_id === "string" && row.chat_head_id.trim() !== ""
+      ? row.chat_head_id
+      : undefined;
+
   return {
     agentId: row.agent_id,
     uid: row.uid,
@@ -84,6 +143,9 @@ export function rowToRecord(row: UserAgentRow): PersistedAgentRecord {
     settings: sanitizePersistedSettings(settings),
     workflowId: row.workflow_id ?? undefined,
     computingUnitId: row.computing_unit_id ?? undefined,
+    chatHistory: chatHistory.length > 0 ? chatHistory : undefined,
+    chatHeadId,
+    chatSessions: chatSessions.length > 0 ? chatSessions : undefined,
     createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
   };
 }

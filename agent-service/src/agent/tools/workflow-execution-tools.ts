@@ -246,7 +246,17 @@ async function executeWorkflowHttp(
   const backendConfig = getBackendConfig();
 
   const workflowId = config.workflowId;
-  const computingUnitId = config.computingUnitId ?? 0;
+  const computingUnitId = config.computingUnitId;
+  if (computingUnitId == null || computingUnitId <= 0) {
+    return {
+      success: false,
+      state: "Error",
+      operators: {},
+      errors: [
+        "No computing unit selected. Select a computing unit in the workspace (power button) before asking the agent to run.",
+      ],
+    };
+  }
 
   // In k8s each computing unit is a separate pod, so the endpoint varies per cuid.
   const executionEndpoint = env.EXECUTION_ENDPOINT_TEMPLATE
@@ -507,7 +517,28 @@ export async function executeOperatorAndFormat(
     }
 
     const jsonArray = opInfo.result as Record<string, any>[];
-    const headers = jsonArray.length > 0 ? getVisibleResultHeaders(jsonArray[0]) : [];
+
+    // Chart / viz operators store HTML/JSON payloads that blow the agent char budget
+    // and aren't readable as TSV. Strip them and keep only tabular metadata fields.
+    const isViz =
+      opInfo.resultMode === "visualization" ||
+      (jsonArray.length > 0 && jsonArray[0]["__is_visualization__"] === true);
+    const serializableArray = isViz
+      ? jsonArray.map(row => {
+          const cleaned: Record<string, any> = {};
+          for (const key of Object.keys(row)) {
+            if (key === "__is_visualization__") continue;
+            if (key === "html-content" || key === "json-content") {
+              cleaned[key] = "<skipped: visualization content — open Result panel in the UI>";
+            } else {
+              cleaned[key] = row[key];
+            }
+          }
+          return cleaned;
+        })
+      : jsonArray;
+
+    const headers = serializableArray.length > 0 ? getVisibleResultHeaders(serializableArray[0]) : [];
     const columns = headers.length;
 
     // Notify for every operator in the execution so upstream stats are also stored.
@@ -519,7 +550,11 @@ export async function executeOperatorAndFormat(
       }
     }
 
-    let dataString = jsonToTableFormat(jsonArray);
+    let dataString = jsonToTableFormat(serializableArray);
+    if (isViz && !dataString) {
+      dataString =
+        "Visualization produced (no tabular rows). Chart HTML is not returned to the agent — inspect the Result panel in the workspace UI.";
+    }
 
     // Safety-net: TSV serialization may add padding beyond backend's raw-record budget.
     const charLimit = config.maxOperatorResultCharLimit ?? DEFAULT_AGENT_SETTINGS.maxOperatorResultCharLimit;
@@ -557,7 +592,12 @@ export async function executeOperatorAndFormat(
 
     const shapeLine = formatInputOutput(workflowState, operatorId, opInfo, columns);
 
-    const warningLines = opInfo.warnings?.map(w => w) ?? [];
+    const truncationWarning =
+      opInfo.truncated === true
+        ? `WARNING: Result truncated — showing ${opInfo.displayedRows ?? jsonArray.length} of ${opInfo.totalRowCount ?? opInfo.outputTuples} rows (middle omitted). A missing value may still exist in the full table; raise maxOperatorResultCharLimit or filter/Limit upstream before concluding absence.`
+        : undefined;
+
+    const warningLines = [...(opInfo.warnings ?? []), ...(truncationWarning ? [truncationWarning] : [])];
 
     const metadataLines = [shapeLine, ...warningLines].filter(Boolean);
 

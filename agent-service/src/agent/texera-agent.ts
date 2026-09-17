@@ -31,6 +31,12 @@ import {
   OperatorResultSerializationMode,
   INITIAL_STEP_ID,
 } from "../types/agent";
+import {
+  type ChatSessionSummary,
+  type PersistedChatSession,
+  summarizeChatSession,
+  titleFromChatSteps,
+} from "../persistence/chat-session";
 import { buildSystemPrompt } from "./prompts";
 import {
   createAddOperatorTool,
@@ -95,6 +101,9 @@ export class TexeraAgent {
   private stepsById: Map<string, ReActStep> = new Map();
   private stepCounter = 0;
   private workflowResultState: WorkflowResultState;
+  /** Archived chats (previous conversations). Active transcript is stepsById. */
+  private chatSessions: PersistedChatSession[] = [];
+  private currentChatId: string = `chat-current-${Date.now()}`;
 
   private clients: Set<any> = new Set();
 
@@ -297,6 +306,120 @@ export class TexeraAgent {
 
   getAllSteps(): ReActStep[] {
     return Array.from(this.stepsById.values()).filter(s => s.id !== INITIAL_STEP_ID);
+  }
+
+  /**
+   * Replace in-memory chat with a previously persisted ReAct tree (e.g. after
+   * agent-service restart). Omits the sentinel initial step from `steps`.
+   */
+  restoreChatHistory(steps: ReActStep[], headId?: string): void {
+    this.clearHistory();
+    if (!steps || steps.length === 0) {
+      return;
+    }
+
+    let maxStepId = -1;
+    let maxMessageCounter = 0;
+    for (const step of steps) {
+      if (!step?.id || step.id === INITIAL_STEP_ID) {
+        continue;
+      }
+      this.stepsById.set(step.id, step);
+      let byMessage = this.reActStepsByMessageId.get(step.messageId);
+      if (!byMessage) {
+        byMessage = [];
+        this.reActStepsByMessageId.set(step.messageId, byMessage);
+      }
+      byMessage.push(step);
+      if (typeof step.stepId === "number" && step.stepId > maxStepId) {
+        maxStepId = step.stepId;
+      }
+      const msgMatch = /^msg-.*?-(\d+)-/.exec(step.messageId);
+      if (msgMatch) {
+        maxMessageCounter = Math.max(maxMessageCounter, Number(msgMatch[1]));
+      }
+    }
+
+    this.stepCounter = Math.max(this.stepCounter, maxStepId + 1, steps.length);
+    this.messageCounter = Math.max(this.messageCounter, maxMessageCounter);
+
+    if (headId && this.stepsById.has(headId)) {
+      this.head = headId;
+    } else {
+      const restored = this.getAllSteps();
+      if (restored.length > 0) {
+        this.head = restored[restored.length - 1].id;
+      }
+    }
+  }
+
+  restoreChatSessions(sessions: PersistedChatSession[] | undefined): void {
+    this.chatSessions = sessions ? sessions.map(s => ({ ...s, steps: [...s.steps] })) : [];
+  }
+
+  getPersistedChatSessions(): PersistedChatSession[] {
+    return this.chatSessions.map(s => ({ ...s, steps: [...s.steps] }));
+  }
+
+  listChatSummaries(): ChatSessionSummary[] {
+    const summaries: ChatSessionSummary[] = [];
+    const currentSteps = this.getAllSteps();
+    if (currentSteps.length > 0) {
+      summaries.push({
+        id: this.currentChatId,
+        title: titleFromChatSteps(currentSteps),
+        updatedAt: new Date(
+          Math.max(...currentSteps.map(s => s.timestamp || 0), Date.now())
+        ).toISOString(),
+        messageCount: currentSteps.length,
+        isCurrent: true,
+      });
+    }
+    for (const session of this.chatSessions) {
+      summaries.push(summarizeChatSession(session, false));
+    }
+    return summaries.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  }
+
+  /** Archive the active transcript (if any) and start a blank chat. */
+  startNewChat(): void {
+    this.archiveCurrentChatIfNeeded();
+    this.clearHistory();
+    this.currentChatId = `chat-${this.agentId}-${Date.now()}`;
+  }
+
+  /**
+   * Open an archived chat for continuation. Archives the current transcript first
+   * when it has messages. Returns false when the session id is unknown.
+   */
+  openChat(sessionId: string): boolean {
+    if (sessionId === this.currentChatId) {
+      return true;
+    }
+    const index = this.chatSessions.findIndex(s => s.id === sessionId);
+    if (index < 0) {
+      return false;
+    }
+    const [session] = this.chatSessions.splice(index, 1);
+    this.archiveCurrentChatIfNeeded();
+    this.restoreChatHistory(session.steps, session.headId);
+    this.currentChatId = session.id;
+    return true;
+  }
+
+  private archiveCurrentChatIfNeeded(): void {
+    const steps = this.getAllSteps();
+    if (steps.length === 0) {
+      return;
+    }
+    const session: PersistedChatSession = {
+      id: this.currentChatId,
+      title: titleFromChatSteps(steps),
+      updatedAt: new Date().toISOString(),
+      headId: this.head === INITIAL_STEP_ID ? undefined : this.head,
+      steps: steps.map(s => ({ ...s })),
+    };
+    this.chatSessions = [session, ...this.chatSessions.filter(s => s.id !== session.id)];
   }
 
   setStepCallback(callback: ReActStepCallback | null): void {
@@ -532,7 +655,10 @@ export class TexeraAgent {
           if (this.workflowState.getAllOperators().length > 0) {
             try {
               const logicalPlan = this.workflowState.toLogicalPlan();
-              compilationResult = await compileWorkflowAsync(logicalPlan);
+              compilationResult = await compileWorkflowAsync(
+                logicalPlan,
+                this.delegateConfig?.userToken
+              );
             } catch (e: any) {
               this.log.warn({ err: e?.message || e }, "compilation failed; proceeding without schemas");
             }

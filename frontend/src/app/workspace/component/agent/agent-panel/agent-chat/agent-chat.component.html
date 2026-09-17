@@ -50,6 +50,66 @@
           nz-button
           nzType="text"
           nzSize="small"
+          nz-dropdown
+          nzTrigger="click"
+          [nzDropdownMenu]="chatHistoryMenu"
+          (nzVisibleChange)="onHistoryMenuVisible($event)"
+          nz-tooltip
+          nzTooltipTitle="Chat history">
+          <i
+            nz-icon
+            nzType="history"
+            nzTheme="outline"></i>
+        </button>
+        <nz-dropdown-menu #chatHistoryMenu="nzDropdownMenu">
+          <ul
+            nz-menu
+            class="chat-history-menu">
+            <li
+              *ngIf="chatHistoryLoading"
+              nz-menu-item
+              nzDisabled>
+              Loading…
+            </li>
+            <li
+              *ngIf="!chatHistoryLoading && chatHistory.length === 0"
+              nz-menu-item
+              nzDisabled>
+              No previous chats
+            </li>
+            <li
+              *ngFor="let chat of chatHistory"
+              nz-menu-item
+              [nzSelected]="!!chat.isCurrent"
+              (click)="openChatFromHistory(chat)">
+              <div class="chat-history-item">
+                <span class="chat-history-title">{{ chat.title }}</span>
+                <span
+                  class="chat-history-meta"
+                  *ngIf="chat.isCurrent"
+                  >Current</span
+                >
+              </div>
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+        <button
+          *ngIf="isAvailable()"
+          nz-button
+          nzType="text"
+          nzSize="small"
+          (click)="startNewChat()"
+          nz-tooltip
+          nzTooltipTitle="New chat">
+          <i
+            nz-icon
+            nzType="plus"
+            nzTheme="outline"></i>
+        </button>
+        <button
+          nz-button
+          nzType="text"
+          nzSize="small"
           (click)="exportReActSteps()"
           nz-tooltip
           nzTooltipTitle="Export ReAct steps as JSON">
@@ -65,7 +125,7 @@
           nzSize="small"
           (click)="clearMessages()"
           nz-tooltip
-          nzTooltipTitle="Clear chat history">
+          nzTooltipTitle="Clear current chat">
           <i
             nz-icon
             nzType="delete"

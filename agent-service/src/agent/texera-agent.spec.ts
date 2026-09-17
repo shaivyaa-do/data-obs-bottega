@@ -281,6 +281,71 @@ describe("TexeraAgent", () => {
       expect(agent.getAncestorPath()).toEqual([INITIAL_STEP_ID]);
     });
 
+    test("restoreChatHistory rebuilds the step tree and HEAD for a hydrated agent", () => {
+      const steps: ReActStep[] = [
+        makeStep("u1", INITIAL_STEP_ID, {
+          role: "user",
+          content: "hello",
+          messageId: "msg-agent-1-1-1",
+          stepId: 0,
+          isBegin: true,
+          isEnd: true,
+        }),
+        makeStep("a1", "u1", {
+          role: "agent",
+          content: "hi",
+          messageId: "msg-agent-1-1-1",
+          stepId: 1,
+          isBegin: true,
+          isEnd: true,
+        }),
+      ];
+
+      agent.restoreChatHistory(steps, "a1");
+
+      expect(agent.getAllSteps().map(s => s.id)).toEqual(["u1", "a1"]);
+      expect(agent.getHead()).toBe("a1");
+      expect(agent.getVisibleReActSteps().map(s => s.content)).toEqual(["hello", "hi"]);
+    });
+
+    test("startNewChat archives the current transcript and clears the active chat", () => {
+      agent.restoreChatHistory(
+        [
+          makeStep("u1", INITIAL_STEP_ID, {
+            role: "user",
+            content: "first chat",
+            isBegin: true,
+            isEnd: true,
+          }),
+        ],
+        "u1"
+      );
+
+      agent.startNewChat();
+
+      expect(agent.getAllSteps()).toEqual([]);
+      expect(agent.listChatSummaries()).toHaveLength(1);
+      expect(agent.listChatSummaries()[0].title).toBe("first chat");
+      expect(agent.listChatSummaries()[0].isCurrent).toBeFalsy();
+    });
+
+    test("openChat restores an archived transcript for continuation", () => {
+      agent.restoreChatHistory(
+        [makeStep("u1", INITIAL_STEP_ID, { role: "user", content: "old", isBegin: true, isEnd: true })],
+        "u1"
+      );
+      agent.startNewChat();
+      const archivedId = agent.listChatSummaries()[0].id;
+
+      agent.restoreChatHistory(
+        [makeStep("u2", INITIAL_STEP_ID, { role: "user", content: "new", isBegin: true, isEnd: true })],
+        "u2"
+      );
+      expect(agent.openChat(archivedId)).toBe(true);
+      expect(agent.getVisibleReActSteps().map(s => s.content)).toEqual(["old"]);
+      expect(agent.listChatSummaries().some(c => c.title === "new" && !c.isCurrent)).toBe(true);
+    });
+
     test("stop moves the agent into the stopping state", () => {
       agent.stop();
 
@@ -935,11 +1000,11 @@ describe("delegate mode", () => {
         },
       });
       const agent = makeAgentWith(model);
-      agent.setDelegateConfig({ userToken: "tok", workflowId: 7, workflowName: "w" });
+      agent.setDelegateConfig({ userToken: "tok", workflowId: 7, workflowName: "w", computingUnitId: 1 });
       await agent.sendMessage("modify it");
       const steps = agent.getAllSteps();
       const txt2 = (model as any).doGenerateCalls[1].prompt[1].content[0].text;
-      expect(urls.some(u => u.includes("/api/execution/7/0/run"))).toBe(true);
+      expect(urls.some(u => u.includes("/api/execution/7/1/run"))).toBe(true);
       expect((agent.getWorkflowResultState() as any).get("op-1").stepId).toBe(steps[1].id);
     } finally {
       // A leaked always-valid stub would let the rejected-modification test below pass validation
@@ -983,7 +1048,7 @@ describe("delegate mode", () => {
         },
       });
       const agent = makeAgentWith(model);
-      agent.setDelegateConfig({ userToken: "tok", workflowId: 7, workflowName: "w" });
+      agent.setDelegateConfig({ userToken: "tok", workflowId: 7, workflowName: "w", computingUnitId: 1 });
       await agent.sendMessage("run it");
       const steps = agent.getAllSteps();
       expect(urls.filter(u => u.includes("/api/execution/")).length).toBe(1);

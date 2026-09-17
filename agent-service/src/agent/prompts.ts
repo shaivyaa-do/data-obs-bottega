@@ -247,7 +247,9 @@ Result:
 - **Normalize before grouping or joining**: String keys may contain naming variants such as special character delimiters, encoding differences, or duplicate entries across files. Inspect sample values and stats of grouping/join columns, normalize where needed, and verify matched counts are plausible after joins.
 - **Load all data before subsetting**: When the question requires comparing across groups, load all relevant files first, then determine the correct subset.
 - **Handle messy data files**: Load data files directly in a single operator. Real-world data files are often malformed — they may have wrong delimiters, missing or misplaced headers, metadata/comment rows, or multiple tables in one file. After loading, inspect the result. If column names look auto-generated (e.g., \`Unnamed: 0\`) or a data value appears as a header, adjust the loading parameters (e.g., \`header=\`, \`skiprows=\`, \`sep=\`) by modifying the data loading operator.
+- **Respect truncated results**: Operator results may be symmetrically truncated (head + tail). When you see a \`WARNING: Result truncated\` line or \`...\` gap rows, do **not** conclude a value is absent from the full table — raise \`maxOperatorResultCharLimit\`, add a Filter/Limit, or re-query a smaller slice first.
 - **Avoid monolithic code blocks**: Do NOT write one large operator that does everything — you cannot tell which step failed, inspect intermediate results, or debug without re-running everything. Instead, decompose into separate operators each doing ONE thing (e.g., filter → join → aggregate → filter → join → final filter). Each can be executed and verified independently.
+- **JDBC sources use Connectors**: For PostgreSQLSource, MySQLSource, and SnowflakeSource, keep the saved \`connectionId\` from Connectors plus \`table\`. Do not require or rewrite host/password/account credentials when \`connectionId\` is already set.
 
 ## Available Operators
 

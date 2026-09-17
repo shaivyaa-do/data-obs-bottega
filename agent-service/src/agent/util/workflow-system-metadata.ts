@@ -39,6 +39,9 @@ interface CompactOperatorSchema {
 
 const FILTERED_PROPERTY_KEYS = ["dummyPropertyList"];
 
+const JDBC_SOURCE_OPERATOR_TYPES = new Set(["PostgreSQLSource", "MySQLSource", "SnowflakeSource"]);
+const JDBC_PROPERTY_KEYS = ["host", "port", "database", "username", "password", "account", "warehouse", "schema", "role"];
+
 const FILTERED_DEFINITION_KEYS = [
   "DummyProperties",
   "PortDescription",
@@ -48,6 +51,57 @@ const FILTERED_DEFINITION_KEYS = [
   "BroadcastPartition",
   "UnknownPartition",
 ];
+
+function hasConnectionId(properties: Record<string, any> | undefined): boolean {
+  const connectionId = properties?.["connectionId"];
+  return connectionId != null && String(connectionId).trim() !== "";
+}
+
+function connectionDescription(operatorType: string): string {
+  if (operatorType === "MySQLSource") {
+    return "Saved MySQL connection from Connectors";
+  }
+  if (operatorType === "SnowflakeSource") {
+    return "Saved Snowflake connection from Connectors";
+  }
+  return "Saved PostgreSQL connection from Connectors";
+}
+
+/**
+ * Saved-connector JDBC sources store connectionId + table (no password). The raw
+ * operator JSON schema still requires host/password; adapt it the same way the UI does.
+ */
+export function adaptJdbcSourceSchemaForConnection(schema: any, operatorType: string): any {
+  if (!schema || typeof schema !== "object") {
+    return schema;
+  }
+  const jdbcKeys = new Set(JDBC_PROPERTY_KEYS);
+  const required = ((schema.required as string[]) ?? []).filter(key => !jdbcKeys.has(key));
+  if (!required.includes("connectionId")) {
+    required.push("connectionId");
+  }
+  if (!required.includes("table")) {
+    required.push("table");
+  }
+  const properties = { ...(schema.properties ?? {}) };
+  if (properties["connectionId"] == null) {
+    properties["connectionId"] = {
+      type: "string",
+      title: "Connection",
+      description: connectionDescription(operatorType),
+    };
+  }
+  // Drop $id so Ajv does not reuse a compiled schema keyed by the raw JDBC schema.
+  const { $id: _ignored, ...rest } = schema;
+  return { ...rest, properties, required };
+}
+
+function schemaForValidation(operatorType: string, schema: any, properties: Record<string, any>): any {
+  if (JDBC_SOURCE_OPERATOR_TYPES.has(operatorType) && hasConnectionId(properties)) {
+    return adaptJdbcSourceSchemaForConnection(schema, operatorType);
+  }
+  return schema;
+}
 
 const COMPACT_SCHEMA_EXCLUDED_KEYS = ["propertyOrder", "autofill", "autofillAttributeOnPort", "attributeTypeRules"];
 
@@ -199,16 +253,23 @@ export class WorkflowSystemMetadata {
   getCompactSchema(operatorType: string): CompactOperatorSchema | null {
     const schema = this.schemas.get(operatorType);
     if (!schema) return null;
-    return getCompactSchema(schema);
+    // Prefer the saved-connector shape in prompts so the agent uses connectionId.
+    const forPrompt = JDBC_SOURCE_OPERATOR_TYPES.has(operatorType)
+      ? adaptJdbcSourceSchemaForConnection(schema, operatorType)
+      : schema;
+    return getCompactSchema(forPrompt);
   }
 
   getAllSchemasAsJson(): string {
     const result: Record<string, OperatorSchemaInfo> = {};
     for (const [type, schema] of this.schemas) {
+      const adapted = JDBC_SOURCE_OPERATOR_TYPES.has(type)
+        ? adaptJdbcSourceSchemaForConnection(schema, type)
+        : schema;
       result[type] = {
-        properties: filterObjectKeys(schema.properties, FILTERED_PROPERTY_KEYS),
-        required: schema.required,
-        definitions: filterObjectKeys(schema.definitions, FILTERED_DEFINITION_KEYS),
+        properties: filterObjectKeys(adapted.properties, FILTERED_PROPERTY_KEYS),
+        required: adapted.required,
+        definitions: filterObjectKeys(adapted.definitions, FILTERED_DEFINITION_KEYS),
       };
     }
     return JSON.stringify(result, null, 2);
@@ -223,10 +284,12 @@ export class WorkflowSystemMetadata {
   }
 
   validateOperatorProperties(operatorType: string, properties: Record<string, any>): Validation {
-    const schema = this.schemas.get(operatorType);
-    if (!schema) {
+    const rawSchema = this.schemas.get(operatorType);
+    if (!rawSchema) {
       return { isValid: false, messages: { error: `Unknown operator type: ${operatorType}` } };
     }
+
+    const schema = schemaForValidation(operatorType, rawSchema, properties);
 
     try {
       const isValid = ajv.validate(schema, properties);

@@ -53,6 +53,21 @@ describe("compileWorkflowAsync", () => {
     });
   });
 
+  test("sends Authorization when userToken is provided so connectors can resolve", async () => {
+    const compilation: WorkflowCompilationResponse = { operatorOutputSchemas: {}, operatorErrors: {} };
+    const fetchSpy = spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify(compilation), { status: 200 })
+    );
+
+    await compileWorkflowAsync(plan, "user-jwt");
+
+    const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    expect(init.headers).toEqual({
+      "Content-Type": "application/json",
+      Authorization: "Bearer user-jwt",
+    });
+  });
+
   test("returns null on a non-ok response", async () => {
     spyOn(globalThis, "fetch").mockResolvedValue(new Response("boom", { status: 500 }));
     expect(await compileWorkflowAsync(plan)).toBeNull();

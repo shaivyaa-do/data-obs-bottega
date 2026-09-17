@@ -42,7 +42,10 @@ export interface WorkflowCompilationResponse {
   operatorErrors: Record<string, WorkflowFatalError>;
 }
 
-export async function compileWorkflowAsync(logicalPlan: LogicalPlan): Promise<WorkflowCompilationResponse | null> {
+export async function compileWorkflowAsync(
+  logicalPlan: LogicalPlan,
+  userToken?: string
+): Promise<WorkflowCompilationResponse | null> {
   const config = getBackendConfig();
   const url = `${config.compileEndpoint}/api/compile`;
 
@@ -53,10 +56,16 @@ export async function compileWorkflowAsync(logicalPlan: LogicalPlan): Promise<Wo
     opsToViewResult: [],
   };
 
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  // Auth is required so the compiler can resolve connectionId -> JDBC credentials.
+  if (userToken) {
+    headers.Authorization = `Bearer ${userToken}`;
+  }
+
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
     });
 

@@ -116,11 +116,6 @@ import scala.reflect.ClassTag
   * Three further gaps are deliberately described and NOT pinned, because a test that
   * froze the current behaviour would cement it:
   *
-  *   - Partial construction. `executeWorkflow` assigns `client` first and the four
-  *     services after it, and `WorkflowService` catches whatever they throw while
-  *     leaving the half-built service published. `unsubscribeAll` then passes its
-  *     `client != null` guard and NPEs on the first null service, aborting teardown.
-  *
   *   - A recovery that ends in failure. `createStateEvent` carves out COMPLETED only,
   *     while the flag itself is lowered only by a `WorkflowRecoveryStatus(false)` from
   *     the engine, which an execution that dies mid-recovery need not ever send. Such an
@@ -522,12 +517,6 @@ class WorkflowExecutionServiceSpec
     // `unsubscribeAll` also runs for an execution that failed to compile, where the client and all
     // four service fields are still null: teardown of that execution must not throw, and its own
     // subscriptions must still be let go.
-    //
-    // Which field the guard reads is NOT observed here, and cannot honestly be. The two states
-    // that would separate the five candidates are (client set, services null) -- whose current
-    // behaviour is an NPE, so pinning it would cement the partial-construction defect noted in the
-    // class header -- and (client null, services set), which the assignment order in
-    // `executeWorkflow` makes unreachable.
     val store = new ExecutionStateStore()
     val service = buildService(store)
     val events = collectEvents(store)
@@ -540,6 +529,23 @@ class WorkflowExecutionServiceSpec
     events.clear()
     store.metadataStore.updateState(_.withState(RUNNING))
     events shouldBe empty
+  }
+
+  it should "tear down a partially constructed execution without NPE" in {
+    // `executeWorkflow` assigns `client` before the four runtime services. If construction
+    // fails between those assignments, the half-built service is still published and the next
+    // sync/agent run calls `unsubscribeAll` on it — must not NPE on null services.
+    val store = new ExecutionStateStore()
+    val service = buildService(store)
+    val client = new TestAmberClient
+    service.client = client
+    val ownTracker = new Tracker
+    service.addSubscription(ownTracker.disposable)
+
+    noException should be thrownBy service.unsubscribeAll()
+
+    client.shutdownCount shouldBe 1
+    ownTracker.disposed shouldBe true
   }
 
   // The companion's one expression, exercised directly rather than only through the two result

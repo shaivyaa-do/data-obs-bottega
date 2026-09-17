@@ -33,7 +33,7 @@ import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { Subject, of } from "rxjs";
 import { catchError, distinctUntilChanged, filter, pairwise, startWith, takeUntil } from "rxjs/operators";
 import { AgentState, ReActStep } from "../../../../service/agent/agent-types";
-import { AgentInfo, AgentService } from "../../../../service/agent/agent.service";
+import { AgentChatSummary, AgentInfo, AgentService } from "../../../../service/agent/agent.service";
 import { WorkflowActionService } from "../../../../service/workflow-graph/model/workflow-action.service";
 import { NotificationService } from "../../../../../common/service/notification/notification.service";
 import { WorkflowPersistService } from "../../../../../common/service/workflow-persist/workflow-persist.service";
@@ -59,6 +59,8 @@ import { NzTabsComponent, NzTabComponent } from "ng-zorro-antd/tabs";
 import { NzInputNumberComponent } from "ng-zorro-antd/input-number";
 import { NzTagComponent } from "ng-zorro-antd/tag";
 import { NzSwitchComponent } from "ng-zorro-antd/switch";
+import { NzDropdownDirective, NzDropdownMenuComponent } from "ng-zorro-antd/dropdown";
+import { NzMenuDirective, NzMenuItemComponent } from "ng-zorro-antd/menu";
 
 @UntilDestroy()
 @Component({
@@ -89,6 +91,10 @@ import { NzSwitchComponent } from "ng-zorro-antd/switch";
     NzInputGroupComponent,
     NzInputGroupWhitSuffixOrPrefixDirective,
     NzSwitchComponent,
+    NzDropdownDirective,
+    NzDropdownMenuComponent,
+    NzMenuDirective,
+    NzMenuItemComponent,
   ],
 })
 export class AgentChatComponent implements OnInit, AfterViewChecked, OnDestroy, OnChanges {
@@ -111,12 +117,16 @@ export class AgentChatComponent implements OnInit, AfterViewChecked, OnDestroy, 
   public availableTools: Array<{ name: string; description: string; inputSchema: any }> = [];
   public agentState: AgentState = AgentState.UNAVAILABLE;
 
+  /** Chat history dropdown rows (current + archived). */
+  public chatHistory: AgentChatSummary[] = [];
+  public chatHistoryLoading = false;
+
   // Current HEAD step ID in the version tree
   public currentHeadId: string | null = null;
 
   // System info modal state
-  public settingsMaxCharLimit = 20000; // Default max characters for operator results
-  public settingsMaxCellCharLimit = 4000; // Default max characters per cell
+  public settingsMaxCharLimit = 100000; // Default max characters for operator results (Amber hard cap)
+  public settingsMaxCellCharLimit = 20000; // Default max characters per cell (Amber hard cap)
   public settingsToolTimeoutSeconds = 120; // 2 minutes default
   public settingsExecutionTimeoutMinutes = 10; // 10 minutes default
   public settingsMaxSteps = 10; // Default max steps per message
@@ -365,8 +375,8 @@ export class AgentChatComponent implements OnInit, AfterViewChecked, OnDestroy, 
       .getAgentSettings(this.agentInfo.id)
       .pipe(untilDestroyed(this))
       .subscribe(settings => {
-        this.settingsMaxCharLimit = settings.maxOperatorResultCharLimit ?? 20000;
-        this.settingsMaxCellCharLimit = settings.maxOperatorResultCellCharLimit ?? 4000;
+        this.settingsMaxCharLimit = settings.maxOperatorResultCharLimit ?? 100000;
+        this.settingsMaxCellCharLimit = settings.maxOperatorResultCellCharLimit ?? 20000;
         this.settingsToolTimeoutSeconds = settings.toolTimeoutSeconds ?? 120;
         this.settingsExecutionTimeoutMinutes = settings.executionTimeoutMinutes ?? 10;
         this.settingsMaxSteps = settings.maxSteps ?? 10;
@@ -506,6 +516,59 @@ export class AgentChatComponent implements OnInit, AfterViewChecked, OnDestroy, 
 
   public clearMessages(): void {
     this.agentService.clearMessages(this.agentInfo.id);
+  }
+
+  public onHistoryMenuVisible(visible: boolean): void {
+    if (!visible) {
+      return;
+    }
+    this.chatHistoryLoading = true;
+    this.agentService
+      .listChats(this.agentInfo.id)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: chats => {
+          this.chatHistory = chats;
+          this.chatHistoryLoading = false;
+        },
+        error: () => {
+          this.chatHistory = [];
+          this.chatHistoryLoading = false;
+          this.notificationService.error("Failed to load chat history");
+        },
+      });
+  }
+
+  public startNewChat(): void {
+    if (!this.isAvailable()) {
+      return;
+    }
+    this.agentService
+      .startNewChat(this.agentInfo.id)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: chats => {
+          this.chatHistory = chats;
+          this.shouldScrollToBottom = true;
+        },
+        error: () => this.notificationService.error("Failed to start a new chat"),
+      });
+  }
+
+  public openChatFromHistory(chat: AgentChatSummary): void {
+    if (chat.isCurrent || !this.isAvailable()) {
+      return;
+    }
+    this.agentService
+      .openChat(this.agentInfo.id, chat.id)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: chats => {
+          this.chatHistory = chats;
+          this.shouldScrollToBottom = true;
+        },
+        error: () => this.notificationService.error("Failed to open chat"),
+      });
   }
 
   /**

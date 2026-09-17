@@ -62,6 +62,35 @@ describe("rowToRecord", () => {
     });
   });
 
+  test("maps chat_history and chat_head_id when present", () => {
+    const record = rowToRecord({
+      agent_id: "agent-1",
+      uid: 1,
+      name: "x",
+      model_type: "m",
+      settings: {},
+      workflow_id: null,
+      computing_unit_id: null,
+      chat_history: [
+        {
+          id: "u1",
+          messageId: "m1",
+          stepId: 0,
+          timestamp: 1,
+          role: "user",
+          content: "hi",
+          isBegin: true,
+          isEnd: true,
+        },
+      ],
+      chat_head_id: "u1",
+      created_at: "2026-01-01T00:00:00.000Z",
+    });
+    expect(record.chatHistory).toHaveLength(1);
+    expect(record.chatHistory?.[0].content).toBe("hi");
+    expect(record.chatHeadId).toBe("u1");
+  });
+
   test("treats malformed settings JSON as empty instead of throwing", () => {
     const record = rowToRecord({
       agent_id: "agent-1",

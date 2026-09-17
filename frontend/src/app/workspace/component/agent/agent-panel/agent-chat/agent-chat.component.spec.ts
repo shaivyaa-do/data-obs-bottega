@@ -534,8 +534,8 @@ describe("AgentChatComponent", () => {
       expect(component.systemPrompt).toBe("SYSTEM PROMPT TEXT");
       expect(component.availableTools).toEqual([tool]);
       // ?? defaults for a settings payload with no fields set:
-      expect(component.settingsMaxCharLimit).toBe(20000);
-      expect(component.settingsMaxCellCharLimit).toBe(4000);
+      expect(component.settingsMaxCharLimit).toBe(100000);
+      expect(component.settingsMaxCellCharLimit).toBe(20000);
       expect(component.settingsToolTimeoutSeconds).toBe(120);
       expect(component.settingsExecutionTimeoutMinutes).toBe(10);
       expect(component.settingsMaxSteps).toBe(10);

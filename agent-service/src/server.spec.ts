@@ -453,6 +453,19 @@ describe(`PATCH ${API}/agents/:id/delegate`, () => {
     expect(live.getDelegateConfig()?.computingUnitId).toBe(3);
   });
 
+  test("preserves computingUnitId when a later bind omits it", async () => {
+    fetchSpy = mockRetrieveWorkflow("ok");
+    const created = await readJson<{ id: string }>(await createAgent());
+    await patchJsonAuth(`${API}/agents/${created.id}/delegate`, {
+      workflowId: 7,
+      computingUnitId: 3,
+    });
+
+    const res = await patchJsonAuth(`${API}/agents/${created.id}/delegate`, { workflowId: 7 });
+    expect(res.status).toBe(200);
+    expect(_getAgentForTests(created.id)!.getDelegateConfig()?.computingUnitId).toBe(3);
+  });
+
   test("rebinds an agent from one workflow to another", async () => {
     fetchSpy = mockRetrieveWorkflow("ok");
     const created = await readJson<{ id: string }>(await createAgent());
@@ -527,6 +540,120 @@ describe("agent persistence", () => {
     expect(listed.agents[0].id).toBe(created.id);
     expect(listed.agents[0].name).toBe("durable");
     expect(listed.agents[0].settings?.maxSteps).toBe(3);
+  });
+
+  test("restores chat history after a runtime wipe + hydrate", async () => {
+    const created = await readJson<{ id: string }>(await createAgent({ name: "chatter" }));
+    const agent = _getAgentForTests(created.id)!;
+    agent.restoreChatHistory(
+      [
+        {
+          id: "u1",
+          parentId: "step-initial",
+          messageId: "msg-agent-1-1-1",
+          stepId: 0,
+          timestamp: 1,
+          role: "user",
+          content: "remember me",
+          isBegin: true,
+          isEnd: true,
+        },
+        {
+          id: "a1",
+          parentId: "u1",
+          messageId: "msg-agent-1-1-1",
+          stepId: 1,
+          timestamp: 2,
+          role: "agent",
+          content: "I do",
+          isBegin: true,
+          isEnd: true,
+        },
+      ],
+      "a1"
+    );
+    // Settings PATCH persists the full agent row, including chat history.
+    await patchJson(`${API}/agents/${created.id}/settings`, { maxSteps: 9 });
+
+    _resetRuntimeAgentsForTests();
+    await getJsonAuth(`${API}/agents`);
+
+    const restored = _getAgentForTests(created.id)!;
+    expect(restored.getAllSteps().map(s => s.content)).toEqual(["remember me", "I do"]);
+    expect(restored.getHead()).toBe("a1");
+
+    const stepsRes = await getJson(`${API}/agents/${created.id}/react-steps`);
+    const body = await readJson<{ steps: { content: string }[]; state: string }>(stepsRes);
+    expect(body.steps.map(s => s.content)).toEqual(["remember me", "I do"]);
+  });
+
+  test("clear empties persisted chat history", async () => {
+    const created = await readJson<{ id: string }>(await createAgent({ name: "clear-chat" }));
+    const agent = _getAgentForTests(created.id)!;
+    agent.restoreChatHistory(
+      [
+        {
+          id: "u1",
+          parentId: "step-initial",
+          messageId: "msg-1",
+          stepId: 0,
+          timestamp: 1,
+          role: "user",
+          content: "bye",
+          isBegin: true,
+          isEnd: true,
+        },
+      ],
+      "u1"
+    );
+    await patchJson(`${API}/agents/${created.id}/settings`, { maxSteps: 2 });
+
+    const clearRes = await postJson(`${API}/agents/${created.id}/clear`, {});
+    expect(clearRes.status).toBe(200);
+
+    const record = await _getPersistedRecordForTests(created.id);
+    expect(record?.chatHistory ?? []).toEqual([]);
+    expect(record?.chatHeadId).toBeUndefined();
+  });
+
+  test("new chat archives the current transcript and open restores it", async () => {
+    const created = await readJson<{ id: string }>(await createAgent({ name: "sessions" }));
+    const agent = _getAgentForTests(created.id)!;
+    agent.restoreChatHistory(
+      [
+        {
+          id: "u1",
+          parentId: "step-initial",
+          messageId: "msg-1",
+          stepId: 0,
+          timestamp: 1,
+          role: "user",
+          content: "archive me",
+          isBegin: true,
+          isEnd: true,
+        },
+      ],
+      "u1"
+    );
+    await patchJson(`${API}/agents/${created.id}/settings`, { maxSteps: 2 });
+
+    const newRes = await postJson(`${API}/agents/${created.id}/chats`, {});
+    expect(newRes.status).toBe(200);
+    const afterNew = await readJson<{ chats: { id: string; title: string; isCurrent?: boolean }[]; steps: unknown[] }>(
+      newRes
+    );
+    expect(afterNew.steps).toEqual([]);
+    expect(afterNew.chats).toHaveLength(1);
+    expect(afterNew.chats[0].title).toBe("archive me");
+    const archivedId = afterNew.chats[0].id;
+
+    const openRes = await postJson(`${API}/agents/${created.id}/chats/${archivedId}/open`, {});
+    expect(openRes.status).toBe(200);
+    const opened = await readJson<{ steps: { content: string }[]; chats: { isCurrent?: boolean; title: string }[] }>(
+      openRes
+    );
+    expect(opened.steps.map(s => s.content)).toEqual(["archive me"]);
+    expect(opened.chats.some(c => c.isCurrent && c.title === "archive me")).toBe(true);
   });
 
   test("does not show another user's persisted agents", async () => {

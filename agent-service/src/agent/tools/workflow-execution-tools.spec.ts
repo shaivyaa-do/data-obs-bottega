@@ -61,7 +61,7 @@ function requestBody(spy: ReturnType<typeof spyOn>, callIndex = 0): any {
 }
 
 function cfg(overrides: Partial<ExecutionConfig> = {}): ExecutionConfig {
-  return { userToken: "tok", workflowId: 1, ...overrides };
+  return { userToken: "tok", workflowId: 1, computingUnitId: 1, ...overrides };
 }
 
 // A fetch double resolving to an ok response whose body is the given result.
@@ -87,6 +87,24 @@ afterEach(() => {
 });
 
 describe("executeOperatorAndFormat — guards & validation", () => {
+  test("blocks execution when no computing unit is bound (does not send cuid=0)", async () => {
+    const state = stateWith(makeOperator("op1"));
+    const result = await executeOperatorAndFormat(
+      state,
+      cfg({ computingUnitId: undefined }),
+      "op1"
+    );
+    expect(result).toContain("No computing unit selected");
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  test("blocks execution when computing unit id is zero", async () => {
+    const state = stateWith(makeOperator("op1"));
+    const result = await executeOperatorAndFormat(state, cfg({ computingUnitId: 0 }), "op1");
+    expect(result).toContain("No computing unit selected");
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   test("reports 'no operators' when the workflow is empty", async () => {
     const result = await executeOperatorAndFormat(new WorkflowState(), cfg(), "op1");
     expect(result).toBe("[ERROR] Cannot execute: workflow has no operators.");
@@ -478,6 +496,67 @@ describe("executeOperatorAndFormat — result rendering", () => {
     ]);
   });
 
+  test("injects an explicit truncation notice when the backend marks the result truncated", async () => {
+    const state = stateWith(makeOperator("op1"));
+    resolveFetch(fetchSpy, {
+      success: true,
+      state: "Completed",
+      operators: {
+        op1: {
+          state: "Completed",
+          inputTuples: 0,
+          outputTuples: 100,
+          resultMode: "table",
+          truncated: true,
+          totalRowCount: 100,
+          displayedRows: 4,
+          result: [
+            { __row_index__: 0, city: "A" },
+            { __row_index__: 1, city: "B" },
+            { __row_index__: 98, city: "Y" },
+            { __row_index__: 99, city: "Z" },
+          ],
+        },
+      },
+    });
+
+    const result = await executeOperatorAndFormat(state, cfg(), "op1");
+
+    expect(result).toContain(
+      "WARNING: Result truncated — showing 4 of 100 rows (middle omitted). A missing value may still exist in the full table; raise maxOperatorResultCharLimit or filter/Limit upstream before concluding absence."
+    );
+    expect(result).toContain("...\t...");
+  });
+
+  test("skips chart HTML payloads and tells the agent to use the Result panel", async () => {
+    const state = stateWith(makeOperator("chart1"));
+    resolveFetch(fetchSpy, {
+      success: true,
+      state: "Completed",
+      operators: {
+        chart1: {
+          state: "Completed",
+          inputTuples: 5,
+          outputTuples: 1,
+          resultMode: "visualization",
+          result: [
+            {
+              __is_visualization__: true,
+              "html-content": "<html>" + "x".repeat(5000) + "</html>",
+              title: "kwh by building",
+            },
+          ],
+        },
+      },
+    });
+
+    const result = await executeOperatorAndFormat(state, cfg(), "chart1");
+
+    expect(result).toContain("skipped: visualization content");
+    expect(result).not.toContain("xxxxx");
+    expect(result).toContain("kwh by building");
+  });
+
   test("renders backend row indices, inserting an ellipsis row where they skip", async () => {
     const state = stateWith(makeOperator("op1"));
     resolveFetch(fetchSpy, {
@@ -553,8 +632,8 @@ describe("createExecuteOperatorTool", () => {
 
     expect(getConfig).toHaveBeenCalledTimes(2);
     expect(output).toContain("Executed operator op1");
-    expect(String(fetchSpy.mock.calls[0][0])).toContain("/api/execution/42/0/run");
-    expect(String(fetchSpy.mock.calls[1][0])).toContain("/api/execution/43/0/run");
+    expect(String(fetchSpy.mock.calls[0][0])).toContain("/api/execution/42/1/run");
+    expect(String(fetchSpy.mock.calls[1][0])).toContain("/api/execution/43/1/run");
     expect(onResult).toHaveBeenCalledTimes(2);
     expect(onResult.mock.calls[0][0]).toBe("op1");
   });

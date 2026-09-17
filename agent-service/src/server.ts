@@ -45,7 +45,7 @@ import type {
   AgentSettingsApi,
   ReActStep,
 } from "./types/agent";
-import { AgentState, OperatorResultSerializationMode } from "./types/agent";
+import { AgentState, DEFAULT_AGENT_SETTINGS, INITIAL_STEP_ID, OperatorResultSerializationMode } from "./types/agent";
 import type { WsClientCommand, WsServerEvent } from "./types/ws";
 import { WsServerSnapshotEvent, WsServerStepEvent, WsServerStatusEvent, WsServerErrorEvent } from "./types/ws";
 import type { OperatorResultSummary } from "./types/execution";
@@ -76,6 +76,9 @@ function persistableRecord(agentId: string, agent: TexeraAgent): PersistedAgentR
     settings: sanitizePersistedSettings(info.settings),
     workflowId: info.delegate?.workflowId,
     computingUnitId: info.delegate?.computingUnitId,
+    chatHistory: agent.getAllSteps(),
+    chatHeadId: agent.getHead() === INITIAL_STEP_ID ? undefined : agent.getHead(),
+    chatSessions: agent.getPersistedChatSessions(),
     createdAt: info.createdAt instanceof Date ? info.createdAt.toISOString() : String(info.createdAt),
   };
 }
@@ -111,9 +114,18 @@ async function restoreRecord(
     new Date(record.createdAt)
   );
   if (record.settings) {
+    // Prior defaults (2k / 2k|4k) truncated large tables so the agent wrongly
+    // concluded values were missing. Bump only those legacy defaults on restore;
+    // any other saved value is treated as intentional.
+    const charLimit = record.settings.maxOperatorResultCharLimit;
+    const cellLimit = record.settings.maxOperatorResultCellCharLimit;
     agent.updateSettings({
-      maxOperatorResultCharLimit: record.settings.maxOperatorResultCharLimit,
-      maxOperatorResultCellCharLimit: record.settings.maxOperatorResultCellCharLimit,
+      maxOperatorResultCharLimit:
+        charLimit === 2000 ? DEFAULT_AGENT_SETTINGS.maxOperatorResultCharLimit : charLimit,
+      maxOperatorResultCellCharLimit:
+        cellLimit === 2000 || cellLimit === 4000
+          ? DEFAULT_AGENT_SETTINGS.maxOperatorResultCellCharLimit
+          : cellLimit,
       operatorResultSerializationMode: record.settings.operatorResultSerializationMode
         ? (record.settings.operatorResultSerializationMode as OperatorResultSerializationMode)
         : undefined,
@@ -126,6 +138,10 @@ async function restoreRecord(
       allowedOperatorTypes: record.settings.allowedOperatorTypes,
     });
   }
+  if (record.chatHistory && record.chatHistory.length > 0) {
+    agent.restoreChatHistory(record.chatHistory, record.chatHeadId);
+  }
+  agent.restoreChatSessions(record.chatSessions);
 }
 
 async function restorePersistedAgents(
@@ -200,13 +216,17 @@ async function bindAgentToWorkflow(agent: TexeraAgent, delegateConfig: AgentDele
   }
 
   const workflow = await retrieveWorkflow(delegateConfig.userToken, delegateConfig.workflowId);
+  // Keep a previously bound computing unit when the client omits it (e.g. CU
+  // status not loaded yet on first attach). Otherwise execute falls back to cuid=0.
+  const computingUnitId =
+    delegateConfig.computingUnitId ?? agent.getDelegateConfig()?.computingUnitId;
   agent.getWorkflowState().setWorkflowContent(workflow.content);
   agent.setDelegateConfig({
     userToken: delegateConfig.userToken,
     userInfo: delegateConfig.userInfo,
     workflowId: delegateConfig.workflowId,
     workflowName: workflow.name,
-    computingUnitId: delegateConfig.computingUnitId,
+    computingUnitId,
   });
 }
 
@@ -428,10 +448,43 @@ const agentsRouter = new Elysia({ prefix: "/agents" })
     return { status: "stopping" };
   })
 
-  .post("/:id/clear", ({ params: { id } }) => {
+  .post("/:id/clear", async ({ params: { id } }) => {
     const agent = getAgent(id);
     agent.clearHistory();
+    await persistAgent(id, agent);
     return { status: "cleared" };
+  })
+
+  .get("/:id/chats", ({ params: { id } }) => {
+    const agent = getAgent(id);
+    return { chats: agent.listChatSummaries() };
+  })
+
+  .post("/:id/chats", async ({ params: { id } }) => {
+    const agent = getAgent(id);
+    agent.startNewChat();
+    await persistAgent(id, agent);
+    broadcastToAgentClients(id, new WsServerSnapshotEvent(agent.getState(), agent.getAllSteps(), agent.getHead()));
+    return {
+      chats: agent.listChatSummaries(),
+      steps: agent.getReActSteps(),
+      head: agent.getHead(),
+    };
+  })
+
+  .post("/:id/chats/:chatId/open", async ({ params: { id, chatId }, set }) => {
+    const agent = getAgent(id);
+    if (!agent.openChat(chatId)) {
+      set.status = 404;
+      return { error: "Chat not found" };
+    }
+    await persistAgent(id, agent);
+    broadcastToAgentClients(id, new WsServerSnapshotEvent(agent.getState(), agent.getAllSteps(), agent.getHead()));
+    return {
+      chats: agent.listChatSummaries(),
+      steps: agent.getReActSteps(),
+      head: agent.getHead(),
+    };
   })
 
   .get("/:id/operator-types", ({ params: { id } }) => {
@@ -676,6 +729,12 @@ export function buildApp() {
               agent.setStepCallback(null);
               broadcastToAgentClients(agentId, new WsServerErrorEvent(error.message));
             } finally {
+              // Persist chat so history survives agent-service restart / hydrate.
+              try {
+                await persistAgent(agentId, agent);
+              } catch (persistError) {
+                wsLog.warn({ agentId, err: persistError }, "failed to persist chat history");
+              }
               // The run is over (success or failure) and TexeraAgent.sendMessage has
               // reset the agent to its resting state (AVAILABLE) in its own finally.
               // This status frame is the run-end signal (it also unsticks the client

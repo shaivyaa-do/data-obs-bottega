@@ -42,9 +42,12 @@ export class PostgresAgentPersistence implements AgentPersistence {
 
   async save(record: PersistedAgentRecord): Promise<void> {
     const settings = sanitizePersistedSettings(record.settings);
+    const chatHistory = record.chatHistory ?? [];
+    const chatSessions = record.chatSessions ?? [];
     await this.sql`
       INSERT INTO texera_db.user_agent (
-        agent_id, uid, name, model_type, settings, workflow_id, computing_unit_id, created_at
+        agent_id, uid, name, model_type, settings, workflow_id, computing_unit_id,
+        chat_history, chat_head_id, chat_sessions, created_at
       ) VALUES (
         ${record.agentId},
         ${record.uid},
@@ -53,6 +56,9 @@ export class PostgresAgentPersistence implements AgentPersistence {
         CAST(${JSON.stringify(settings)} AS jsonb),
         ${record.workflowId ?? null},
         ${record.computingUnitId ?? null},
+        CAST(${JSON.stringify(chatHistory)} AS jsonb),
+        ${record.chatHeadId ?? null},
+        CAST(${JSON.stringify(chatSessions)} AS jsonb),
         CAST(${record.createdAt} AS timestamptz)
       )
       ON CONFLICT (agent_id) DO UPDATE SET
@@ -60,13 +66,17 @@ export class PostgresAgentPersistence implements AgentPersistence {
         model_type = EXCLUDED.model_type,
         settings = EXCLUDED.settings,
         workflow_id = EXCLUDED.workflow_id,
-        computing_unit_id = EXCLUDED.computing_unit_id
+        computing_unit_id = EXCLUDED.computing_unit_id,
+        chat_history = EXCLUDED.chat_history,
+        chat_head_id = EXCLUDED.chat_head_id,
+        chat_sessions = EXCLUDED.chat_sessions
     `;
   }
 
   async get(agentId: string): Promise<PersistedAgentRecord | undefined> {
     const rows = (await this.sql`
-      SELECT agent_id, uid, name, model_type, settings, workflow_id, computing_unit_id, created_at
+      SELECT agent_id, uid, name, model_type, settings, workflow_id, computing_unit_id,
+             chat_history, chat_head_id, chat_sessions, created_at
       FROM texera_db.user_agent
       WHERE agent_id = ${agentId}
     `) as UserAgentRow[];
@@ -75,7 +85,8 @@ export class PostgresAgentPersistence implements AgentPersistence {
 
   async listByUid(uid: number): Promise<PersistedAgentRecord[]> {
     const rows = (await this.sql`
-      SELECT agent_id, uid, name, model_type, settings, workflow_id, computing_unit_id, created_at
+      SELECT agent_id, uid, name, model_type, settings, workflow_id, computing_unit_id,
+             chat_history, chat_head_id, chat_sessions, created_at
       FROM texera_db.user_agent
       WHERE uid = ${uid}
       ORDER BY created_at ASC

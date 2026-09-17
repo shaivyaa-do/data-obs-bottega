@@ -214,6 +214,21 @@ class BarChartOpDescSpec extends AnyFlatSpec with BeforeAndAfter with Matchers {
     )
   }
 
+  it should "apply readable Result Panel layout (margins, bar labels, axis styling)" in {
+    // Zero-margin charts clip axis titles against the Result Panel edge and leave
+    // flat default-purple bars with no value labels. Pin the layout knobs that
+    // make the chart readable in the iframe.
+    opDesc.value = "score"
+    opDesc.fields = "name"
+    val code = opDesc.generatePythonCode()
+    code should include("margin=dict(l=64, r=28, t=24, b=72)")
+    code should include("texttemplate='%{x:.2s}' if False else '%{y:.2s}'")
+    code should include("paper_bgcolor='white'")
+    code should include("plot_bgcolor='#f7f8fa'")
+    code should include("marker_color='#3b6ea8'")
+    code should include("automargin=True")
+  }
+
   "BarChartOpDesc" should "round-trip its config fields through the polymorphic base" in {
     opDesc.value = "score"
     opDesc.fields = "name"

@@ -139,11 +139,50 @@ class BarChartOpDesc extends PythonOperatorDescriptor {
          |        ${manipulateTable()}
          |        if not table.empty and $fields != $value:
          |           if $isHorizontalOrientation:
-         |               fig = go.Figure(px.bar(table, y=$fields, x=$value, color=$categoryColumn if $isCategoryColumn else None, pattern_shape=$pattern if $isPatternSelected else None, orientation = 'h'))
+         |               fig = go.Figure(px.bar(table, y=$fields, x=$value, color=$categoryColumn if $isCategoryColumn else None, pattern_shape=$pattern if $isPatternSelected else None, orientation = 'h', text=$value))
          |           else:
-         |               fig = go.Figure(px.bar(table, y=$value, x=$fields, color=$categoryColumn if $isCategoryColumn else None, pattern_shape=$pattern if $isPatternSelected else None))
-         |           fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-         |           html = plotly.io.to_html(fig, include_plotlyjs = 'cdn', auto_play = False)
+         |               fig = go.Figure(px.bar(table, y=$value, x=$fields, color=$categoryColumn if $isCategoryColumn else None, pattern_shape=$pattern if $isPatternSelected else None, text=$value))
+         |           # Readable Result Panel chrome: room for axis titles, clear grid, value labels.
+         |           if not $isCategoryColumn:
+         |               fig.update_traces(marker_color='#3b6ea8', marker_line_width=0, opacity=0.92)
+         |           fig.update_traces(
+         |               texttemplate='%{x:.2s}' if $isHorizontalOrientation else '%{y:.2s}',
+         |               textposition='outside',
+         |               cliponaxis=False,
+         |               textfont=dict(size=12, color='#1f2933')
+         |           )
+         |           fig.update_layout(
+         |               margin=dict(l=64, r=28, t=24, b=72),
+         |               paper_bgcolor='white',
+         |               plot_bgcolor='#f7f8fa',
+         |               font=dict(family='Inter, Helvetica Neue, Arial, sans-serif', size=13, color='#1f2933'),
+         |               bargap=0.28,
+         |               showlegend=$isCategoryColumn,
+         |               legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='left', x=0),
+         |               xaxis=dict(
+         |                   title_standoff=12,
+         |                   automargin=True,
+         |                   showgrid=not $isHorizontalOrientation,
+         |                   gridcolor='#d9dee7',
+         |                   zeroline=False,
+         |                   showline=True,
+         |                   linecolor='#c5ccd6',
+         |                   tickfont=dict(size=12),
+         |                   title_font=dict(size=13, color='#52606d')
+         |               ),
+         |               yaxis=dict(
+         |                   title_standoff=12,
+         |                   automargin=True,
+         |                   showgrid=$isHorizontalOrientation,
+         |                   gridcolor='#d9dee7',
+         |                   zeroline=False,
+         |                   showline=True,
+         |                   linecolor='#c5ccd6',
+         |                   tickfont=dict(size=12),
+         |                   title_font=dict(size=13, color='#52606d')
+         |               )
+         |           )
+         |           html = plotly.io.to_html(fig, include_plotlyjs = 'cdn', auto_play = False, full_html=True, config={'responsive': True, 'displayModeBar': False})
          |           # use latest plotly lib in html
          |           #html = html.replace('https://cdn.plot.ly/plotly-2.3.1.min.js', 'https://cdn.plot.ly/plotly-2.18.2.min.js')
          |        elif $fields == $value:

@@ -24,6 +24,7 @@ import {
   Subject,
   BehaviorSubject,
   catchError,
+  distinctUntilChanged,
   filter,
   map,
   of,
@@ -81,6 +82,15 @@ export interface AgentInfo {
   };
   /** Current agent settings */
   settings?: AgentSettingsApi;
+}
+
+/** One row in the agent chat-history menu. */
+export interface AgentChatSummary {
+  id: string;
+  title: string;
+  updatedAt: string;
+  messageCount: number;
+  isCurrent?: boolean;
 }
 
 /**
@@ -234,6 +244,33 @@ export class AgentService {
     // Sync local cache with backend on service initialization
     // This handles cases where the backend was restarted
     this.syncAgentsWithBackend();
+    // When the user selects (or the UI auto-selects) a computing unit after an
+    // agent was already bound, push the cuid so executeOperator does not use cuid=0.
+    this.computingUnitStatusService
+      .getSelectedComputingUnit()
+      .pipe(
+        map(unit => unit?.computingUnit.cuid),
+        filter((cuid): cuid is number => cuid != null && cuid > 0),
+        distinctUntilChanged()
+      )
+      .subscribe(cuid => this.syncComputingUnitToBoundAgents(cuid));
+  }
+
+  /**
+   * Re-bind each agent that already has a workflow so the server stores the current cuid.
+   */
+  private syncComputingUnitToBoundAgents(_cuid: number): void {
+    for (const [agentId, tracking] of this.agentStateTracking) {
+      const workflowId = tracking.workflowId ?? this.agents.get(agentId)?.delegate?.workflowId;
+      if (workflowId == null) {
+        continue;
+      }
+      this.bindAgentToWorkflow(agentId, workflowId).subscribe({
+        error: () => {
+          /* non-fatal: execute will still surface a clear error if cuid is missing */
+        },
+      });
+    }
   }
 
   /**
@@ -987,6 +1024,57 @@ export class AgentService {
     });
   }
 
+  /** List current + archived chats for the history menu. */
+  public listChats(agentId: string): Observable<AgentChatSummary[]> {
+    return this.http
+      .get<{ chats: AgentChatSummary[] }>(`${this.AGENT_API_BASE}/agents/${agentId}/chats`, this.agentHeaders(agentId))
+      .pipe(
+        map(response => response.chats ?? []),
+        catchError(() => of([]))
+      );
+  }
+
+  /** Archive the active transcript (if any) and start a blank chat. */
+  public startNewChat(agentId: string): Observable<AgentChatSummary[]> {
+    return this.http
+      .post<{ chats: AgentChatSummary[]; steps: any[]; head: string }>(
+        `${this.AGENT_API_BASE}/agents/${agentId}/chats`,
+        {},
+        this.agentHeaders(agentId)
+      )
+      .pipe(
+        map(response => {
+          this.applyChatSwitch(agentId, response.steps ?? [], response.head);
+          return response.chats ?? [];
+        })
+      );
+  }
+
+  /** Open an archived chat and continue it. */
+  public openChat(agentId: string, chatId: string): Observable<AgentChatSummary[]> {
+    return this.http
+      .post<{ chats: AgentChatSummary[]; steps: any[]; head: string }>(
+        `${this.AGENT_API_BASE}/agents/${agentId}/chats/${encodeURIComponent(chatId)}/open`,
+        {},
+        this.agentHeaders(agentId)
+      )
+      .pipe(
+        map(response => {
+          this.applyChatSwitch(agentId, response.steps ?? [], response.head);
+          return response.chats ?? [];
+        })
+      );
+  }
+
+  private applyChatSwitch(agentId: string, apiSteps: any[], head?: string): void {
+    const tracking = this.getOrCreateStateTracking(agentId);
+    const steps = apiSteps.map(s => this.convertApiReActStep(s));
+    tracking.reActStepsSubject.next(steps);
+    if (head) {
+      tracking.headIdSubject.next(head);
+    }
+  }
+
   /**
    * Stop generation for an agent via WebSocket.
    */
@@ -1186,8 +1274,8 @@ export class AgentService {
       .pipe(
         catchError(() =>
           of({
-            maxOperatorResultCharLimit: 20000,
-            maxOperatorResultCellCharLimit: 4000,
+            maxOperatorResultCharLimit: 100000,
+            maxOperatorResultCellCharLimit: 20000,
             toolTimeoutSeconds: 120,
             executionTimeoutMinutes: 10,
             disabledTools: [],

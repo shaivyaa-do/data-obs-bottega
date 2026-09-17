@@ -112,7 +112,10 @@ describe("AgentService", () => {
         { provide: WorkflowPersistService, useValue: workflowPersist },
         {
           provide: ComputingUnitStatusService,
-          useValue: { getSelectedComputingUnitValue: () => selectedUnit },
+          useValue: {
+            getSelectedComputingUnitValue: () => selectedUnit,
+            getSelectedComputingUnit: () => of(null),
+          },
         },
         ...commonTestProviders,
       ],
@@ -1248,8 +1251,8 @@ describe("AgentService", () => {
         .flush("boom", { status: 500, statusText: "Server Error" });
 
       expect(settings).toEqual({
-        maxOperatorResultCharLimit: 20000,
-        maxOperatorResultCellCharLimit: 4000,
+        maxOperatorResultCharLimit: 100000,
+        maxOperatorResultCellCharLimit: 20000,
         toolTimeoutSeconds: 120,
         executionTimeoutMinutes: 10,
         disabledTools: [],

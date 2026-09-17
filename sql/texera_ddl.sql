@@ -706,6 +706,9 @@ CREATE TABLE IF NOT EXISTS user_agent
     settings           JSONB        NOT NULL DEFAULT '{}'::jsonb,
     workflow_id        INT,
     computing_unit_id  INT,
+    chat_history       JSONB        NOT NULL DEFAULT '[]'::jsonb,
+    chat_head_id       VARCHAR(128),
+    chat_sessions      JSONB        NOT NULL DEFAULT '[]'::jsonb,
     created_at         TIMESTAMPTZ  NOT NULL DEFAULT now(),
     FOREIGN KEY (uid) REFERENCES "user"(uid) ON DELETE CASCADE
 );

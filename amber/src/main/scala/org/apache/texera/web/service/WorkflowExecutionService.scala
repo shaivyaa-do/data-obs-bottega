@@ -176,15 +176,16 @@ class WorkflowExecutionService(
 
   override def unsubscribeAll(): Unit = {
     super.unsubscribeAll()
+    // `executeWorkflow` assigns `client` before the four runtime services. A failure
+    // between those assignments leaves a half-built execution published; teardown must
+    // still be null-safe so the next sync/agent run can replace it.
     if (client != null) {
-      // runtime created
       client.shutdown()
-      executionRuntimeService.unsubscribeAll()
-      executionConsoleService.unsubscribeAll()
-      executionStatsService.unsubscribeAll()
-      executionReconfigurationService.unsubscribeAll()
     }
-
+    Option(executionRuntimeService).foreach(_.unsubscribeAll())
+    Option(executionConsoleService).foreach(_.unsubscribeAll())
+    Option(executionStatsService).foreach(_.unsubscribeAll())
+    Option(executionReconfigurationService).foreach(_.unsubscribeAll())
   }
 
 }
